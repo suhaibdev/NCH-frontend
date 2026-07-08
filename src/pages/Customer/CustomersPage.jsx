@@ -5,13 +5,20 @@ import { Link } from 'react-router-dom';
 
 import '../AdminCommon.css';
 
+const API_BASE_URL = 'https://nch-backend-63da.onrender.com/api';
+
+const initialFormState = {
+  name: '',
+  email: '',
+  contactNumber: '',
+  gst: ''
+};
+
 const CustomersPage = () => {
   const [customers, setCustomers] = useState([]);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [contactNumber, setContactNumber] = useState('');
-  const [gst, setGst] = useState('');
   const [editId, setEditId] = useState(null);
+  const [formData, setFormData] = useState(initialFormState);
+  const [isLoading, setIsLoading] = useState(false);
   const [searchName, setSearchName] = useState('');
   const [searchGst, setSearchGst] = useState('');
 
@@ -21,72 +28,92 @@ const CustomersPage = () => {
 
   const fetchCustomers = async () => {
     try {
-      const res = await axios.get('https://nch-backend-63da.onrender.com/api/customers');
+      setIsLoading(true);
+      const res = await axios.get(`${API_BASE_URL}/customers`);
       setCustomers(res.data);
     } catch (error) {
       console.error('Error fetching customers:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  const resetForm = () => {
+    setFormData(initialFormState);
+    setEditId(null);
+  };
+
   const handleAddOrUpdate = async () => {
+    if (!formData.name || !formData.email) {
+      alert('Name and Email are required');
+      return;
+    }
+
     try {
+      setIsLoading(true);
       if (editId) {
-        if (!name || !email) {
-          alert('Name and Email are required');
-          return;
-        }
-        await axios.put(`https://nch-backend-63da.onrender.com/api/customers/${editId}`, {
-          name, email, contactNumber, gst
-        });
+        await axios.put(`${API_BASE_URL}/customers/${editId}`, formData);
         alert('Customer updated successfully');
       } else {
-        await axios.post('https://nch-backend-63da.onrender.com/api/customers', { 
-          name, email, contactNumber, gst 
-        });
+        await axios.post(`${API_BASE_URL}/customers`, formData);
+        alert('Customer added successfully');
       }
-      setName('');
-      setEmail('');
-      setContactNumber('');
-      setGst('');
-      setEditId(null);
+      resetForm();
       fetchCustomers();
     } catch (error) {
       console.error('Error saving customer:', error);
       alert(`Failed to save customer: ${error.response?.data?.message || error.message}`);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleDeleteCustomer = async (id) => {
     if (window.confirm('Are you sure?')) {
       try {
-        await axios.delete(`https://nch-backend-63da.onrender.com/api/customers/${id}`);
+        setIsLoading(true);
+        await axios.delete(`${API_BASE_URL}/customers/${id}`);
         fetchCustomers();
         alert('Customer deleted successfully');
       } catch (error) {
         console.error('Error deleting customer:', error);
         alert(`Failed to delete customer: ${error.response?.data?.message || error.message}`);
+      } finally {
+        setIsLoading(false);
       }
     }
   };
 
   const handleEdit = (customer) => {
     setEditId(customer._id);
-    setName(customer.name);
-    setEmail(customer.email);
-    setContactNumber(customer.contactNumber);
-    setGst(customer.gst);
+    setFormData({
+      name: customer.name || '',
+      email: customer.email || '',
+      contactNumber: customer.contactNumber || '',
+      gst: customer.gst || ''
+    });
+  };
+
+  const handleFormChange = (e) => {
+    const { name, value } = e.target;
+    let processedValue = value;
+    if (name === 'name') {
+        processedValue = value.replace(/\b\w/g, char => char.toUpperCase());
+    } else if (name === 'gst') {
+        processedValue = value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    } else if (name === 'contactNumber') {
+        processedValue = value.replace(/\D/g, '');
+    }
+    setFormData(prev => ({ ...prev, [name]: processedValue }));
   };
 
   // Filter logic for Name and GST Number
-  const filteredCustomers = customers.filter(cust => {
+  const filteredCustomers = useMemo(() => customers.filter(cust => {
     const matchName = cust.name?.toLowerCase().includes(searchName.toLowerCase());
-    
-    // GST might be undefined or null for some customers, so we handle that safely
     const custGst = cust.gst || '';
     const matchGst = custGst.toLowerCase().includes(searchGst.toLowerCase());
-    
     return matchName && matchGst;
-  });
+  }), [customers, searchName, searchGst]);
 
   return (
     <div className="ep-container">
@@ -94,46 +121,34 @@ const CustomersPage = () => {
       <Link to="/admin" className="ep-btn ep-btn-primary" style={{ marginBottom: '16px', display: 'inline-block', textDecoration: 'none' }}>
         Back
       </Link>
+
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '16px' }}>
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value.replace(/\b\w/g, char => char.toUpperCase()))}
-          placeholder="Name"
-          className="ep-input"
-        />
-        <input
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email"
-          className="ep-input"
-        />
+        <input name="name" value={formData.name} onChange={handleFormChange} placeholder="Name" className="ep-input" />
+        <input name="email" value={formData.email} onChange={handleFormChange} placeholder="Email" className="ep-input" />
         <input
           maxLength="15"
-          value={gst}
-          onChange={(e) => setGst(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))}
+          name="gst"
+          value={formData.gst}
+          onChange={handleFormChange}
           placeholder="GST"
           className="ep-input"
         />
         <input
           type="tel"
           maxLength="10"
-          value={contactNumber}
-          onChange={(e) => setContactNumber(e.target.value.replace(/\D/g, ''))}
+          name="contactNumber"
+          value={formData.contactNumber}
+          onChange={handleFormChange}
           placeholder="Contact Number"
           className="ep-input"
         />
-        <button onClick={handleAddOrUpdate} className="ep-btn ep-btn-primary" style={{ margin: 0 }}>
+        <button onClick={handleAddOrUpdate} disabled={isLoading} className="ep-btn ep-btn-primary" style={{ margin: 0 }}>
           {editId ? 'Update' : 'Add'}
         </button>
         {editId && (
           <button
-            onClick={() => {
-              setEditId(null);
-              setName('');
-              setEmail('');
-              setContactNumber('');
-              setGst('');
-            }}
+            onClick={resetForm}
+            disabled={isLoading}
             className="ep-btn ep-btn-secondary"
             style={{ margin: 0 }}
           >
@@ -142,7 +157,7 @@ const CustomersPage = () => {
         )}
       </div>
 
-      {customers.length === 0 ? (
+      {customers.length === 0 && !isLoading ? (
         <p style={{ marginTop: '24px', color: '#888' }}>No customers yet</p>
       ) : (
         <>
@@ -168,7 +183,7 @@ const CustomersPage = () => {
             </button>
           </div>
 
-          {filteredCustomers.length === 0 ? (
+          {isLoading ? <p>Loading...</p> : filteredCustomers.length === 0 ? (
             <p style={{ color: '#888' }}>No matching customers found.</p>
           ) : (
             <div style={{ overflowX: 'auto', width: '100%' }}>
