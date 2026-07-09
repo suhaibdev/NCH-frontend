@@ -3,7 +3,7 @@ import React from 'react';
 const Products = () => {
   // Mock data array for dynamic rendering
   const productList = [
-    { id: 1, name: 'Cotton Crepe Bandage', img: '/nch-client-rsbuild/src/images/crepe-bandage.jpg', desc: 'High elasticity and comfortable support for joints.' },
+    { id: 1, name: 'Cotton Crepe Bandage', img: 'assets/images/crepe-bandage.jpg', desc: 'High elasticity and comfortable support for joints.' },
     { id: 2, name: 'Absorbent Gauze Roll', img: '/assets/images/gauze-roll.jpg', desc: '100% pure cotton, highly absorbent and sterile.' },
     { id: 3, name: 'Medical Bandage', img: '/assets/images/hero-bandage.jpg', desc: 'Standard medical grade bandages for daily clinic use.' },
   ];
