@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import API_BASE_URL from '../../config/api';
 import './AttendancePage.css';
 
 // Returns the current month as a "YYYY-MM" string, e.g. "2026-06".
@@ -37,7 +38,7 @@ const AttendancePage = () => {
 
   const fetchEmployees = async () => {
     try {
-      const res = await axios.get('https://nch-backend-63da.onrender.com/api/employees');
+      const res = await axios.get(`${API_BASE_URL}/employees`);
       setEmployees(res.data.filter(e => e.isActive));
     } catch (err) {
       console.error('Failed to fetch employees:', err.message || err);
@@ -54,7 +55,7 @@ const AttendancePage = () => {
     const startDate = `${monthStr}-01`;
     const endDate = `${monthStr}-${String(daysInMonth).padStart(2, '0')}`;
     try {
-      const res = await axios.get('https://nch-backend-63da.onrender.com/api/employee/attendance/range', {
+      const res = await axios.get(`${API_BASE_URL}/attendance/range`, {
         params: { startDate, endDate },
       });
       setMonthRecords(res.data);
@@ -77,7 +78,7 @@ const AttendancePage = () => {
       const finalOvertime = present ? overtime : 0;
       
       if (editRecordId) {
-        await axios.put(`https://nch-backend-63da.onrender.com/api/employee/attendance/${editRecordId}`, {
+        await axios.put(`${API_BASE_URL}/attendance/${editRecordId}`, {
           present,
           workHours: finalWorkHours,
           overtime: finalOvertime,
@@ -85,7 +86,7 @@ const AttendancePage = () => {
           notes
         });
       } else {
-        await axios.post('https://nch-backend-63da.onrender.com/api/employee/attendance', {
+        await axios.post(`${API_BASE_URL}/attendance`, {
           employeeId, date, present,
           workHours: finalWorkHours,
           overtime: finalOvertime,

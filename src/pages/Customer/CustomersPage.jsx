@@ -1,11 +1,10 @@
 // File: client/src/pages/CustomersPage.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import API_BASE_URL from '../../config/api';
 
 import '../AdminCommon.css';
-
-const API_BASE_URL = 'https://nch-backend-63da.onrender.com/api';
 
 const initialFormState = {
   name: '',

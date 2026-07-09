@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import API_BASE_URL from '../../config/api';
 
 import '../AdminCommon.css';
 const EmployeesPage = () => {
@@ -16,7 +17,7 @@ const EmployeesPage = () => {
 
   const fetchEmployees = async () => {
     try {
-      const res = await axios.get('https://nch-backend-63da.onrender.com/api/employees');
+      const res = await axios.get(`${API_BASE_URL}/employees`);
       setEmployees(res.data);
     } catch (err) {
       console.error('Failed to fetch employees:', err.message || err);
@@ -25,11 +26,11 @@ const EmployeesPage = () => {
 
   const handleAddOrUpdate = async () => {
      if (editId) {
-      await axios.put(`https://nch-backend-63da.onrender.com/api/employees/${editId}`, {
+      await axios.put(`${API_BASE_URL}/employees/${editId}`, {
         name, contactNumber, baseDailySalary, address
       });
     } else {
-      await axios.post('https://nch-backend-63da.onrender.com/api/employees', {
+      await axios.post(`${API_BASE_URL}/employees`, {
         name, contactNumber, baseDailySalary, address
       });
     }
@@ -50,7 +51,7 @@ const EmployeesPage = () => {
   };
   const handleDelete = (emp) => {
     if (window.confirm(`Are you sure you want to delete ${emp.name}?`)) {
-      axios.delete(`https://nch-backend-63da.onrender.com/api/employees/${emp._id}`)
+      axios.delete(`${API_BASE_URL}/employees/${emp._id}`)
         .then(() => {
           fetchEmployees();
         })
