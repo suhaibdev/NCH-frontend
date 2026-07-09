@@ -1,12 +1,10 @@
 // API Configuration - centralized for all frontend API calls
 // This allows easy switching between development and production environments
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  "https://nch-backend-1.onrender.com/api";
 
-if (!API_BASE_URL) {
-  throw new Error(
-    "VITE_API_BASE_URL is missing. Please configure environment variables."
-  );
-}
+console.log("API URL:", API_BASE_URL);
 
 export default API_BASE_URL;
