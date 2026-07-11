@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import API_BASE_URL from '../../config/api';
@@ -17,6 +17,9 @@ const PayoutPage = () => {
   const [searchName, setSearchName] = useState('');
   const [searchDate, setSearchDate] = useState('');
   const [selectedPayouts, setSelectedPayouts] = useState([]);
+  const [isPreviewing, setIsPreviewing] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+  const creatingRef = useRef(false);
 
   useEffect(() => {
     fetchEmployees();
@@ -44,28 +47,43 @@ const PayoutPage = () => {
 
   const handlePreview = async (e) => {
     e.preventDefault();
+
+    if (isPreviewing) return;
+
     setPreview(null);
     setMessage('');
+
     if (!employeeId || !startDate || !endDate) {
       setMessage('Please select employee and date range.');
       return;
     }
+
+    setIsPreviewing(true);
+
     try {
-      const res = await axios.post(`${API_BASE_URL}/payout`, {
-        employeeId, startDate, endDate
+      const res = await axios.post(`${API_BASE_URL}/payout/preview`, {
+        employeeId,
+        startDate,
+        endDate
       });
+
       setPreview(res.data);
     } catch (err) {
-      setMessage(err.response?.data?.message || 'Error calculating payout.');
+      console.error(err);
+      setMessage(err.response?.data?.message || 'Error calculating payout');
+    } finally {
+      setIsPreviewing(false);
     }
   };
 
   const handleCreatePayout = async () => {
+    if (!preview || creatingRef.current) return;
+
+    creatingRef.current = true;
+    setIsCreating(true);
     setMessage('');
-    if (!preview) return;
+
     try {
-      // The server recalculates all amounts from attendance itself,
-      // so we only need to send the period, deductions and payment method.
       await axios.post(`${API_BASE_URL}/payout`, {
         employeeId,
         startDate,
@@ -73,6 +91,7 @@ const PayoutPage = () => {
         deductions,
         paymentMethod
       });
+
       setMessage('Payout created successfully!');
       setPreview(null);
       setEmployeeId('');
@@ -83,6 +102,9 @@ const PayoutPage = () => {
       await fetchPayouts();
     } catch (err) {
       setMessage(err.response?.data?.message || 'Error creating payout.');
+    } finally {
+      creatingRef.current = false;
+      setIsCreating(false);
     }
   };
 
@@ -165,7 +187,7 @@ const PayoutPage = () => {
           <option value="">Select Employee</option>
           {employees.map(emp => (
             <option key={emp._id} value={emp._id}>
-              {emp.name} ({emp.workType})
+              {emp.name}{emp.workType ? ` (${emp.workType})` : ''}
             </option>
           ))}
         </select>
@@ -181,7 +203,14 @@ const PayoutPage = () => {
           onChange={e => setEndDate(e.target.value)}
           className="ep-input"
         />
-        <button type="submit" className="ep-btn ep-btn-primary" style={{ margin: 0, padding: '0 16px', display: 'flex', alignItems: 'center' }}>Preview</button>
+        <button
+          type="submit"
+          className="ep-btn ep-btn-primary"
+          style={{ margin: 0, padding: '0 16px', display: 'flex', alignItems: 'center' }}
+          disabled={isPreviewing}
+        >
+          {isPreviewing ? 'Previewing...' : 'Preview'}
+        </button>
       </form>
       {message && <div className="payout-message">{message}</div>}
       {preview && (
@@ -226,8 +255,13 @@ const PayoutPage = () => {
           <div>
             <b>Gross Amount: ₹{(preview.grossAmount - deductions).toFixed(2)}</b>
           </div>
-          <button className="ep-btn ep-btn-primary" onClick={handleCreatePayout} type="button">
-            Create Payout
+          <button
+            className="ep-btn ep-btn-primary"
+            onClick={handleCreatePayout}
+            type="button"
+            disabled={isCreating}
+          >
+            {isCreating ? 'Creating...' : 'Create Payout'}
           </button>
         </div>
       )}
