@@ -1,8 +1,8 @@
 import React from 'react';
 
 import crepeBandage from '../assets/images/crepe-bandage.jpg';
-import gauzeRoll from '../assets/images/gauze-roll.jpg';
-import heroBandage from '../assets/images/hero-bandage.jpg';
+import gauzeCloth from '../assets/images/gauze-cloth.jpg';
+import rollBandage from '../assets/images/roll-bandage.jpg';
 
 const Products = () => {
 
@@ -15,14 +15,14 @@ const Products = () => {
     },
     {
       id: 2,
-      name: 'Absorbent Gauze Roll',
-      img: gauzeRoll,
-      desc: '100% pure cotton, highly absorbent and sterile.'
+      name: 'Absorbent Gauze Cloth',
+      img: gauzeCloth,
+      desc: 'Pure cotton, highly absorbent and non-sterile.'
     },
     {
       id: 3,
-      name: 'Medical Bandage',
-      img: heroBandage,
+      name: 'Roll Bandage',
+      img: rollBandage,
       desc: 'Standard medical grade bandages for daily clinic use.'
     }
   ];
