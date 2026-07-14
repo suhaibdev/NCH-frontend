@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import { Link } from 'react-router-dom';
-import API_BASE_URL from '../../config/api';
+import api from '../../config/axios';
 import './AttendancePage.css';
 
 // Returns the current month as a "YYYY-MM" string, e.g. "2026-06".
@@ -38,7 +37,7 @@ const AttendancePage = () => {
 
   const fetchEmployees = async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/employees`);
+      const res = await api.get('/employees');
       setEmployees(res.data.filter(e => e.isActive));
     } catch (err) {
       console.error('Failed to fetch employees:', err.message || err);
@@ -55,7 +54,7 @@ const AttendancePage = () => {
     const startDate = `${monthStr}-01`;
     const endDate = `${monthStr}-${String(daysInMonth).padStart(2, '0')}`;
     try {
-      const res = await axios.get(`${API_BASE_URL}/attendance/range`, {
+      const res = await api.get('/attendance/range', {
         params: { startDate, endDate },
       });
       setMonthRecords(res.data);
@@ -78,7 +77,7 @@ const AttendancePage = () => {
       const finalOvertime = present ? overtime : 0;
       
       if (editRecordId) {
-        await axios.put(`${API_BASE_URL}/attendance/${editRecordId}`, {
+        await api.put(`/attendance/${editRecordId}`, {
           present,
           workHours: finalWorkHours,
           overtime: finalOvertime,
@@ -86,7 +85,7 @@ const AttendancePage = () => {
           notes
         });
       } else {
-        await axios.post(`${API_BASE_URL}/attendance`, {
+        await api.post('/attendance', {
           employeeId, date, present,
           workHours: finalWorkHours,
           overtime: finalOvertime,
@@ -150,7 +149,7 @@ const AttendancePage = () => {
   return (
     <div className="ep-container">
       <h2 className="ep-title">Mark Attendance</h2>
-      <Link to="/admin" className="ep-btn ep-btn-primary" style={{ marginBottom: '16px', display: 'inline-block', textDecoration: 'none' }}>
+      <Link to="/admin/dashboard" className="ep-btn ep-btn-primary" style={{ marginBottom: '16px', display: 'inline-block', textDecoration: 'none' }}>
         Back
       </Link>
       <form className="ep-form" onSubmit={handleSubmit} style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '24px' }}>

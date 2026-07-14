@@ -1,8 +1,18 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { getUser, isAuthenticated, logout } from '../config/auth';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
+  const user = getUser();
+  const loggedIn = isAuthenticated();
+
+  const handleLogout = () => {
+    logout();
+    setIsOpen(false);
+    navigate('/login');
+  };
 
   return (
     <header className="navbar">
@@ -18,7 +28,17 @@ const Navbar = () => {
         <nav className={`nav-links ${isOpen ? 'open' : ''}`}>
           <a href="/#hero" onClick={() => setIsOpen(false)}>Home</a>
           <a href="/#products" onClick={() => setIsOpen(false)}>Products</a>
-          <Link to="/admin" onClick={() => setIsOpen(false)}>Admin Portal</Link>
+          {loggedIn && user?.role === 'admin' ? (
+            <>
+              <Link to="/admin/dashboard" onClick={() => setIsOpen(false)}>Admin Dashboard</Link>
+              <Link to="/admin/employees" onClick={() => setIsOpen(false)}>Employees</Link>
+              <Link to="/admin/attendance" onClick={() => setIsOpen(false)}>Attendance</Link>
+              <Link to="/admin/payout" onClick={() => setIsOpen(false)}>Payout</Link>
+              <button type="button" onClick={handleLogout}>Logout</button>
+            </>
+          ) : (
+            <Link to="/login" onClick={() => setIsOpen(false)}>Login</Link>
+          )}
         </nav>
       </div>
     </header>

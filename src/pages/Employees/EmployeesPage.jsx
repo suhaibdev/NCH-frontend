@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { Link } from 'react-router-dom';
-import API_BASE_URL from '../../config/api';
+import api from '../../config/axios';
 
 import '../AdminCommon.css';
 const EmployeesPage = () => {
@@ -17,7 +16,7 @@ const EmployeesPage = () => {
 
   const fetchEmployees = async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/employees`);
+      const res = await api.get('/employees');
       setEmployees(res.data);
     } catch (err) {
       console.error('Failed to fetch employees:', err.message || err);
@@ -26,11 +25,11 @@ const EmployeesPage = () => {
 
   const handleAddOrUpdate = async () => {
      if (editId) {
-      await axios.put(`${API_BASE_URL}/employees/${editId}`, {
+      await api.put(`/employees/${editId}`, {
         name, contactNumber, baseDailySalary, address
       });
     } else {
-      await axios.post(`${API_BASE_URL}/employees`, {
+      await api.post('/employees', {
         name, contactNumber, baseDailySalary, address
       });
     }
@@ -51,7 +50,7 @@ const EmployeesPage = () => {
   };
   const handleDelete = (emp) => {
     if (window.confirm(`Are you sure you want to delete ${emp.name}?`)) {
-      axios.delete(`${API_BASE_URL}/employees/${emp._id}`)
+      api.delete(`/employees/${emp._id}`)
         .then(() => {
           fetchEmployees();
         })
@@ -64,7 +63,7 @@ const EmployeesPage = () => {
   return (
     <div className="ep-container">
       <h2 className="ep-title">Employees</h2>
-      <Link to="/admin" className="ep-btn ep-btn-primary" style={{ marginBottom: '16px', display: 'inline-block', textDecoration: 'none' }}>
+      <Link to="/admin/dashboard" className="ep-btn ep-btn-primary" style={{ marginBottom: '16px', display: 'inline-block', textDecoration: 'none' }}>
         Back
       </Link>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '16px' }}>

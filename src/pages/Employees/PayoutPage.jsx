@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import axios from 'axios';
 import { Link } from 'react-router-dom';
-import API_BASE_URL from '../../config/api';
+import api from '../../config/axios';
 import './PayoutPage.css';
 
 const PayoutPage = () => {
@@ -28,7 +27,7 @@ const PayoutPage = () => {
 
   const fetchEmployees = async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/employees`);
+      const res = await api.get('/employees');
       setEmployees(res.data.filter(e => e.isActive));
     } catch (err) {
       console.error('Failed to fetch employees:', err.message || err);
@@ -37,7 +36,7 @@ const PayoutPage = () => {
 
   const fetchPayouts = async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/payout`);
+      const res = await api.get('/payout');
       setPayouts(res.data);
       setSelectedPayouts([]); // Clear selection when refetching
     } catch (err) {
@@ -61,7 +60,7 @@ const PayoutPage = () => {
     setIsPreviewing(true);
 
     try {
-      const res = await axios.post(`${API_BASE_URL}/payout/preview`, {
+      const res = await api.post('/payout/preview', {
         employeeId,
         startDate,
         endDate
@@ -84,7 +83,7 @@ const PayoutPage = () => {
     setMessage('');
 
     try {
-      await axios.post(`${API_BASE_URL}/payout`, {
+      await api.post('/payout', {
         employeeId,
         startDate,
         endDate,
@@ -111,7 +110,7 @@ const PayoutPage = () => {
   const handleDeletePayout = async (id) => {
     if (window.confirm('Are you sure you want to delete this payout record?')) {
       try {
-        await axios.delete(`${API_BASE_URL}/payout/${id}`);
+        await api.delete(`/payout/${id}`);
         await fetchPayouts();
       } catch (err) {
         alert(err.response?.data?.message || 'Error deleting payout.');
@@ -124,7 +123,7 @@ const PayoutPage = () => {
     if (window.confirm(`Are you sure you want to delete ${selectedPayouts.length} selected payout(s)?`)) {
       try {
         await Promise.all(
-          selectedPayouts.map(id => axios.delete(`${API_BASE_URL}/payout/${id}`))
+          selectedPayouts.map(id => api.delete(`/payout/${id}`))
         );
         await fetchPayouts();
       } catch (err) {
@@ -175,7 +174,7 @@ const PayoutPage = () => {
   return (
     <div className="ep-container">
       <h2 className="ep-title">Employee Payouts</h2>
-      <Link to="/admin" className="ep-btn ep-btn-primary" style={{ marginBottom: '16px', display: 'inline-block', textDecoration: 'none' }}>
+      <Link to="/admin/dashboard" className="ep-btn ep-btn-primary" style={{ marginBottom: '16px', display: 'inline-block', textDecoration: 'none' }}>
         Back
       </Link>
       <form className="payout-form" onSubmit={handlePreview} style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'stretch' }}>
@@ -356,7 +355,7 @@ const PayoutPage = () => {
                     onChange={async e => {
                       const newStatus = e.target.value;
                       try {
-                        await axios.patch(`${API_BASE_URL}/payout/${p._id}/status`, { status: newStatus });
+                        await api.patch(`/payout/${p._id}/status`, { status: newStatus });
                         await fetchPayouts();
                       } catch(err) {
                         alert(err.response?.data?.message || 'Error updating status.');

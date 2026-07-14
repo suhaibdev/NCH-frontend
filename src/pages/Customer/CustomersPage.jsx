@@ -1,8 +1,7 @@
 // File: client/src/pages/CustomersPage.js
 import React, { useState, useEffect, useMemo } from 'react';
-import axios from 'axios';
 import { Link } from 'react-router-dom';
-import API_BASE_URL from '../../config/api';
+import api from '../../config/axios';
 
 import '../AdminCommon.css';
 
@@ -28,7 +27,7 @@ const CustomersPage = () => {
   const fetchCustomers = async () => {
     try {
       setIsLoading(true);
-      const res = await axios.get(`${API_BASE_URL}/customers`);
+      const res = await api.get('/customers');
       setCustomers(res.data);
     } catch (error) {
       console.error('Error fetching customers:', error);
@@ -51,10 +50,10 @@ const CustomersPage = () => {
     try {
       setIsLoading(true);
       if (editId) {
-        await axios.put(`${API_BASE_URL}/customers/${editId}`, formData);
+        await api.put(`/customers/${editId}`, formData);
         alert('Customer updated successfully');
       } else {
-        await axios.post(`${API_BASE_URL}/customers`, formData);
+        await api.post('/customers', formData);
         alert('Customer added successfully');
       }
       resetForm();
@@ -71,7 +70,7 @@ const CustomersPage = () => {
     if (window.confirm('Are you sure?')) {
       try {
         setIsLoading(true);
-        await axios.delete(`${API_BASE_URL}/customers/${id}`);
+        await api.delete(`/customers/${id}`);
         fetchCustomers();
         alert('Customer deleted successfully');
       } catch (error) {
@@ -117,7 +116,7 @@ const CustomersPage = () => {
   return (
     <div className="ep-container">
       <h2 className="ep-title">Customers</h2>
-      <Link to="/admin" className="ep-btn ep-btn-primary" style={{ marginBottom: '16px', display: 'inline-block', textDecoration: 'none' }}>
+      <Link to="/admin/dashboard" className="ep-btn ep-btn-primary" style={{ marginBottom: '16px', display: 'inline-block', textDecoration: 'none' }}>
         Back
       </Link>
 

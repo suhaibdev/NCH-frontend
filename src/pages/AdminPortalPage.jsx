@@ -13,10 +13,10 @@ const AdminPortalPage = () => {
           <div className="container">
             <h2 className="section-title">Employee & Admin Portal</h2>
             <div className="home-links">
-              <Link to="/employees" className="home-link home-link-blue">Employees</Link>
-              <Link to="/employees/attendance" className="home-link home-link-purple">Attendance</Link>
-              <Link to="/customers" className="home-link home-link-green">Customers</Link>
-              <Link to="/employees/payout" className="home-link home-link-green">Payouts</Link>
+              <Link to="/admin/employees" className="home-link home-link-blue">Employees</Link>
+              <Link to="/admin/attendance" className="home-link home-link-purple">Attendance</Link>
+              <Link to="/admin/customers" className="home-link home-link-green">Customers</Link>
+              <Link to="/admin/payout" className="home-link home-link-green">Payouts</Link>
             </div>
           </div>
         </section>
