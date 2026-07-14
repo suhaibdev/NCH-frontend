@@ -11,6 +11,7 @@ import AttendancePage from "./pages/Employees/Attendance";
 import PayoutPage from "./pages/Employees/PayoutPage";
 
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminLayout from "./components/AdminLayout";
 
 const App = () => {
   return (
@@ -30,12 +31,14 @@ const App = () => {
         />
         
         {/* Protected Admin Routes */}
-        <Route element={<ProtectedRoute />}>
-          <Route path="/admin/dashboard" element={<AdminPortalPage />} />
-          <Route path="/admin/employees" element={<EmployeesPage />} />
-          <Route path="/admin/customers" element={<CustomersPage />} />
-          <Route path="/admin/attendance" element={<AttendancePage />} />
-          <Route path="/admin/payout" element={<PayoutPage />} />
+        <Route element={<ProtectedRoute />}> {/* This handles authentication */}
+          <Route element={<AdminLayout />}> {/* This handles the persistent layout */}
+            <Route path="/admin/dashboard" element={<AdminPortalPage />} />
+            <Route path="/admin/employees" element={<EmployeesPage />} />
+            <Route path="/admin/customers" element={<CustomersPage />} />
+            <Route path="/admin/attendance" element={<AttendancePage />} />
+            <Route path="/admin/payout" element={<PayoutPage />} />
+          </Route>
         </Route>
         
         
