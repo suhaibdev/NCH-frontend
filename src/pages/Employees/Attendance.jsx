@@ -73,8 +73,17 @@ const AttendancePage = () => {
     try {
       // An absent employee always saves as 0 hours and 0 overtime,
       // even though the form boxes are left blank.
-      const finalWorkHours = present ? workHours : 0;
-      const finalOvertime = present ? overtime : 0;
+        const finalWorkHours = present
+          ? (workHours === '' || workHours === null || workHours === undefined
+              ? 8
+              : Number(workHours))
+          : 0;
+
+        const finalOvertime = present
+          ? (overtime === '' || overtime === null || overtime === undefined
+              ? 0
+              : Number(overtime))
+          : 0;
       
       if (editRecordId) {
         await api.put(`/attendance/${editRecordId}`, {
