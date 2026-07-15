@@ -122,7 +122,11 @@ const AttendancePage = () => {
       setEmployeeId(emp._id);
       setDate(rec.date ? new Date(rec.date).toISOString().split('T')[0] : fullDate);
       setPresent(rec.present);
-      setWorkHours(rec.workHours ?? '');
+      setWorkHours(
+        rec.present
+          ? (rec.workHours ?? 8)
+          : ''
+       );
       setOvertime(rec.overtime ?? '');
       setAdvancePayment(rec.advancePayment ?? '');
       setNotes(rec.notes ?? '');
