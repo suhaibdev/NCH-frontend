@@ -45,12 +45,7 @@ const AdminPortalPage = () => {
         </section>
       </main>
 
-      <footer className="footer">
-        <p>
-          &copy; {new Date().getFullYear()} New Calcutta Handloom.
-          All rights reserved.
-        </p>
-      </footer>
+      
 
     </div>
   );
