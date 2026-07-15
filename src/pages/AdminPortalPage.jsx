@@ -6,46 +6,56 @@ const AdminPortalPage = () => {
   return (
     <div className="landing-page">
 
-      <main 
-        style={{ 
-          minHeight: 'calc(100vh - 140px)', 
-          display: 'flex', 
-          alignItems: 'center' 
+      <section
+        className="admin-portal"
+        style={{
+          minHeight: 'calc(100vh - 220px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: 'transparent'
         }}
       >
-        <section 
-          className="admin-portal" 
-          style={{ width: '100%', backgroundColor: 'transparent' }}
-        >
-          <div className="container">
+        <div className="container">
 
-            <h2 className="section-title">
-              Employee & Admin Portal
-            </h2>
+          <h2 className="section-title">
+            Employee & Admin Portal
+          </h2>
 
-            <div className="home-links">
-              <Link to="/admin/employees" className="home-link home-link-blue">
-                Employees
-              </Link>
+          <div className="home-links">
 
-              <Link to="/admin/attendance" className="home-link home-link-purple">
-                Attendance
-              </Link>
+            <Link
+              to="/admin/employees"
+              className="home-link home-link-blue"
+            >
+              Employees
+            </Link>
 
-              <Link to="/admin/customers" className="home-link home-link-green">
-                Customers
-              </Link>
+            <Link
+              to="/admin/attendance"
+              className="home-link home-link-purple"
+            >
+              Attendance
+            </Link>
 
-              <Link to="/admin/payout" className="home-link home-link-green">
-                Payouts
-              </Link>
-            </div>
+            <Link
+              to="/admin/customers"
+              className="home-link home-link-green"
+            >
+              Customers
+            </Link>
+
+            <Link
+              to="/admin/payout"
+              className="home-link home-link-green"
+            >
+              Payouts
+            </Link>
 
           </div>
-        </section>
-      </main>
 
-      
+        </div>
+      </section>
 
     </div>
   );
