@@ -1,12 +1,24 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import Navbar from '../pages/Navbar'; // Assuming Navbar.jsx is in src/pages
+import Navbar from './Navbar';
 
 const AdminLayout = () => {
   return (
-    <div>
+    <div className="app-layout">
+
       <Navbar />
-      <Outlet /> {/* Child routes will render here */}
+
+      <main>
+        <Outlet />
+      </main>
+
+      <footer className="footer">
+        <p>
+          © {new Date().getFullYear()} New Calcutta Handloom.
+          All rights reserved.
+        </p>
+      </footer>
+
     </div>
   );
 };
