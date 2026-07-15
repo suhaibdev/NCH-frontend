@@ -1,97 +1,182 @@
-/* --- Common styles for Admin Dashboard Pages --- */
+/* ==========================================
+   ADMIN COMMON STYLES
+========================================== */
 
 .ep-container {
-  padding: 24px;
-  max-width: 1200px;
-  margin: 24px auto;
-  background-color: #fdfdff;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  max-width: 1250px;
+  margin: 30px auto;
+  padding: 30px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.08);
 }
 
-.ep-title {
-  font-size: 1.8rem;
-  font-weight: 600;
-  margin-bottom: 24px;
-  color: #2d3a4a;
+/* ==========================================
+   PAGE HEADER
+========================================== */
+
+.page-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  margin-bottom:30px;
+  border-bottom:1px solid #ececec;
+  padding-bottom:15px;
 }
 
-.ep-input {
-  padding: 10px 12px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 1rem;
-  transition: border-color 0.2s, box-shadow 0.2s;
+.ep-title{
+  margin:0;
+  font-size:30px;
+  color:#24324a;
+  font-weight:700;
 }
 
-.ep-input:focus {
-  outline: none;
-  border-color: var(--primary, #1976d2);
-  box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.2);
+.page-subtitle{
+  margin-top:6px;
+  color:#777;
+  font-size:15px;
 }
 
-.ep-btn {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: 500;
-  transition: background-color 0.2s, transform 0.2s;
-  color: #fff;
-  margin: 4px;
+/* ==========================================
+   FORM
+========================================== */
+
+.form-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  margin-bottom:24px;
 }
 
-.ep-btn-primary {
-  background-color: var(--primary, #1976d2);
-}
-.ep-btn-primary:hover {
-  background-color: var(--primary-dark, #1253a2);
-  transform: translateY(-1px);
-}
-
-.ep-btn-secondary {
-  background-color: #6c757d;
-}
-.ep-btn-secondary:hover {
-  background-color: #5a6268;
+.ep-input{
+  min-width:200px;
+  padding:11px 14px;
+  border:1px solid #d5d5d5;
+  border-radius:8px;
+  font-size:15px;
+  transition:.2s;
 }
 
-.ep-btn-edit {
-  background-color: #ffc107;
-  color: #212529;
-}
-.ep-btn-edit:hover {
-  background-color: #e0a800;
+.ep-input:focus{
+  outline:none;
+  border-color:#1976d2;
+  box-shadow:0 0 0 3px rgba(25,118,210,.15);
 }
 
-.ep-btn-delete {
-  background-color: #dc3545;
-}
-.ep-btn-delete:hover {
-  background-color: #c82333;
+/* ==========================================
+   BUTTONS
+========================================== */
+
+.ep-btn{
+  border:none;
+  border-radius:8px;
+  padding:10px 18px;
+  cursor:pointer;
+  font-size:15px;
+  font-weight:600;
+  transition:.2s;
 }
 
-.ep-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 24px;
-  font-size: 0.95rem;
+.ep-btn:hover{
+  transform:translateY(-2px);
 }
 
-.ep-table th,
-.ep-table td {
-  border: 1px solid #ddd;
-  padding: 12px;
-  text-align: left;
-  vertical-align: middle;
+.ep-btn-primary{
+  background:#1976d2;
+  color:white;
 }
 
-.ep-table th {
-  background-color: #f2f2f2;
-  font-weight: 600;
+.ep-btn-primary:hover{
+  background:#1253a2;
 }
 
-.ep-table tr:hover {
-  background-color: #f1f1f1;
+.ep-btn-secondary{
+  background:#757575;
+  color:white;
+}
+
+.ep-btn-secondary:hover{
+  background:#5d5d5d;
+}
+
+.ep-btn-edit{
+  background:#ffb300;
+  color:#222;
+}
+
+.ep-btn-edit:hover{
+  background:#f59f00;
+}
+
+.ep-btn-delete{
+  background:#d32f2f;
+  color:white;
+}
+
+.ep-btn-delete:hover{
+  background:#b71c1c;
+}
+
+/* ==========================================
+   TABLE
+========================================== */
+
+.ep-table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:20px;
+  background:white;
+}
+
+.ep-table thead{
+  background:#1976d2;
+  color:white;
+}
+
+.ep-table th{
+  padding:14px;
+  text-align:left;
+  font-weight:600;
+}
+
+.ep-table td{
+  padding:14px;
+  border-bottom:1px solid #ececec;
+}
+
+.ep-table tbody tr:nth-child(even){
+  background:#fafafa;
+}
+
+.ep-table tbody tr:hover{
+  background:#eef6ff;
+}
+
+/* ==========================================
+   MOBILE
+========================================== */
+
+@media(max-width:768px){
+
+  .ep-container{
+    margin:15px;
+    padding:18px;
+  }
+
+  .page-header{
+    flex-direction:column;
+    gap:10px;
+  }
+
+  .form-row{
+    flex-direction:column;
+  }
+
+  .ep-input{
+    width:100%;
+  }
+
+  .ep-btn{
+    width:100%;
+  }
 }
