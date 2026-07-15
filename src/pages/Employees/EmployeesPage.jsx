@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import api from '../../config/axios';
 
 import '../AdminCommon.css';
@@ -36,9 +35,9 @@ const EmployeesPage = () => {
     setName('');
     setContactNumber('');
     setBaseDailySalary('');
-    fetchEmployees();
     setAddress('');
     setEditId(null);
+
     fetchEmployees();
   };
   const handleEdit = (emp) => {
@@ -63,9 +62,6 @@ const EmployeesPage = () => {
   return (
     <div className="ep-container">
       <h2 className="ep-title">Employees</h2>
-      <Link to="/admin/dashboard" className="ep-btn ep-btn-primary" style={{ marginBottom: '16px', display: 'inline-block', textDecoration: 'none' }}>
-        Back
-      </Link>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '16px' }}>
         <input
           value={name}
