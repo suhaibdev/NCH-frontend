@@ -162,9 +162,7 @@ const AttendancePage = () => {
   return (
     <div className="ep-container">
       <h2 className="ep-title">Mark Attendance</h2>
-      <Link to="/admin/dashboard" className="ep-btn ep-btn-primary" style={{ marginBottom: '16px', display: 'inline-block', textDecoration: 'none' }}>
-        Back
-      </Link>
+      
       <form className="ep-form" onSubmit={handleSubmit} style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '24px' }}>
         <select
           value={employeeId}
@@ -308,8 +306,8 @@ const AttendancePage = () => {
                 let cellTitle = undefined;
                 if (rec.overtime > 0 || rec.advancePayment > 0 || rec.notes) {
                   cellTitle = `Overtime: ${rec.overtime || 0}h
-Advance: ₹${rec.advancePayment || 0}
-Notes: ${rec.notes || 'N/A'}`;
+                  Advance: ₹${rec.advancePayment || 0}
+                  Notes: ${rec.notes || 'N/A'}`;
                 }
 
                 if (rec.present) {

@@ -174,9 +174,6 @@ const PayoutPage = () => {
   return (
     <div className="ep-container">
       <h2 className="ep-title">Employee Payouts</h2>
-      <Link to="/admin/dashboard" className="ep-btn ep-btn-primary" style={{ marginBottom: '16px', display: 'inline-block', textDecoration: 'none' }}>
-        Back
-      </Link>
       <form className="payout-form" onSubmit={handlePreview} style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'stretch' }}>
         <select
           value={employeeId}

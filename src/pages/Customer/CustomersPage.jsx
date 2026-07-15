@@ -116,9 +116,6 @@ const CustomersPage = () => {
   return (
     <div className="ep-container">
       <h2 className="ep-title">Customers</h2>
-      <Link to="/admin/dashboard" className="ep-btn ep-btn-primary" style={{ marginBottom: '16px', display: 'inline-block', textDecoration: 'none' }}>
-        Back
-      </Link>
 
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '16px' }}>
         <input name="name" value={formData.name} onChange={handleFormChange} placeholder="Name" className="ep-input" />
