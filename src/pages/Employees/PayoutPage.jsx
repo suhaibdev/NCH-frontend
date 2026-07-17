@@ -230,6 +230,17 @@ const PayoutPage = () => {
     };
 
     const handleCreatePayout = async () => {
+      if (
+        Number(advanceDeduction) >
+        Number(preview.remainingAdvance)
+      ) {
+
+        setMessage(
+          `Maximum recoverable advance is ₹${preview.remainingAdvance}`
+        );
+
+        return;
+      }
 
         if (!preview) return;
 
@@ -421,21 +432,34 @@ const PayoutPage = () => {
           )}
           <div style={{ marginTop: 15 }}>
 
-          <div style={{
-            background: "#fff8e1",
+          <div
+          style={{
+            background:
+              preview.remainingAdvance > 0
+                ? "#fff8e1"
+                : "#e8f5e9",
             padding: 12,
             borderRadius: 8,
-            marginBottom: 15
-          }}>
-            <strong>
-              Total Advance Taken :
-              ₹{preview.totalAdvanceTaken}
-            </strong>
-            <br />
-            <small>
-              This is only for reference. Deduct any amount manually.
-            </small>
-          </div>
+            marginBottom: 15,
+            border:
+              preview.remainingAdvance > 0
+                ? "1px solid #ffd54f"
+                : "1px solid #4caf50",
+                  }}
+                >
+          <strong>
+            Outstanding Advance :
+            ₹{Number(preview.remainingAdvance || 0).toFixed(2)}
+          </strong>
+
+          <br />
+
+          <small>
+            {preview.remainingAdvance > 0
+              ? "Recover any amount up to the remaining advance."
+              : "Employee has no pending advance."}
+          </small>
+        </div>
 
           <label>Advance Deduction</label>
 
@@ -460,24 +484,56 @@ const PayoutPage = () => {
             max={preview.remainingAdvance || 0}
             onChange={(e) => {
 
-              const value = Number(e.target.value);
+              let value = Number(e.target.value);
 
-              if (value > preview.remainingAdvance) {
+              if (isNaN(value)) value = 0;
 
-                setMessage(
-                  `Maximum recoverable advance is ₹${preview.remainingAdvance}`
-                );
+              if (value < 0)
+                value = 0;
 
-                return;
-              }
+              if (value > preview.remainingAdvance)
+                value = preview.remainingAdvance;
+
+              setAdvanceDeduction(value);
 
               setMessage("");
 
-              setAdvanceDeduction(
-                e.target.value === "" ? "" : value
-              );
             }}
           />
+
+          <div
+              style={{
+                display: "flex",
+                gap: "10px",
+                marginTop: "10px",
+                marginBottom: "15px",
+              }}
+            >
+
+            <button
+            type="button"
+            className="ep-btn"
+            onClick={() => setAdvanceDeduction(0)}
+            >
+
+            No Deduction
+
+            </button>
+
+            <button
+            type="button"
+            className="ep-btn"
+            disabled={preview.remainingAdvance <= 0}
+            onClick={() =>
+            setAdvanceDeduction(preview.remainingAdvance)
+            }
+            >
+
+            Recover Full
+
+            </button>
+
+            </div>
 
           <br /><br />
 
@@ -531,10 +587,19 @@ const PayoutPage = () => {
 
             <div
             style={{
-            fontSize:22,
-            color:"green",
-            fontWeight:"bold"
-            }}
+              fontSize:22,
+              fontWeight:"bold",
+              color:
+              (
+              Number(preview.grossSalary || 0)
+              -
+              Number(advanceDeduction || 0)
+              -
+              Number(otherDeduction || 0)
+              ) > 0
+              ? "#2e7d32"
+              : "#d32f2f"
+              }}
             >
             Net Salary :
             ₹{(
@@ -551,7 +616,12 @@ const PayoutPage = () => {
             type="button"
             className="ep-btn ep-btn-primary"
             onClick={handleCreatePayout}
-            disabled={isCreating}
+            disabled={
+                isCreating ||
+                !preview ||
+                Number(advanceDeduction) >
+                Number(preview.remainingAdvance)
+              }
             >
             {isCreating ? "Creating..." : "Create Payout"}
             </button>
@@ -660,7 +730,7 @@ const PayoutPage = () => {
                     className="ep-input"
                     style={{ width: '100px', padding: '4px' }}
                   >
-                    <option value="pending">Pending</option>
+                    <option value="Pending">Pending</option>
                     <option value="Paid">Paid</option>
                   </select>
                   <button
