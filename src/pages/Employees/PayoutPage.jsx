@@ -1,8 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import api from '../../config/axios';
 import './PayoutPage.css';
+import { useNavigate } from "react-router-dom";
 
 const PayoutPage = () => {
+  
+  const navigate = useNavigate();
 
   const [employees, setEmployees] = useState([]);
   const [payouts, setPayouts] = useState([]);
@@ -14,8 +17,8 @@ const PayoutPage = () => {
 
   const [preview, setPreview] = useState(null);
 
-  const [advanceDeduction, setAdvanceDeduction] = useState(0);
-  const [otherDeduction, setOtherDeduction] = useState(0);
+  const [advanceDeduction, setAdvanceDeduction] = useState('');
+  const [otherDeduction, setOtherDeduction] = useState('');
 
   const [paymentMethod, setPaymentMethod] = useState('cash');
 
@@ -426,7 +429,7 @@ const PayoutPage = () => {
           }}>
             <strong>
               Total Advance Taken :
-              ₹{preview.totalAdvancePayment}
+              ₹{preview.totalAdvanceTaken}
             </strong>
             <br />
             <small>
@@ -441,10 +444,12 @@ const PayoutPage = () => {
             className="ep-input"
             value={advanceDeduction}
             min={0}
-            max={preview.remainingAdvance}
+            max={preview.remainingAdvance  || 0 }
             onChange={(e)=>
-              setAdvanceDeduction(Number(e.target.value))
-            }
+            setAdvanceDeduction(
+                  e.target.value === '' ? '' : Number(e.target.value)
+              )
+          }
           />
 
           <br /><br />
@@ -471,7 +476,11 @@ const PayoutPage = () => {
               style={{ width: 120 }}
             >
               <option value="cash">Cash</option>
-              <option value="bank_transfer">Bank Transfer</option>
+              <option value="upi">UPI</option>
+
+              <option value="bank">Bank</option>
+
+              <option value="cheque">Cheque</option>
             </select>
           </div>
           <div style={{fontSize:18,fontWeight:'bold'}}>
@@ -500,25 +509,26 @@ const PayoutPage = () => {
             fontWeight:"bold"
             }}
             >
-
             Net Salary :
             ₹{(
             Number(preview.grossSalary || 0)
-            - advanceDeduction
-            - otherDeduction
+            -
+            Number(advanceDeduction || 0)
+            -
+            Number(otherDeduction || 0)
             ).toFixed(2)}
-          <div style={{ marginTop: 20 }}>
-            <button
-              type="button"
-              className="ep-btn ep-btn-primary"
-              onClick={handleCreatePayout}
-              disabled={isCreating}
-            >
-              {isCreating ? "Creating..." : "Create Payout"}
-            </button>
-          </div>
+            </div>
 
-          </div>
+            <div style={{marginTop:20}}>
+            <button
+            type="button"
+            className="ep-btn ep-btn-primary"
+            onClick={handleCreatePayout}
+            disabled={isCreating}
+            >
+            {isCreating ? "Creating..." : "Create Payout"}
+            </button>
+            </div>
       
 
         </div>
@@ -627,6 +637,19 @@ const PayoutPage = () => {
                     <option value="paid">Paid</option>
                     <option value="cancelled">Cancelled</option>
                   </select>
+                  <button
+                    className="ep-btn ep-btn-primary"
+                    style={{ padding: "4px 8px", fontSize: "0.8rem" }}
+                    onClick={() =>
+                        navigate("/admin/salary-slip", {
+                            state: p,
+                        })
+                    }
+                >
+                    Salary Slip
+                </button>
+
+
                   <button 
                     onClick={() => handleDeletePayout(p._id)}
                     className="ep-btn ep-btn-delete"

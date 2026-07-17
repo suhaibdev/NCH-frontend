@@ -3,7 +3,7 @@ import { BrowserRouter, Navigate, Routes, Route } from "react-router-dom";
 
 import HomePage from "./pages/HomePage";
 import Login from "./pages/Login";
-
+import SalarySlip from "./pages/Employees/SalarySlip";
 import AdminPortalPage from "./pages/AdminPortalPage";
 import EmployeesPage from "./pages/Employees/EmployeesPage";
 import CustomersPage from "./pages/Customer/CustomersPage";
@@ -38,6 +38,7 @@ const App = () => {
             <Route path="/admin/customers" element={<CustomersPage />} />
             <Route path="/admin/attendance" element={<AttendancePage />} />
             <Route path="/admin/payout" element={<PayoutPage />} />
+            <Route path="/admin/salary-slip" element={<SalarySlip />} />
           </Route>
         </Route>
         
