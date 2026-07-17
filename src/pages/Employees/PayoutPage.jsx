@@ -238,20 +238,21 @@ const PayoutPage = () => {
 
         try {
 
-          await api.post('/payout', {
+          await api.post("/payout", {
 
-            employeeId,
+          employeeId,
 
-            startDate,
+          startDate,
 
-            endDate,
+          endDate,
 
-            deductions:
-             advanceDeduction + otherDeduction,
+          advanceDeducted: advanceDeduction,
 
-            paymentMethod
+          deductions: otherDeduction,
 
-          });
+          paymentMethod
+
+        });
 
           setMessage('Salary payout created successfully.');
 
@@ -506,6 +507,16 @@ const PayoutPage = () => {
             - advanceDeduction
             - otherDeduction
             ).toFixed(2)}
+          <div style={{ marginTop: 20 }}>
+            <button
+              type="button"
+              className="ep-btn ep-btn-primary"
+              onClick={handleCreatePayout}
+              disabled={isCreating}
+            >
+              {isCreating ? "Creating..." : "Create Payout"}
+            </button>
+          </div>
 
           </div>
       
