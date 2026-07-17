@@ -635,7 +635,6 @@ const PayoutPage = () => {
                   >
                     <option value="pending">Pending</option>
                     <option value="paid">Paid</option>
-                    <option value="cancelled">Cancelled</option>
                   </select>
                   <button
                     className="ep-btn ep-btn-primary"
