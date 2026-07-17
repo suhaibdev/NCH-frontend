@@ -15,6 +15,7 @@ const SalarySlip = () => {
 
   const {
     employee,
+    status,
     startDate,
     endDate,
     totalDaysWorked,
@@ -94,6 +95,29 @@ const SalarySlip = () => {
             </tr>
 
             <tr>
+
+            <td><b>Status</b></td>
+
+            <td>
+
+            <strong
+            style={{
+            color:
+            status === "Paid"
+            ? "green"
+            : "#d32f2f"
+            }}
+            >
+
+            {status}
+
+            </strong>
+
+            </td>
+
+            </tr>
+
+            <tr>
               <td><b>Net Salary</b></td>
               <td>
                 <strong>₹{netSalary.toFixed(2)}</strong>
@@ -101,17 +125,27 @@ const SalarySlip = () => {
             </tr>
 
             <tr>
-              <td><b>Payment Method</b></td>
-              <td>{paymentMethod}</td>
+
+            <td><b>Payment Method</b></td>
+
+            <td>
+
+            {status === "Paid" ? paymentMethod : "--"}
+
+            </td>
+
             </tr>
 
             <tr>
-              <td><b>Paid On</b></td>
-              <td>
-                {paidOn
-                  ? new Date(paidOn).toLocaleDateString()
-                  : ""}
-              </td>
+
+            <td><b>Paid On</b></td>
+
+            <td>
+
+            {status === "Paid" ? new Date(paidOn).toLocaleDateString() : "--"}
+
+            </td>
+
             </tr>
 
           </tbody>
