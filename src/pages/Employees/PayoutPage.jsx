@@ -404,12 +404,12 @@ const PayoutPage = () => {
           <div>Total Days Present: <b>{preview.totalDaysWorked}</b></div>
           <div>Total Hours Worked: <b>{preview.totalHoursWorked} h</b></div>
           <div>Hourly Rate: <b>₹{Number(preview.hourlyRate).toFixed(2)}</b> <small>(daily salary ÷ 8)</small></div>
-          <div>Base Amount: <b>₹{Number(preview.totalAmount).toFixed(2)}</b></div>
+          <div>Base Amount: <b>₹{Number(preview.baseSalary || 0).toFixed(2)}</b></div>
           <div>Overtime Hours: <b>{preview.overtimeHours} h</b></div>
           <div>Overtime Amount: <b>₹{Number(preview.overtimeAmount).toFixed(2)}</b></div>
-          {preview.totalAdvancePayment > 0 && (
+          {preview.totalAdvanceTaken > 0 && (
             <div style={{ color: '#d32f2f', margin: '8px 0', padding: '8px', border: '1px solid #ffcdd2', borderRadius: '4px', backgroundColor: '#ffebee' }}>
-              Advance Payments Taken: <b>₹{preview.totalAdvancePayment}</b>
+              Advance Payments Taken: <b>₹{preview.totalAdvanceTaken}</b>
               <div style={{ fontSize: '0.85rem', marginTop: '4px' }}>
                 <i>Reminder: Please add this amount to deductions if not already settled.</i>
               </div>
@@ -440,7 +440,7 @@ const PayoutPage = () => {
             className="ep-input"
             value={advanceDeduction}
             min={0}
-            max={preview.totalAdvancePayment}
+            max={preview.remainingAdvance}
             onChange={(e)=>
               setAdvanceDeduction(Number(e.target.value))
             }
@@ -476,7 +476,7 @@ const PayoutPage = () => {
           <div style={{fontSize:18,fontWeight:'bold'}}>
 
             Gross Salary :
-            ₹{preview.grossAmount.toFixed(2)}
+            ₹{Number(preview.grossSalary || 0).toFixed(2)}
 
           </div>
 
@@ -502,7 +502,7 @@ const PayoutPage = () => {
 
             Net Salary :
             ₹{(
-            preview.grossAmount
+            Number(preview.grossSalary || 0)
             - advanceDeduction
             - otherDeduction
             ).toFixed(2)}
@@ -590,13 +590,13 @@ const PayoutPage = () => {
                 </td>
                 <td>{p.totalDaysWorked}</td>
                 <td>{p.totalHoursWorked ?? 0}h</td>
-                <td>₹{Number(p.totalAmount).toFixed(2)}</td>
+                <td>₹{Number(p.baseSalary || 0).toFixed(2)}</td>
                 <td>
                   {p.overtimeHours}h<br />
                   ₹{p.overtimeAmount}
                 </td>
                 <td>₹{p.deductions}</td>
-                <td>₹{(p.totalAmount + (p.overtimeAmount || 0) - (p.deductions || 0)).toFixed(2)}</td>
+                <td>₹{Number(p.netSalary || 0).toFixed(2)}</td>
                 <td style={{ display: 'flex', gap: '4px', flexDirection: 'column' }}>
                   <select
                     value={p.status}
