@@ -1,0 +1,187 @@
+.salary-slip-container {
+  max-width: 900px;
+  margin: 30px auto;
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.salary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #1976d2;
+  padding-bottom: 15px;
+  margin-bottom: 25px;
+}
+
+.company-details h2 {
+  margin: 0;
+  color: #1976d2;
+}
+
+.company-details p {
+  margin: 3px 0;
+  color: #555;
+  font-size: 14px;
+}
+
+.salary-title {
+  text-align: right;
+}
+
+.salary-title h1 {
+  margin: 0;
+  color: #1976d2;
+}
+
+.salary-title p {
+  margin-top: 5px;
+  color: #666;
+}
+
+.employee-info {
+  display: grid;
+  grid-template-columns: repeat(2,1fr);
+  gap: 12px 25px;
+  margin-bottom: 25px;
+}
+
+.info-box {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #fafafa;
+}
+
+.info-label {
+  font-weight: bold;
+  color: #444;
+}
+
+.salary-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+.salary-table th,
+.salary-table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+}
+
+.salary-table th {
+  background: #1976d2;
+  color: white;
+}
+
+.salary-table td:last-child,
+.salary-table th:last-child {
+  text-align: right;
+}
+
+.total-row {
+  background: #f4f4f4;
+  font-weight: bold;
+}
+
+.net-pay {
+  background: #43a047;
+  color: white;
+  font-size: 18px;
+}
+
+.net-pay td {
+  padding: 14px;
+}
+
+.salary-footer {
+  margin-top: 50px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.signature-box {
+  width: 220px;
+  text-align: center;
+}
+
+.signature-line {
+  border-top: 1px solid #333;
+  margin-top: 45px;
+  padding-top: 5px;
+}
+
+.print-btn {
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
+}
+
+.print-btn button {
+  padding: 12px 30px;
+  border: none;
+  background: #1976d2;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.print-btn button:hover {
+  background: #1253a2;
+}
+
+@media print {
+
+  body {
+    background: white;
+  }
+
+  .print-btn {
+    display: none;
+  }
+
+  .salary-slip-container {
+    box-shadow: none;
+    margin: 0;
+    max-width: 100%;
+    border: none;
+  }
+
+  .salary-header {
+    border-bottom: 2px solid #000;
+  }
+
+  .salary-table th {
+    background: #e6e6e6 !important;
+    color: #000 !important;
+  }
+}
+
+@media (max-width:768px){
+
+  .employee-info{
+    grid-template-columns:1fr;
+  }
+
+  .salary-header{
+    flex-direction:column;
+    text-align:center;
+    gap:15px;
+  }
+
+  .salary-title{
+    text-align:center;
+  }
+
+  .salary-footer{
+    flex-direction:column;
+    gap:40px;
+    align-items:center;
+  }
+
+}

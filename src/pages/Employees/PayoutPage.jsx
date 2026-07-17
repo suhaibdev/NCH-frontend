@@ -1,24 +1,121 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
 import api from '../../config/axios';
 import './PayoutPage.css';
 
 const PayoutPage = () => {
+
   const [employees, setEmployees] = useState([]);
   const [payouts, setPayouts] = useState([]);
+
   const [employeeId, setEmployeeId] = useState('');
+
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+
   const [preview, setPreview] = useState(null);
-  const [deductions, setDeductions] = useState(0);
+
+  const [advanceDeduction, setAdvanceDeduction] = useState(0);
+  const [otherDeduction, setOtherDeduction] = useState(0);
+
   const [paymentMethod, setPaymentMethod] = useState('cash');
+
   const [message, setMessage] = useState('');
+
   const [searchName, setSearchName] = useState('');
   const [searchDate, setSearchDate] = useState('');
+
   const [selectedPayouts, setSelectedPayouts] = useState([]);
+
   const [isPreviewing, setIsPreviewing] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+
   const creatingRef = useRef(false);
+
+
+  // Salary Slip Modal
+
+  const [showSlip, setShowSlip] = useState(false);
+  const [selectedSlip, setSelectedSlip] = useState(null);
+
+  // Payroll Period
+
+  const [periodType, setPeriodType] = useState('custom');
+
+
+  // Upcoming feature
+
+  const [bulkGenerate, setBulkGenerate] = useState(false);
+
+    const formatDate = (date) => {
+    return new Date(date).toLocaleDateString('en-IN');
+  };
+
+  const today = new Date();
+
+  const setPayrollPeriod = (type) => {
+
+    setPeriodType(type);
+
+    const year = today.getFullYear();
+    const month = today.getMonth();
+
+    if (type === '1-10') {
+
+      setStartDate(
+        new Date(year, month, 1)
+          .toISOString()
+          .split('T')[0]
+      );
+
+      setEndDate(
+        new Date(year, month, 10)
+          .toISOString()
+          .split('T')[0]
+      );
+
+      return;
+    }
+
+    if (type === '11-20') {
+
+      setStartDate(
+        new Date(year, month, 11)
+          .toISOString()
+          .split('T')[0]
+      );
+
+      setEndDate(
+        new Date(year, month, 20)
+          .toISOString()
+          .split('T')[0]
+      );
+
+      return;
+    }
+
+    if (type === '21-end') {
+
+      const lastDay =
+        new Date(year, month + 1, 0).getDate();
+
+      setStartDate(
+        new Date(year, month, 21)
+          .toISOString()
+          .split('T')[0]
+      );
+
+      setEndDate(
+        new Date(year, month, lastDay)
+          .toISOString()
+          .split('T')[0]
+      );
+
+      return;
+    }
+
+    setStartDate('');
+    setEndDate('');
+  };
 
   useEffect(() => {
     fetchEmployees();
@@ -26,86 +123,178 @@ const PayoutPage = () => {
   }, []);
 
   const fetchEmployees = async () => {
+
     try {
-      const res = await api.get('/employees');
-      setEmployees(res.data.filter(e => e.isActive));
-    } catch (err) {
-      console.error('Failed to fetch employees:', err.message || err);
-    }
-  };
+
+     const res = await api.get('/employees');
+
+        setEmployees(
+          res.data.filter(emp => emp.isActive)
+        );
+
+      } catch (err) {
+
+        console.error(err);
+
+      }
+
+    };
 
   const fetchPayouts = async () => {
-    try {
-      const res = await api.get('/payout');
-      setPayouts(res.data);
-      setSelectedPayouts([]); // Clear selection when refetching
-    } catch (err) {
-      console.error('Failed to fetch payouts:', err.message || err);
-    }
-  };
 
-  const handlePreview = async (e) => {
-    e.preventDefault();
+        try {
 
-    if (isPreviewing) return;
+          const res = await api.get('/payout');
 
-    setPreview(null);
-    setMessage('');
+          setPayouts(res.data);
 
-    if (!employeeId || !startDate || !endDate) {
-      setMessage('Please select employee and date range.');
-      return;
-    }
+          setSelectedPayouts([]);
 
-    setIsPreviewing(true);
+        }
 
-    try {
-      const res = await api.post('/payout/preview', {
-        employeeId,
-        startDate,
-        endDate
-      });
+        catch (err) {
 
-      setPreview(res.data);
-    } catch (err) {
-      console.error(err);
-      setMessage(err.response?.data?.message || 'Error calculating payout');
-    } finally {
-      setIsPreviewing(false);
-    }
-  };
+          console.error(err);
 
-  const handleCreatePayout = async () => {
-    if (!preview || creatingRef.current) return;
+        }
 
-    creatingRef.current = true;
-    setIsCreating(true);
-    setMessage('');
+      };
 
-    try {
-      await api.post('/payout', {
-        employeeId,
-        startDate,
-        endDate,
-        deductions,
-        paymentMethod
-      });
+      const handlePreview = async (e) => {
 
-      setMessage('Payout created successfully!');
+      e.preventDefault();
+
+      if (isPreviewing) return;
+
+      setMessage('');
       setPreview(null);
-      setEmployeeId('');
-      setStartDate('');
-      setEndDate('');
-      setDeductions(0);
-      setPaymentMethod('cash');
-      await fetchPayouts();
-    } catch (err) {
-      setMessage(err.response?.data?.message || 'Error creating payout.');
-    } finally {
-      creatingRef.current = false;
-      setIsCreating(false);
-    }
-  };
+
+      if (!employeeId) {
+
+        setMessage('Please select employee.');
+
+        return;
+
+      }
+
+      if (!startDate || !endDate) {
+
+        setMessage('Please select payroll period.');
+
+        return;
+
+      }
+
+      setIsPreviewing(true);
+
+      try {
+
+        const res = await api.post('/payout/preview', {
+
+          employeeId,
+
+          startDate,
+
+          endDate
+
+        });
+
+        setPreview(res.data);
+
+        setAdvanceDeduction(0);
+        setOtherDeduction(0);
+
+      }
+
+      catch (err) {
+
+        setMessage(
+
+          err.response?.data?.message ||
+
+          'Unable to calculate payout.'
+
+        );
+
+      }
+
+      finally {
+
+        setIsPreviewing(false);
+
+      }
+
+    };
+
+    const handleCreatePayout = async () => {
+
+        if (!preview) return;
+
+        if (creatingRef.current) return;
+
+        creatingRef.current = true;
+
+        setIsCreating(true);
+
+        try {
+
+          await api.post('/payout', {
+
+            employeeId,
+
+            startDate,
+
+            endDate,
+
+            deductions:
+             advanceDeduction + otherDeduction,
+
+            paymentMethod
+
+          });
+
+          setMessage('Salary payout created successfully.');
+
+          setPreview(null);
+
+          setEmployeeId('');
+
+          setStartDate('');
+
+          setEndDate('');
+
+          setPeriodType('custom');
+
+          setAdvanceDeduction(0);
+          setOtherDeduction(0);
+
+          setPaymentMethod('cash');
+
+          fetchPayouts();
+
+        }
+
+        catch (err) {
+
+          setMessage(
+
+            err.response?.data?.message ||
+
+            'Unable to create payout.'
+
+          );
+
+        }
+
+        finally {
+
+          creatingRef.current = false;
+
+          setIsCreating(false);
+
+        }
+
+    };
 
   const handleDeletePayout = async (id) => {
     if (window.confirm('Are you sure you want to delete this payout record?')) {
@@ -226,16 +415,52 @@ const PayoutPage = () => {
               </div>
             </div>
           )}
-          <div>
-            Deductions: <input
-              type="number"
-              value={deductions}
-              min={0}
-              onChange={e => setDeductions(Number(e.target.value))}
-              className="ep-input"
-              style={{ width: 80 }}
-            />
+          <div style={{ marginTop: 15 }}>
+
+          <div style={{
+            background: "#fff8e1",
+            padding: 12,
+            borderRadius: 8,
+            marginBottom: 15
+          }}>
+            <strong>
+              Total Advance Taken :
+              ₹{preview.totalAdvancePayment}
+            </strong>
+            <br />
+            <small>
+              This is only for reference. Deduct any amount manually.
+            </small>
           </div>
+
+          <label>Advance Deduction</label>
+
+          <input
+            type="number"
+            className="ep-input"
+            value={advanceDeduction}
+            min={0}
+            max={preview.totalAdvancePayment}
+            onChange={(e)=>
+              setAdvanceDeduction(Number(e.target.value))
+            }
+          />
+
+          <br /><br />
+
+          <label>Other Deduction</label>
+
+          <input
+            type="number"
+            className="ep-input"
+            value={otherDeduction}
+            min={0}
+            onChange={(e)=>
+              setOtherDeduction(Number(e.target.value))
+            }
+          />
+
+        </div>
           <div>
             Payment Method:
             <select
@@ -248,17 +473,43 @@ const PayoutPage = () => {
               <option value="bank_transfer">Bank Transfer</option>
             </select>
           </div>
-          <div>
-            <b>Gross Amount: ₹{(preview.grossAmount - deductions).toFixed(2)}</b>
+          <div style={{fontSize:18,fontWeight:'bold'}}>
+
+            Gross Salary :
+            ₹{preview.grossAmount.toFixed(2)}
+
           </div>
-          <button
-            className="ep-btn ep-btn-primary"
-            onClick={handleCreatePayout}
-            type="button"
-            disabled={isCreating}
-          >
-            {isCreating ? 'Creating...' : 'Create Payout'}
-          </button>
+
+            <div style={{marginTop:10}}>
+            Advance Deduction :
+            ₹{advanceDeduction}
+            </div>
+
+            <div>
+            Other Deduction :
+            ₹{otherDeduction}
+            </div>
+
+            <hr />
+
+            <div
+            style={{
+            fontSize:22,
+            color:"green",
+            fontWeight:"bold"
+            }}
+            >
+
+            Net Salary :
+            ₹{(
+            preview.grossAmount
+            - advanceDeduction
+            - otherDeduction
+            ).toFixed(2)}
+
+          </div>
+      
+
         </div>
       )}
 
