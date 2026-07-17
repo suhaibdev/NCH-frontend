@@ -439,17 +439,44 @@ const PayoutPage = () => {
 
           <label>Advance Deduction</label>
 
+            {preview.remainingAdvance <= 0 && (
+              <div
+                style={{
+                  color: "red",
+                  marginBottom: 8,
+                  fontWeight: "bold",
+                }}
+              >
+                No advance available to deduct.
+              </div>
+            )}
+
           <input
+            disabled={preview.remainingAdvance <= 0}
             type="number"
             className="ep-input"
             value={advanceDeduction}
             min={0}
-            max={preview.remainingAdvance  || 0 }
-            onChange={(e)=>
-            setAdvanceDeduction(
-                  e.target.value === '' ? '' : Number(e.target.value)
-              )
-          }
+            max={preview.remainingAdvance || 0}
+            onChange={(e) => {
+
+              const value = Number(e.target.value);
+
+              if (value > preview.remainingAdvance) {
+
+                setMessage(
+                  `Maximum recoverable advance is ₹${preview.remainingAdvance}`
+                );
+
+                return;
+              }
+
+              setMessage("");
+
+              setAdvanceDeduction(
+                e.target.value === "" ? "" : value
+              );
+            }}
           />
 
           <br /><br />
