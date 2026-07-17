@@ -634,7 +634,7 @@ const PayoutPage = () => {
                     style={{ width: '100px', padding: '4px' }}
                   >
                     <option value="pending">Pending</option>
-                    <option value="paid">Paid</option>
+                    <option value="Paid">Paid</option>
                   </select>
                   <button
                     className="ep-btn ep-btn-primary"
