@@ -430,7 +430,7 @@ const PayoutPage = () => {
               </div>
             </div>
           )}
-          <div style={{ marginTop: 15
+          <div style={{ marginTop: 15,
               display:"flex",
               flexDirection:"column",
               gap:"12px"
