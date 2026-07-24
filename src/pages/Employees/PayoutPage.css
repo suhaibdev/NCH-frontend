@@ -26,18 +26,27 @@
   padding: 7px 10px;
   border: 1px solid #bbb;
   border-radius: 4px;
-  min-width: 120px;
+
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .payout-btn {
-  padding: 7px 20px;
+  .payout-btn {
+  padding: 8px 16px;
   background: #1976d2;
-  color: #fff;
+  color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   font-weight: 500;
-  margin-left: 8px;
+  margin-left: 0;
+
+  width: 100%;
+  box-sizing: border-box;
+}
 }
 
 .payout-btn:hover {
@@ -56,6 +65,11 @@
   padding: 16px;
   margin-bottom: 18px;
   margin-top: 8px;
+
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .payout-table {
@@ -79,4 +93,87 @@
 
 .payout-table tr:nth-child(even) {
   background: #fafafa;
+}
+
+/* ==============================
+   Remove Number Input Arrows
+================================ */
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button{
+    -webkit-appearance:none;
+    margin:0;
+}
+
+input[type="number"]{
+    -moz-appearance:textfield;
+    appearance:textfield;
+}
+
+/* ===============================
+   Mobile Responsive
+================================ */
+
+@media (max-width:768px){
+
+.payout-container{
+    width:100%;
+    margin:15px 0;
+    padding:15px;
+    box-sizing:border-box;
+}
+
+.payout-form{
+    flex-direction:column;
+    align-items:stretch;
+}
+
+.payout-preview{
+    background:#f0f7fa;
+    border:1px solid #b3e5fc;
+    border-radius:8px;
+    padding:20px;
+    margin:20px 0;
+    width:100%;
+    box-sizing:border-box;
+}
+
+.payout-preview input,
+.payout-preview select,
+.payout-preview button{
+
+    width:100%;
+    box-sizing:border-box;
+
+}
+
+.payout-table{
+
+    display:block;
+    overflow-x:auto;
+
+}
+
+}
+
+@media(max-width:768px){
+
+.payout-form{
+    flex-direction:column;
+}
+
+.payout-form .ep-input,
+.payout-form button{
+    width:100%;
+}
+
+.payout-preview .ep-input{
+    width:100%;
+    margin:0;
+}
+
+.payout-preview select{
+    width:100%;
+}
+
 }

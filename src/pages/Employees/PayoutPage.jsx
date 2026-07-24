@@ -430,7 +430,11 @@ const PayoutPage = () => {
               </div>
             </div>
           )}
-          <div style={{ marginTop: 15 }}>
+          <div style={{ marginTop: 15
+              display:"flex",
+              flexDirection:"column",
+              gap:"12px"
+           }}>
 
           <div
           style={{
@@ -541,7 +545,7 @@ const PayoutPage = () => {
 
           <input
             type="number"
-            className="ep-input"
+            className="ep-input ep-input-no-spinner"
             value={otherDeduction}
             min={0}
             onChange={(e)=>
@@ -556,7 +560,7 @@ const PayoutPage = () => {
               value={paymentMethod}
               onChange={e => setPaymentMethod(e.target.value)}
               className="ep-input"
-              style={{ width: 120 }}
+              style={{ width: "100%" }}
             >
               <option value="cash">Cash</option>
               <option value="upi">UPI</option>
@@ -566,7 +570,11 @@ const PayoutPage = () => {
               <option value="cheque">Cheque</option>
             </select>
           </div>
-          <div style={{fontSize:18,fontWeight:'bold'}}>
+          <div style={{marginTop:15,
+                          fontSize:18,
+                          fontWeight:"bold",
+                          wordBreak:"break-word"
+                    }}>
 
             Gross Salary :
             ₹{Number(preview.grossSalary || 0).toFixed(2)}
@@ -618,7 +626,6 @@ const PayoutPage = () => {
             onClick={handleCreatePayout}
             disabled={
                 isCreating ||
-                !preview ||
                 Number(advanceDeduction) >
                 Number(preview.remainingAdvance)
               }
