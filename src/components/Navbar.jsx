@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import "./Navbar.css";
 import { Link, useNavigate } from 'react-router-dom';
 import { getUser, isAuthenticated, logout } from '../config/auth';
 
