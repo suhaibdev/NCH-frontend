@@ -35,6 +35,7 @@ const Navbar = () => {
               <Link to="/admin/employees" onClick={() => setIsOpen(false)}>Employees</Link>
               <Link to="/admin/attendance" onClick={() => setIsOpen(false)}>Attendance</Link>
               <Link to="/admin/payout" onClick={() => setIsOpen(false)}>Payout</Link>
+              <Link to="/admin/customers" onClick={() => setIsOpen(false)}>Customers</Link>
               <button type="button" onClick={handleLogout}>Logout</button>
             </>
           ) : (
