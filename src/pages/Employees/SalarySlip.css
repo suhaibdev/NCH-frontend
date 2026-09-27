@@ -599,10 +599,13 @@
 
 @media print {
 
-    @page {
+    @page salarySlipPage {
         size: A4 portrait;
-
         margin: 10mm;
+    }
+
+    .salary-slip-print {
+        page: salarySlipPage;
     }
 
 
