@@ -1,5 +1,10 @@
-import React from "react";
-import { BrowserRouter, Navigate, Routes, Route } from "react-router-dom";
+import React, { useEffect } from "react";
+import {
+  BrowserRouter,
+  Navigate,
+  Routes,
+  Route,
+} from "react-router-dom";
 
 import HomePage from "./pages/HomePage";
 import Login from "./pages/Login";
@@ -13,65 +18,201 @@ import PayoutPage from "./pages/Employees/PayoutPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLayout from "./components/AdminLayout";
 
+
 const App = () => {
+
+  /* =========================================================
+     GLOBAL NUMBER INPUT SCROLL PROTECTION
+  ========================================================= */
+
+  useEffect(() => {
+    const handleNumberInputWheel = () => {
+      const activeElement =
+        document.activeElement;
+
+      if (
+        activeElement instanceof HTMLInputElement &&
+        activeElement.type === "number"
+      ) {
+        activeElement.blur();
+      }
+    };
+
+    document.addEventListener(
+      "wheel",
+      handleNumberInputWheel,
+      {
+        capture: true,
+      }
+    );
+
+    return () => {
+      document.removeEventListener(
+        "wheel",
+        handleNumberInputWheel,
+        {
+          capture: true,
+        }
+      );
+    };
+  }, []);
+
+
   return (
     <BrowserRouter>
+
       <Routes>
 
-        {/* Public Routes */}
-        <Route path="/" element={<HomePage />} />
+        {/* ================================
+            PUBLIC ROUTES
+        ================================= */}
 
-        <Route path="/login" element={<Login />} />
+        <Route
+          path="/"
+          element={<HomePage />}
+        />
+
+        <Route
+          path="/login"
+          element={<Login />}
+        />
 
 
-        {/* Redirect /admin to dashboard */}
+        {/* ================================
+            ADMIN REDIRECT
+        ================================= */}
+
         <Route
           path="/admin"
-          element={<Navigate to="/admin/dashboard" replace />}
+          element={
+            <Navigate
+              to="/admin/dashboard"
+              replace
+            />
+          }
         />
-        
-        {/* Protected Admin Routes */}
-        <Route element={<ProtectedRoute />}> {/* This handles authentication */}
-          <Route element={<AdminLayout />}> {/* This handles the persistent layout */}
-            <Route path="/admin/dashboard" element={<AdminPortalPage />} />
-            <Route path="/admin/employees" element={<EmployeesPage />} />
-            <Route path="/admin/customers" element={<CustomersPage />} />
-            <Route path="/admin/attendance" element={<AttendancePage />} />
-            <Route path="/admin/payout" element={<PayoutPage />} />
-            <Route path="/admin/salary-slip" element={<SalarySlip />} />
+
+
+        {/* ================================
+            PROTECTED ADMIN ROUTES
+        ================================= */}
+
+        <Route
+          element={<ProtectedRoute />}
+        >
+
+          <Route
+            element={<AdminLayout />}
+          >
+
+            <Route
+              path="/admin/dashboard"
+              element={
+                <AdminPortalPage />
+              }
+            />
+
+            <Route
+              path="/admin/employees"
+              element={
+                <EmployeesPage />
+              }
+            />
+
+            <Route
+              path="/admin/customers"
+              element={
+                <CustomersPage />
+              }
+            />
+
+            <Route
+              path="/admin/attendance"
+              element={
+                <AttendancePage />
+              }
+            />
+
+            <Route
+              path="/admin/payout"
+              element={
+                <PayoutPage />
+              }
+            />
+
+            <Route
+              path="/admin/salary-slip"
+              element={
+                <SalarySlip />
+              }
+            />
+
           </Route>
+
         </Route>
-        
-        
-        {/* Old URLs redirect */}
+
+
+        {/* ================================
+            OLD URL REDIRECTS
+        ================================= */}
+
         <Route
           path="/employees"
-          element={<Navigate to="/admin/employees" replace />}
+          element={
+            <Navigate
+              to="/admin/employees"
+              replace
+            />
+          }
         />
 
         <Route
           path="/customers"
-          element={<Navigate to="/admin/customers" replace />}
+          element={
+            <Navigate
+              to="/admin/customers"
+              replace
+            />
+          }
         />
 
         <Route
           path="/employees/attendance"
-          element={<Navigate to="/admin/attendance" replace />}
+          element={
+            <Navigate
+              to="/admin/attendance"
+              replace
+            />
+          }
         />
 
         <Route
           path="/employees/payout"
-          element={<Navigate to="/admin/payout" replace />}
+          element={
+            <Navigate
+              to="/admin/payout"
+              replace
+            />
+          }
         />
 
 
-        {/* Unknown URL */}
+        {/* ================================
+            UNKNOWN URL
+        ================================= */}
+
         <Route
           path="*"
-          element={<Navigate to="/" replace />}
+          element={
+            <Navigate
+              to="/"
+              replace
+            />
+          }
         />
 
       </Routes>
+
     </BrowserRouter>
   );
 };
