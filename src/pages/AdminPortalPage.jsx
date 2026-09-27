@@ -1,7 +1,20 @@
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import api from '../config/axios';
-import './HomePage.css';
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import api from "../config/axios";
+
+import {
+  FaUsers,
+  FaUserCheck,
+  FaUserTimes,
+  FaCalendarCheck,
+  FaMoneyBillWave,
+  FaWallet,
+  FaBoxes,
+  FaArrowRight,
+} from "react-icons/fa";
+
+import "./HomePage.css";
+import "./AdminPortalPage.css";
 
 const AdminPortalPage = () => {
   const [stats, setStats] = useState({
@@ -59,9 +72,17 @@ const AdminPortalPage = () => {
 
         <div className="container">
 
-          <h2 className="section-title">
-            Employee Management Dashboard
-          </h2>
+          <div className="dashboard-header">
+
+            <h1>Employee Management Dashboard</h1>
+
+            <p>
+
+            Manage employees, attendance, customers and salary from one place.
+
+            </p>
+
+            </div>
 
           {/* =======================
               Statistics Cards
@@ -70,43 +91,131 @@ const AdminPortalPage = () => {
           <div className="dashboard-grid">
 
             <div className="dashboard-card blue">
-              <h3>Total Employees</h3>
-              <h1>{stats.totalEmployees}</h1>
-            </div>
+
+              <div className="card-icon">
+              <FaUsers />
+              </div>
+
+              <div>
+
+              <h4>Total Employees</h4>
+
+              <h2>{stats.totalEmployees}</h2>
+
+              </div>
+
+              </div>
 
             <div className="dashboard-card green">
-              <h3>Active Employees</h3>
-              <h1>{stats.activeEmployees}</h1>
-            </div>
+
+              <div className="card-icon">
+              <FaUserCheck />
+              </div>
+
+              <div>
+
+              <h4>Active Employees</h4>
+
+              <h2>{stats.activeEmployees}</h2>
+
+              </div>
+
+              </div>
 
             <div className="dashboard-card purple">
-              <h3>Total Customers</h3>
-              <h1>{stats.totalCustomers}</h1>
-            </div>
+
+              <div className="card-icon">
+              <FaBoxes />
+              </div>
+
+              <div>
+
+              <h4>Total Customers</h4>
+
+              <h2>{stats.totalCustomers}</h2>
+
+              </div>
+
+              </div>
 
             <div className="dashboard-card orange">
-              <h3>Present Today</h3>
-              <h1>{stats.attendanceToday}</h1>
-            </div>
+
+              <div className="card-icon">
+              <FaCalendarCheck />
+              </div>
+
+              <div>
+
+              <h4>Present Today</h4>
+
+              <h2>{stats.attendanceToday}</h2>
+
+              </div>
+
+              </div>
 
             <div className="dashboard-card red">
-              <h3>Absent Today</h3>
-              <h1>{stats.absentToday}</h1>
-            </div>
+
+              <div className="card-icon">
+              <FaUserTimes />
+              </div>
+
+              <div>
+
+              <h4>Absent Today</h4>
+
+              <h2>{stats.absentToday}</h2>
+
+              </div>
+
+              </div>
 
             <div className="dashboard-card teal">
-              <h3>Attendance Marked</h3>
-              <h1>{stats.attendanceMarked}</h1>
-            </div>
+
+              <div className="card-icon">
+              <FaCalendarCheck />
+              </div>
+
+              <div>
+
+              <h4>Attendance Marked</h4>
+
+              <h2>{stats.attendanceMarked}</h2>
+
+              </div>
+
+              </div>
 
             <div className="dashboard-card salary">
-              <h3>Salary Paid (Month)</h3>
-              <h1>₹{stats.monthSalary.toLocaleString()}</h1>
-            </div>
+
+              <div className="card-icon">
+              <FaMoneyBillWave />
+              </div>
+
+              <div>
+
+              <h4>Salary Paid</h4>
+
+              <h2>₹{stats.monthSalary.toLocaleString()}</h2>
+
+              </div>
+
+              </div>
 
             <div className="dashboard-card advance">
-              <h3>Advance Given (Month)</h3>
-              <h1>₹{stats.monthAdvance.toLocaleString()}</h1>
+
+            <div className="card-icon">
+            <FaWallet />
+            </div>
+
+            <div>
+
+            <h4>Advance Given</h4>
+
+            <h2>₹{stats.monthAdvance.toLocaleString()}</h2>
+
+            </div>
+
             </div>
 
           </div>
@@ -115,12 +224,9 @@ const AdminPortalPage = () => {
               Quick Actions
           ========================== */}
 
-          <h2
-            className="section-title"
-            style={{ marginTop: 50 }}
-          >
+          <h2 className="dashboard-subtitle">
             Quick Actions
-          </h2>
+            </h2>
 
           <div className="home-links">
 
