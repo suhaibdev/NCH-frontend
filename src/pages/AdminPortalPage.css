@@ -1,16 +1,139 @@
 /* ==========================================================
-   ADMIN DASHBOARD PAGE
+   ADMIN PORTAL PAGE
+   Complete replacement for:
+   src/pages/AdminPortalPage.css
+========================================================== */
+
+
+/* ==========================================================
+   MAIN PAGE
 ========================================================== */
 
 .admin-portal {
-    padding: 48px 0 60px;
+    width: 100%;
+    padding: 45px 0 60px;
+    box-sizing: border-box;
 }
 
 .admin-portal .container {
     width: 100%;
     max-width: 1200px;
+    margin: 0 auto;
     box-sizing: border-box;
 }
+
+
+/* ==========================================================
+   LOADING STATE
+========================================================== */
+
+.dashboard-loading {
+    width: 100%;
+    min-height: 80vh;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    color: #24324a;
+
+    font-size: 22px;
+    font-weight: 700;
+
+    text-align: center;
+
+    box-sizing: border-box;
+}
+
+
+/* ==========================================================
+   DASHBOARD HEADER
+========================================================== */
+
+.dashboard-header {
+    margin-bottom: 35px;
+}
+
+.dashboard-header h1 {
+    margin: 0;
+
+    color: #1f2937;
+
+    font-size: 32px;
+    line-height: 1.25;
+
+    font-weight: 750;
+}
+
+.dashboard-header p {
+    margin: 9px 0 0;
+
+    color: #667085;
+
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+
+/* ==========================================================
+   DASHBOARD ERROR
+========================================================== */
+
+.dashboard-error {
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin-bottom: 25px;
+    padding: 14px 18px;
+
+    background: #fff4f4;
+
+    border: 1px solid #f5c2c2;
+    border-left: 4px solid #d32f2f;
+
+    border-radius: 10px;
+
+    color: #b42318;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    box-sizing: border-box;
+}
+
+.dashboard-error button {
+    flex-shrink: 0;
+
+    padding: 8px 16px;
+
+    border: none;
+    border-radius: 7px;
+
+    background: #d32f2f;
+    color: #ffffff;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.2s ease,
+        opacity 0.2s ease;
+}
+
+.dashboard-error button:hover {
+    transform: translateY(-1px);
+    opacity: 0.9;
+}
+
 
 /* ==========================================================
    DASHBOARD GRID
@@ -18,40 +141,54 @@
 
 .dashboard-grid {
     display: grid;
+
     grid-template-columns: repeat(4, minmax(0, 1fr));
+
     gap: 20px;
-    margin: 40px 0;
+
+    margin-bottom: 45px;
 }
+
 
 /* ==========================================================
    DASHBOARD CARD
 ========================================================== */
 
 .dashboard-card {
+    --accent: #1976d2;
+    --accent-soft: #eaf3ff;
+
     position: relative;
 
+    display: flex;
+    align-items: center;
+
+    gap: 18px;
+
     min-width: 0;
-    box-sizing: border-box;
+    min-height: 130px;
+
+    padding: 24px 20px;
 
     background: #ffffff;
 
     border: 1px solid #e8edf3;
     border-radius: 16px;
 
-    padding: 26px 20px;
-
     overflow: hidden;
-
-    text-align: center;
 
     box-shadow: 0 8px 24px rgba(31, 45, 61, 0.07);
 
+    box-sizing: border-box;
+
     transition:
-        transform 0.2s ease,
-        box-shadow 0.2s ease;
+        transform 0.22s ease,
+        box-shadow 0.22s ease,
+        border-color 0.22s ease;
 }
 
-/* Top colored line */
+
+/* top color strip */
 
 .dashboard-card::before {
     content: "";
@@ -64,168 +201,200 @@
     width: 100%;
     height: 5px;
 
-    background: #1976d2;
+    background: var(--accent);
 }
 
-/* Hover */
+
+/* hover */
 
 .dashboard-card:hover {
     transform: translateY(-5px);
 
+    border-color: #dce4ec;
+
     box-shadow: 0 14px 32px rgba(31, 45, 61, 0.13);
 }
+
 
 /* ==========================================================
    CARD COLORS
 ========================================================== */
 
-.dashboard-card.blue::before {
-    background: #1976d2;
+.dashboard-card.blue {
+    --accent: #1976d2;
+    --accent-soft: #eaf3ff;
 }
 
-.dashboard-card.green::before {
-    background: #2e7d32;
+.dashboard-card.green {
+    --accent: #2e7d32;
+    --accent-soft: #eaf7ec;
 }
 
-.dashboard-card.purple::before {
-    background: #7b1fa2;
+.dashboard-card.purple {
+    --accent: #7b1fa2;
+    --accent-soft: #f3e9f8;
 }
 
-.dashboard-card.orange::before {
-    background: #ef6c00;
+.dashboard-card.orange {
+    --accent: #ef6c00;
+    --accent-soft: #fff1e5;
 }
 
-.dashboard-card.red::before {
-    background: #d32f2f;
+.dashboard-card.red {
+    --accent: #d32f2f;
+    --accent-soft: #fdecec;
 }
 
-.dashboard-card.teal::before {
-    background: #00897b;
+.dashboard-card.teal {
+    --accent: #00897b;
+    --accent-soft: #e5f6f4;
 }
 
-.dashboard-card.salary::before {
-    background: #43a047;
+.dashboard-card.salary {
+    --accent: #43a047;
+    --accent-soft: #ebf7ec;
 }
 
-.dashboard-card.advance::before {
-    background: #ff9800;
+.dashboard-card.advance {
+    --accent: #ff9800;
+    --accent-soft: #fff4df;
 }
+
 
 /* ==========================================================
-   CARD TEXT
+   CARD ICON
 ========================================================== */
 
-.dashboard-card h3 {
-    margin: 4px 0 14px;
+.card-icon {
+    width: 52px;
+    height: 52px;
+
+    flex: 0 0 52px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: var(--accent-soft);
+    color: var(--accent);
+
+    border-radius: 13px;
+
+    font-size: 24px;
+    font-weight: 800;
+
+    line-height: 1;
+
+    box-sizing: border-box;
+}
+
+
+/* ==========================================================
+   CARD CONTENT
+========================================================== */
+
+.card-content {
+    min-width: 0;
+    flex: 1;
+}
+
+.dashboard-card h4 {
+    margin: 0 0 9px;
 
     color: #667085;
 
-    font-size: 14px;
-
+    font-size: 13px;
     line-height: 1.4;
 
+    font-weight: 700;
+
     text-transform: uppercase;
-
-    letter-spacing: 0.5px;
-
-    font-weight: 600;
+    letter-spacing: 0.35px;
 }
 
-.dashboard-card h1 {
+.dashboard-card h2 {
     margin: 0;
 
-    color: #24324a;
+    color: var(--accent);
 
-    font-size: 36px;
+    font-size: 29px;
+    line-height: 1.15;
 
-    line-height: 1.1;
-
-    font-weight: 700;
+    font-weight: 750;
 
     overflow-wrap: anywhere;
 }
 
-.dashboard-card p {
-    margin: 8px 0 0;
-
-    color: #777;
-
-    font-size: 14px;
-}
 
 /* ==========================================================
-   CARD NUMBER COLORS
+   SECTION HEADER
 ========================================================== */
 
-.dashboard-card.blue h1 {
-    color: #1976d2;
+.dashboard-section-header {
+    margin-bottom: 20px;
 }
 
-.dashboard-card.green h1 {
-    color: #2e7d32;
+.dashboard-subtitle {
+    margin: 0;
+
+    color: #24324a;
+
+    font-size: 24px;
+    line-height: 1.3;
+
+    font-weight: 750;
 }
 
-.dashboard-card.purple h1 {
-    color: #7b1fa2;
+.dashboard-section-header p {
+    margin: 6px 0 0;
+
+    color: #667085;
+
+    font-size: 14px;
+    line-height: 1.5;
 }
 
-.dashboard-card.orange h1 {
-    color: #ef6c00;
-}
-
-.dashboard-card.red h1 {
-    color: #d32f2f;
-}
-
-.dashboard-card.teal h1 {
-    color: #00897b;
-}
-
-.dashboard-card.salary h1 {
-    color: #2e7d32;
-}
-
-.dashboard-card.advance h1 {
-    color: #ef6c00;
-}
 
 /* ==========================================================
    QUICK ACTIONS
 ========================================================== */
 
-.home-links {
+.admin-portal .home-links {
     display: grid;
 
     grid-template-columns: repeat(4, minmax(0, 1fr));
 
     gap: 16px;
 
-    margin-bottom: 50px;
+    margin: 0 0 50px;
+
+    padding: 0;
 }
 
-.home-link {
+.admin-portal .home-link {
+    width: 100%;
     min-width: 0;
-
-    box-sizing: border-box;
+    min-height: 54px;
 
     display: flex;
-
     align-items: center;
     justify-content: center;
 
-    min-height: 52px;
-
     padding: 14px 18px;
 
-    border-radius: 10px;
+    border-radius: 11px;
 
     color: #ffffff;
 
     text-decoration: none;
+    text-align: center;
 
+    font-size: 14px;
     font-weight: 700;
 
-    text-align: center;
+    box-sizing: border-box;
+
+    box-shadow: 0 5px 14px rgba(31, 45, 61, 0.08);
 
     transition:
         transform 0.2s ease,
@@ -233,153 +402,173 @@
         filter 0.2s ease;
 }
 
-.home-link:hover {
+.admin-portal .home-link:hover {
     transform: translateY(-3px);
 
-    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 10px 20px rgba(31, 45, 61, 0.15);
 
     filter: brightness(0.97);
 }
 
-/* Quick action colors */
-
-.home-link-blue {
+.admin-portal .home-link-blue {
     background: #1976d2;
 }
 
-.home-link-purple {
+.admin-portal .home-link-purple {
     background: #7b1fa2;
 }
 
-.home-link-green {
+.admin-portal .home-link-green {
     background: #2e7d32;
 }
 
-.home-link-orange {
+.admin-portal .home-link-orange {
     background: #ef6c00;
 }
 
-/* ==========================================================
-   DASHBOARD BUTTONS
-   Kept for compatibility with existing/future JSX
-========================================================== */
-
-.dashboard-btns {
-    display: flex;
-
-    justify-content: center;
-
-    flex-wrap: wrap;
-
-    gap: 18px;
-
-    margin: 45px 0;
-}
-
-.dashboard-btn {
-    text-decoration: none;
-
-    color: #ffffff;
-
-    padding: 15px 30px;
-
-    border-radius: 10px;
-
-    font-weight: 600;
-
-    transition:
-        transform 0.2s ease,
-        box-shadow 0.2s ease;
-}
-
-.dashboard-btn:hover {
-    transform: translateY(-3px);
-
-    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
-}
-
-.dashboard-btn-blue {
-    background: #1976d2;
-}
-
-.dashboard-btn-purple {
-    background: #7b1fa2;
-}
-
-.dashboard-btn-green {
-    background: #2e7d32;
-}
-
-.dashboard-btn-orange {
-    background: #ef6c00;
-}
 
 /* ==========================================================
-   RECENT EMPLOYEES TABLE
+   RECENT EMPLOYEES TABLE CARD
 ========================================================== */
 
 .dashboard-table {
     width: 100%;
 
-    margin-top: 20px;
+    margin-top: 10px;
 
     background: #ffffff;
 
     border: 1px solid #e8edf3;
-
-    border-radius: 14px;
+    border-radius: 16px;
 
     overflow: hidden;
 
     box-shadow: 0 8px 24px rgba(31, 45, 61, 0.07);
+
+    box-sizing: border-box;
 }
 
-/* Table heading */
 
-.dashboard-table h2 {
-    margin: 0;
+/* ==========================================================
+   TABLE HEADER
+========================================================== */
 
-    padding: 20px 22px;
+.dashboard-table-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 
-    color: #24324a;
+    gap: 20px;
 
-    font-size: 20px;
-
-    line-height: 1.3;
+    padding: 21px 22px;
 
     border-bottom: 1px solid #edf0f3;
 }
 
-/* Table */
+.dashboard-table-header h2 {
+    margin: 0;
+
+    color: #24324a;
+
+    font-size: 20px;
+    line-height: 1.3;
+
+    font-weight: 750;
+}
+
+.dashboard-table-header p {
+    margin: 5px 0 0;
+
+    color: #667085;
+
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+
+/* ==========================================================
+   VIEW ALL BUTTON
+========================================================== */
+
+.dashboard-view-all {
+    flex-shrink: 0;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 40px;
+
+    padding: 9px 16px;
+
+    background: #eef6ff;
+
+    border: 1px solid #d6e9ff;
+    border-radius: 8px;
+
+    color: #1976d2;
+
+    text-decoration: none;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+
+.dashboard-view-all:hover {
+    background: #deedff;
+
+    transform: translateY(-1px);
+}
+
+
+/* ==========================================================
+   TABLE SCROLL WRAPPER
+========================================================== */
+
+.dashboard-table-scroll {
+    width: 100%;
+
+    overflow-x: auto;
+
+    -webkit-overflow-scrolling: touch;
+}
+
+
+/* ==========================================================
+   TABLE
+========================================================== */
 
 .dashboard-table table {
     width: 100%;
 
     border-collapse: collapse;
-}
 
-/* Table header */
+    background: #ffffff;
+}
 
 .dashboard-table thead {
     background: #1976d2;
 }
 
 .dashboard-table th {
-    color: #ffffff;
+    padding: 14px 18px;
 
-    padding: 14px 16px;
+    color: #ffffff;
 
     text-align: left;
 
-    font-size: 14px;
-
+    font-size: 13px;
     font-weight: 700;
+
+    white-space: nowrap;
 }
 
-/* Table cells */
-
 .dashboard-table td {
-    padding: 14px 16px;
+    padding: 15px 18px;
 
     color: #344054;
 
@@ -388,39 +577,40 @@
     border-bottom: 1px solid #edf0f3;
 }
 
-/* Alternating rows */
-
 .dashboard-table tbody tr:nth-child(even) {
     background: #fafbfd;
 }
 
-/* Hover row */
-
 .dashboard-table tbody tr:hover {
-    background: #eef6ff;
-
-    transition: background 0.2s ease;
+    background: #f0f7ff;
 }
-
-/* Remove border from last row */
 
 .dashboard-table tbody tr:last-child td {
     border-bottom: none;
 }
 
+.dashboard-table td strong {
+    color: #24324a;
+
+    font-weight: 700;
+}
+
+
 /* ==========================================================
-   TABLE EMPTY STATE
+   EMPTY TABLE MESSAGE
 ========================================================== */
 
-.dashboard-table tbody td[colspan] {
-    padding: 28px 16px;
-
-    text-align: center;
+.dashboard-table .dashboard-empty {
+    padding: 30px 16px;
 
     color: #667085;
 
+    text-align: center;
+
+    font-size: 14px;
     font-weight: 500;
 }
+
 
 /* ==========================================================
    TABLET
@@ -432,19 +622,20 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .home-links {
+    .admin-portal .home-links {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 
+
 /* ==========================================================
-   MOBILE
+   SMALL TABLET / LARGE MOBILE
 ========================================================== */
 
 @media (max-width: 768px) {
 
     .admin-portal {
-        padding: 32px 0 45px;
+        padding: 30px 0 45px;
     }
 
     .admin-portal .container {
@@ -452,53 +643,91 @@
         padding-right: 15px;
     }
 
+    /* Header */
+
+    .dashboard-header {
+        margin-bottom: 27px;
+    }
+
+    .dashboard-header h1 {
+        font-size: 26px;
+    }
+
+    .dashboard-header p {
+        font-size: 14px;
+    }
+
+    /* Error */
+
+    .dashboard-error {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .dashboard-error button {
+        width: 100%;
+    }
+
+    /* Cards */
+
     .dashboard-grid {
         grid-template-columns: 1fr;
 
         gap: 15px;
 
-        margin: 30px 0 35px;
+        margin-bottom: 35px;
     }
 
     .dashboard-card {
-        padding: 23px 18px;
+        min-height: 115px;
+
+        padding: 21px 18px;
     }
 
-    .dashboard-card h3 {
-        font-size: 13px;
+    .card-icon {
+        width: 48px;
+        height: 48px;
+
+        flex-basis: 48px;
+
+        font-size: 22px;
     }
 
-    .dashboard-card h1 {
-        font-size: 32px;
+    .dashboard-card h2 {
+        font-size: 27px;
     }
 
     /* Quick actions */
 
-    .home-links {
+    .dashboard-subtitle {
+        font-size: 21px;
+    }
+
+    .admin-portal .home-links {
         grid-template-columns: 1fr;
 
         gap: 12px;
 
-        margin-bottom: 35px;
+        margin-bottom: 38px;
     }
 
-    .home-link {
-        width: 100%;
-
+    .admin-portal .home-link {
         min-height: 50px;
     }
 
-    /* Table */
+    /* Table Header */
 
-    .dashboard-table {
-        overflow-x: auto;
+    .dashboard-table-header {
+        align-items: flex-start;
+
+        padding: 18px;
     }
 
-    .dashboard-table h2 {
-        padding: 17px;
-
+    .dashboard-table-header h2 {
         font-size: 18px;
     }
+
+    /* Table */
 
     .dashboard-table table {
         min-width: 520px;
@@ -506,31 +735,86 @@
 
     .dashboard-table th,
     .dashboard-table td {
-        padding: 12px;
+        padding: 13px 15px;
     }
 }
 
+
 /* ==========================================================
-   SMALL MOBILE
+   MOBILE
 ========================================================== */
 
 @media (max-width: 480px) {
 
+    .admin-portal {
+        padding-top: 25px;
+    }
+
+    .dashboard-header h1 {
+        font-size: 23px;
+    }
+
+    .dashboard-header p {
+        font-size: 13px;
+    }
+
+    /* Cards */
+
     .dashboard-card {
-        padding: 21px 16px;
+        gap: 14px;
+
+        min-height: 105px;
+
+        padding: 19px 15px;
     }
 
-    .dashboard-card h1 {
-        font-size: 30px;
+    .card-icon {
+        width: 44px;
+        height: 44px;
+
+        flex-basis: 44px;
+
+        border-radius: 11px;
+
+        font-size: 20px;
     }
 
-    .dashboard-card h3 {
-        font-size: 12px;
-
-        letter-spacing: 0.4px;
+    .dashboard-card h4 {
+        font-size: 11px;
     }
+
+    .dashboard-card h2 {
+        font-size: 24px;
+    }
+
+    /* Section */
+
+    .dashboard-subtitle {
+        font-size: 20px;
+    }
+
+    /* Table header */
+
+    .dashboard-table-header {
+        flex-direction: column;
+
+        gap: 14px;
+    }
+
+    .dashboard-view-all {
+        width: 100%;
+
+        box-sizing: border-box;
+    }
+
+    /* Table */
 
     .dashboard-table table {
         min-width: 480px;
+    }
+
+    .dashboard-table th,
+    .dashboard-table td {
+        padding: 12px;
     }
 }
