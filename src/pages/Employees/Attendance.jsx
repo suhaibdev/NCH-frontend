@@ -1,353 +1,1074 @@
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import api from '../../config/axios';
-import './AttendancePage.css';
+import React, { useEffect, useState } from "react";
+import api from "../../config/axios";
 
-// Returns the current month as a "YYYY-MM" string, e.g. "2026-06".
-// This is the format an <input type="month"> uses.
+import "./AttendancePage.css";
+
 const getCurrentMonth = () => {
   const now = new Date();
+
   const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0'); // months are 0-based
+
+  const month = String(
+    now.getMonth() + 1
+  ).padStart(2, "0");
+
   return `${year}-${month}`;
 };
 
 const AttendancePage = () => {
   const [employees, setEmployees] = useState([]);
-  const [monthRecords, setMonthRecords] = useState([]); // attendance for the selected month
-  const [month, setMonth] = useState(getCurrentMonth());
-  const [employeeId, setEmployeeId] = useState('');
-  const [date, setDate] = useState('');
-  const [present, setPresent] = useState(true);
-  const [workHours, setWorkHours] = useState('');
-  const [overtime, setOvertime] = useState('');
-  const [advancePayment, setAdvancePayment] = useState('');
-  const [notes, setNotes] = useState('');
-  const [editRecordId, setEditRecordId] = useState(null);
+  const [monthRecords, setMonthRecords] = useState([]);
 
-  // Load the employee list once when the page opens.
+  const [month, setMonth] = useState(
+    getCurrentMonth()
+  );
+
+  const [employeeId, setEmployeeId] =
+    useState("");
+
+  const [date, setDate] = useState("");
+
+  const [present, setPresent] =
+    useState(true);
+
+  const [workHours, setWorkHours] =
+    useState("");
+
+  const [overtime, setOvertime] =
+    useState("");
+
+  const [
+    advancePayment,
+    setAdvancePayment,
+  ] = useState("");
+
+  const [notes, setNotes] =
+    useState("");
+
+  const [editRecordId, setEditRecordId] =
+    useState(null);
+
+  const [loadingEmployees, setLoadingEmployees] =
+    useState(true);
+
+  const [loadingRegister, setLoadingRegister] =
+    useState(true);
+
+  const [saving, setSaving] =
+    useState(false);
+
+  const [message, setMessage] =
+    useState("");
+
+  const [error, setError] =
+    useState("");
+
   useEffect(() => {
     fetchEmployees();
   }, []);
 
-  // Re-fetch the register every time the selected month changes.
   useEffect(() => {
     fetchMonthAttendance(month);
   }, [month]);
 
+  const clearMessages = () => {
+    setMessage("");
+    setError("");
+  };
+
   const fetchEmployees = async () => {
     try {
-      const res = await api.get('/employees');
-      setEmployees(res.data.filter(e => e.isActive));
+      setLoadingEmployees(true);
+
+      const res = await api.get(
+        "/employees"
+      );
+
+      const employeeList =
+        Array.isArray(res.data)
+          ? res.data
+          : [];
+
+      setEmployees(
+        employeeList.filter(
+          (employee) =>
+            employee.isActive
+        )
+      );
     } catch (err) {
-      console.error('Failed to fetch employees:', err.message || err);
+      console.error(
+        "Failed to fetch employees:",
+        err
+      );
+
+      setError(
+        err.response?.data?.message ||
+          "Unable to load employees."
+      );
+    } finally {
+      setLoadingEmployees(false);
     }
   };
 
-  // Fetch every attendance record that falls inside the chosen month.
-  const fetchMonthAttendance = async (monthStr) => {
-    if (!monthStr) return;
-    const [year, mon] = monthStr.split('-').map(Number); // mon is 1-12
-    // "Day 0 of the next month" == the last day of THIS month.
-    // This automatically handles 28/29/30/31-day months and leap years.
-    const daysInMonth = new Date(year, mon, 0).getDate();
-    const startDate = `${monthStr}-01`;
-    const endDate = `${monthStr}-${String(daysInMonth).padStart(2, '0')}`;
-    try {
-      const res = await api.get('/attendance/range', {
-        params: { startDate, endDate },
-      });
-      setMonthRecords(res.data);
-    } catch (err) {
-      console.error('Failed to load month attendance', err);
-      setMonthRecords([]);
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!employeeId || !date) {
-      alert('Please select employee and date');
+  const fetchMonthAttendance = async (
+    monthStr
+  ) => {
+    if (!monthStr) {
       return;
     }
-    try {
-      // An absent employee always saves as 0 hours and 0 overtime,
-      // even though the form boxes are left blank.
-        const finalWorkHours = present
-          ? (workHours === '' || workHours === null || workHours === undefined
-              ? 8
-              : Number(workHours))
-          : 0;
 
-        const finalOvertime = present
-          ? (overtime === '' || overtime === null || overtime === undefined
-              ? 0
-              : Number(overtime))
-          : 0;
-      
-      if (editRecordId) {
-        await api.put(`/attendance/${editRecordId}`, {
-          present,
-          workHours: finalWorkHours,
-          overtime: finalOvertime,
-          advancePayment,
-          notes
-        });
-      } else {
-        await api.post('/attendance', {
-          employeeId, date, present,
-          workHours: finalWorkHours,
-          overtime: finalOvertime,
-          advancePayment, notes
-        });
-      }
-      await fetchMonthAttendance(month); // refresh the register
-      setEditRecordId(null);
-      setEmployeeId('');
-      setDate('');
-      setPresent(true);
-      setWorkHours('');
-      setOvertime('');
-      setAdvancePayment('');
-      setNotes('');
+    const [year, mon] = monthStr
+      .split("-")
+      .map(Number);
+
+    const daysInMonth = new Date(
+      year,
+      mon,
+      0
+    ).getDate();
+
+    const startDate =
+      `${monthStr}-01`;
+
+    const endDate =
+      `${monthStr}-${String(
+        daysInMonth
+      ).padStart(2, "0")}`;
+
+    try {
+      setLoadingRegister(true);
+
+      const res = await api.get(
+        "/attendance/range",
+        {
+          params: {
+            startDate,
+            endDate,
+          },
+        }
+      );
+
+      setMonthRecords(
+        Array.isArray(res.data)
+          ? res.data
+          : []
+      );
     } catch (err) {
-      alert(err.response?.data?.message || 'Error marking attendance');
+      console.error(
+        "Failed to load month attendance:",
+        err
+      );
+
+      setMonthRecords([]);
+
+      setError(
+        err.response?.data?.message ||
+          "Unable to load attendance register."
+      );
+    } finally {
+      setLoadingRegister(false);
     }
   };
 
-  const handleCellClick = (emp, day, rec) => {
-    const fullDate = `${month}-${String(day).padStart(2, '0')}`;
-    if (rec) {
-      setEditRecordId(rec._id);
-      setEmployeeId(emp._id);
-      setDate(rec.date ? new Date(rec.date).toISOString().split('T')[0] : fullDate);
-      setPresent(rec.present);
+  const resetForm = () => {
+    setEditRecordId(null);
+
+    setEmployeeId("");
+
+    setDate("");
+
+    setPresent(true);
+
+    setWorkHours("");
+
+    setOvertime("");
+
+    setAdvancePayment("");
+
+    setNotes("");
+  };
+
+  const handleSubmit = async (
+    event
+  ) => {
+    event.preventDefault();
+
+    clearMessages();
+
+    if (!employeeId) {
+      setError(
+        "Please select an employee."
+      );
+      return;
+    }
+
+    if (!date) {
+      setError(
+        "Please select an attendance date."
+      );
+      return;
+    }
+
+    const finalWorkHours = present
+      ? workHours === ""
+        ? 8
+        : Number(workHours)
+      : 0;
+
+    const finalOvertime = present
+      ? overtime === ""
+        ? 0
+        : Number(overtime)
+      : 0;
+
+    const finalAdvance =
+      advancePayment === ""
+        ? 0
+        : Number(advancePayment);
+
+    if (
+      finalWorkHours < 0 ||
+      finalWorkHours > 24
+    ) {
+      setError(
+        "Work hours must be between 0 and 24."
+      );
+      return;
+    }
+
+    if (
+      finalOvertime < 0 ||
+      finalOvertime > 24
+    ) {
+      setError(
+        "Overtime must be between 0 and 24 hours."
+      );
+      return;
+    }
+
+    if (finalAdvance < 0) {
+      setError(
+        "Advance payment cannot be negative."
+      );
+      return;
+    }
+
+    try {
+      setSaving(true);
+
+      if (editRecordId) {
+        await api.put(
+          `/attendance/${editRecordId}`,
+          {
+            present,
+            workHours:
+              finalWorkHours,
+            overtime:
+              finalOvertime,
+            advancePayment:
+              finalAdvance,
+            notes: notes.trim(),
+          }
+        );
+
+        setMessage(
+          "Attendance updated successfully."
+        );
+      } else {
+        await api.post(
+          "/attendance",
+          {
+            employeeId,
+            date,
+            present,
+            workHours:
+              finalWorkHours,
+            overtime:
+              finalOvertime,
+            advancePayment:
+              finalAdvance,
+            notes: notes.trim(),
+          }
+        );
+
+        setMessage(
+          "Attendance marked successfully."
+        );
+      }
+
+      await fetchMonthAttendance(
+        month
+      );
+
+      resetForm();
+    } catch (err) {
+      console.error(
+        "Error saving attendance:",
+        err
+      );
+
+      setError(
+        err.response?.data?.message ||
+          "Error marking attendance."
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleCellClick = (
+    employee,
+    day,
+    record
+  ) => {
+    clearMessages();
+
+    const fullDate =
+      `${month}-${String(day).padStart(
+        2,
+        "0"
+      )}`;
+
+    if (record) {
+      setEditRecordId(record._id);
+
+      setEmployeeId(
+        employee._id
+      );
+
+      setDate(
+        record.date
+          ? new Date(record.date)
+              .toISOString()
+              .split("T")[0]
+          : fullDate
+      );
+
+      setPresent(
+        Boolean(record.present)
+      );
+
       setWorkHours(
-        rec.present
-          ? (rec.workHours ?? 8)
-          : ''
-       );
-      setOvertime(rec.overtime ?? '');
-      setAdvancePayment(rec.advancePayment ?? '');
-      setNotes(rec.notes ?? '');
+        record.present
+          ? record.workHours ?? 8
+          : ""
+      );
+
+      setOvertime(
+        record.overtime ?? ""
+      );
+
+      setAdvancePayment(
+        record.advancePayment ?? ""
+      );
+
+      setNotes(
+        record.notes ?? ""
+      );
     } else {
       setEditRecordId(null);
-      setEmployeeId(emp._id);
+
+      setEmployeeId(
+        employee._id
+      );
+
       setDate(fullDate);
+
       setPresent(true);
-      setWorkHours('');
-      setOvertime('');
-      setAdvancePayment('');
-      setNotes('');
+
+      setWorkHours("");
+
+      setOvertime("");
+
+      setAdvancePayment("");
+
+      setNotes("");
     }
+
+    document
+      .getElementById(
+        "attendance-form-card"
+      )
+      ?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
   };
 
-  // ---- Build the register grid data ----
-  const [year, mon] = month ? month.split('-').map(Number) : [0, 0];
-  const daysInMonth = month ? new Date(year, mon, 0).getDate() : 0;
-  // [1, 2, 3, ... daysInMonth] — the column headers.
-  const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+  const [year, mon] = month
+    ? month
+        .split("-")
+        .map(Number)
+    : [0, 0];
 
-  // A fast lookup: "employeeId-day" -> attendance record.
-  // We read the day in UTC because dates are stored at UTC midnight,
-  // which keeps the day correct no matter the viewer's timezone.
+  const daysInMonth = month
+    ? new Date(
+        year,
+        mon,
+        0
+      ).getDate()
+    : 0;
+
+  const days = Array.from(
+    {
+      length: daysInMonth,
+    },
+    (_, index) =>
+      index + 1
+  );
+
   const recordMap = {};
-  monthRecords.forEach(rec => {
-    const empId = rec.employee?._id;
-    if (!empId || !rec.date) return;
-    const day = new Date(rec.date).getUTCDate();
-    recordMap[`${empId}-${day}`] = rec;
-  });
+
+  monthRecords.forEach(
+    (record) => {
+      const id =
+        record.employee?._id;
+
+      if (
+        !id ||
+        !record.date
+      ) {
+        return;
+      }
+
+      const day = new Date(
+        record.date
+      ).getUTCDate();
+
+      recordMap[
+        `${id}-${day}`
+      ] = record;
+    }
+  );
 
   return (
-    <div className="ep-container">
-      <h2 className="ep-title">Mark Attendance</h2>
-      
-      <form className="ep-form" onSubmit={handleSubmit} style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '24px' }}>
-        <select
-          value={employeeId}
-          onChange={e => setEmployeeId(e.target.value)}
-          className="ep-input"
-        >
-          <option value="">Select Employee</option>
-          {employees.map(emp => (
-            <option key={emp._id} value={emp._id}>
-              {emp.name} ({emp.workType})
-            </option>
-          ))}
-        </select>
-        <input
-          type="date"
-          value={date}
-          onChange={e => setDate(e.target.value)}
-          className="ep-input"
-        />
-        <select
-          value={present}
-          onChange={e => {
-            // Just switch the status. We DON'T write 0 into the boxes here,
-            // so they stay blank (showing their placeholder). The 0 for an
-            // absent employee is applied automatically on save instead.
-            setPresent(e.target.value === 'true');
-          }}
-          className="ep-input"
-        >
-          <option value="true">Present</option>
-          <option value="false">Absent</option>
-        </select>
-        <input
-          type="number"
-          value={workHours}
-          onChange={e => {
-            const raw = e.target.value;
-            // Allow the box to be left truly empty instead of snapping to 0.
-            const hours = raw === '' ? '' : Number(raw);
-            setWorkHours(hours);
-            // If the user enters 1 or more hours, they were clearly present:
-            // flip the status back to Present automatically.
-            if (hours >= 1) setPresent(true);
-          }}
-          className="ep-input"
-          min={0}
-          max={24}
-          placeholder="Work Hours"
-        />
-        <input
-          type="number"
-          value={overtime}
-          onChange={e => {
-            const raw = e.target.value;
-            setOvertime(raw === '' ? '' : Number(raw));
-          }}
-          className="ep-input ep-input-no-spinner"
-          min={0}
-          max={24}
-          placeholder="Overtime"
-        />
-        <input
-          type="number"
-          value={advancePayment}
-          onChange={e => setAdvancePayment(Number(e.target.value))}
-          className="ep-input ep-input-no-spinner"
-          min={0}
-          placeholder="Advance Payment (₹)"
-        />
-        <input
-          type="text"
-          value={notes}
-          onChange={e => setNotes(e.target.value)}
-          className="ep-input"
-          placeholder="Notes"
-        />
-        <button type="submit" className="ep-btn ep-btn-primary" style={{ marginBottom: '8px' }}>
-          {editRecordId ? 'Update' : 'Mark'}
-        </button>
-        {editRecordId && (
-          <button
-            type="button"
-            className="ep-btn"
-            style={{ marginBottom: '8px' }}
-            onClick={() => {
-              setEditRecordId(null);
-              setEmployeeId('');
-              setDate('');
-              setPresent(true);
-              setWorkHours('');
-              setOvertime('');
-              setAdvancePayment('');
-              setNotes('');
-            }}
-          >
-            Cancel
-          </button>
-        )}
-      </form>
+    <div className="ep-container attendance-page">
 
-      <div className="att-register-header">
-        <h3 className="ep-title" style={{ margin: 0 }}>Attendance Register</h3>
-        <input
-          type="month"
-          value={month}
-          onChange={e => setMonth(e.target.value)}
-          className="ep-input"
-          style={{ width: 'auto' }}
-        />
-        <span className="att-legend">
-          <span className="att-tick">✓</span> Present &nbsp;
-          <span className="att-cross">✗</span> Absent &nbsp;
-          <span className="att-none">–</span> No record &nbsp;
-          <span style={{ color: '#1976d2', fontWeight: 'bold' }}>+</span> Overtime &nbsp;
-          <span style={{ color: '#d32f2f', fontWeight: 'bold' }}>₹</span> Advance
-        </span>
+      {/* ============================
+          PAGE HEADER
+      ============================ */}
+
+      <div className="attendance-page-header">
+        <div>
+          <h1>Attendance</h1>
+
+          <p>
+            Mark daily attendance and
+            review the monthly employee
+            register.
+          </p>
+        </div>
+
+        <div className="attendance-count">
+          <span>
+            Active Employees
+          </span>
+
+          <strong>
+            {employees.length}
+          </strong>
+        </div>
       </div>
 
-      <div className="att-register-wrap">
-        <table className="att-register">
-          <thead>
-            <tr>
-              <th className="att-sticky-col">Employee</th>
-              {days.map(d => (
-                <th key={d}>{d}</th>
-              ))}
-              <th className="att-total-col">Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            {employees.map(emp => {
-              let presentCount = 0;
-              let totalHrs = 0;
-              // Build the day cells; accumulate this employee's monthly totals.
-              const cells = days.map(d => {
-                const rec = recordMap[`${emp._id}-${d}`];
-                if (!rec) {
-                  return <td key={d} className="att-cell-none" onClick={() => handleCellClick(emp, d, null)} style={{ cursor: 'pointer' }}>–</td>;
-                }
-                
-                let cellTitle = undefined;
-                if (rec.overtime > 0 || rec.advancePayment > 0 || rec.notes) {
-                  cellTitle = `Overtime: ${rec.overtime || 0}h
-                  Advance: ₹${rec.advancePayment || 0}
-                  Notes: ${rec.notes || 'N/A'}`;
-                }
+      {/* ============================
+          MESSAGES
+      ============================ */}
 
-                if (rec.present) {
-                  presentCount += 1;
-                  totalHrs += rec.workHours || 0;
-                  return (
-                    <td key={d} className="att-cell-present" onClick={() => handleCellClick(emp, d, rec)} style={{ cursor: 'pointer' }} title={cellTitle}>
-                      <span className="att-tick">✓</span>
-                      <span className="att-hrs">
-                        {rec.workHours}h
-                        {rec.overtime > 0 && (
-                          <span style={{ color: '#1976d2', marginLeft: '2px', fontWeight: 'bold' }}>+</span>
-                        )}
-                        {rec.advancePayment > 0 && (
-                          <span style={{ color: '#d32f2f', marginLeft: '2px', fontWeight: 'bold' }}>₹</span>
-                        )}
-                      </span>
-                    </td>
-                  );
+      {message && (
+        <div className="attendance-message success">
+          {message}
+        </div>
+      )}
+
+      {error && (
+        <div className="attendance-message error">
+          {error}
+        </div>
+      )}
+
+      {/* ============================
+          ATTENDANCE FORM
+      ============================ */}
+
+      <div
+        className="attendance-card"
+        id="attendance-form-card"
+      >
+        <div className="attendance-card-header">
+          <div>
+            <h2>
+              {editRecordId
+                ? "Edit Attendance"
+                : "Mark Attendance"}
+            </h2>
+
+            <p>
+              {editRecordId
+                ? "Update the selected attendance record."
+                : "Enter the employee's daily attendance details."}
+            </p>
+          </div>
+
+          {editRecordId && (
+            <span className="attendance-edit-badge">
+              Editing
+            </span>
+          )}
+        </div>
+
+        <form
+          className="attendance-form"
+          onSubmit={handleSubmit}
+        >
+
+          <div className="attendance-field">
+            <label>
+              Employee
+              <span>*</span>
+            </label>
+
+            <select
+              value={employeeId}
+              onChange={(event) =>
+                setEmployeeId(
+                  event.target.value
+                )
+              }
+              className="ep-input"
+              disabled={
+                loadingEmployees ||
+                saving
+              }
+            >
+              <option value="">
+                {loadingEmployees
+                  ? "Loading employees..."
+                  : "Select Employee"}
+              </option>
+
+              {employees.map(
+                (employee) => (
+                  <option
+                    key={
+                      employee._id
+                    }
+                    value={
+                      employee._id
+                    }
+                  >
+                    {employee.name}
+                    {employee.workType
+                      ? ` (${employee.workType})`
+                      : ""}
+                  </option>
+                )
+              )}
+            </select>
+          </div>
+
+          <div className="attendance-field">
+            <label>
+              Date
+              <span>*</span>
+            </label>
+
+            <input
+              type="date"
+              value={date}
+              onChange={(event) =>
+                setDate(
+                  event.target.value
+                )
+              }
+              className="ep-input"
+              disabled={saving}
+            />
+          </div>
+
+          <div className="attendance-field">
+            <label>Status</label>
+
+            <select
+              value={
+                present
+                  ? "true"
+                  : "false"
+              }
+              onChange={(event) =>
+                setPresent(
+                  event.target.value ===
+                    "true"
+                )
+              }
+              className="ep-input"
+              disabled={saving}
+            >
+              <option value="true">
+                Present
+              </option>
+
+              <option value="false">
+                Absent
+              </option>
+            </select>
+          </div>
+
+          <div className="attendance-field">
+            <label>
+              Work Hours
+            </label>
+
+            <input
+              type="number"
+              value={workHours}
+              onChange={(event) => {
+                const raw =
+                  event.target.value;
+
+                const hours =
+                  raw === ""
+                    ? ""
+                    : Number(raw);
+
+                setWorkHours(
+                  hours
+                );
+
+                if (
+                  hours !== "" &&
+                  hours >= 1
+                ) {
+                  setPresent(true);
                 }
-                return <td key={d} className="att-cell-absent" onClick={() => handleCellClick(emp, d, rec)} style={{ cursor: 'pointer' }} title={cellTitle}><span className="att-cross">✗</span></td>;
-              });
-              return (
-                <tr key={emp._id}>
-                  <td className="att-sticky-col att-emp-name">{emp.name}</td>
-                  {cells}
-                  <td className="att-total-col">{presentCount}P<br />{totalHrs}h</td>
-                </tr>
-              );
-            })}
-            {employees.length === 0 && (
-              <tr>
-                <td colSpan={days.length + 2} style={{ textAlign: 'center', padding: '16px' }}>
-                  No active employees found.
-                </td>
-              </tr>
+              }}
+              className="ep-input ep-input-no-spinner"
+              min={0}
+              max={24}
+              step="0.5"
+              placeholder={
+                present
+                  ? "Default: 8 hours"
+                  : "Saved as 0 when absent"
+              }
+              disabled={saving}
+            />
+          </div>
+
+          <div className="attendance-field">
+            <label>
+              Overtime
+            </label>
+
+            <input
+              type="number"
+              value={overtime}
+              onChange={(event) => {
+                const raw =
+                  event.target.value;
+
+                setOvertime(
+                  raw === ""
+                    ? ""
+                    : Number(raw)
+                );
+              }}
+              className="ep-input ep-input-no-spinner"
+              min={0}
+              max={24}
+              step="0.5"
+              placeholder="Overtime hours"
+              disabled={saving}
+            />
+          </div>
+
+          <div className="attendance-field">
+            <label>
+              Advance Payment
+            </label>
+
+            <input
+              type="number"
+              value={advancePayment}
+              onChange={(event) => {
+                const raw =
+                  event.target.value;
+
+                setAdvancePayment(
+                  raw === ""
+                    ? ""
+                    : Number(raw)
+                );
+              }}
+              className="ep-input ep-input-no-spinner"
+              min={0}
+              step="1"
+              placeholder="₹ Advance"
+              disabled={saving}
+            />
+          </div>
+
+          <div className="attendance-field attendance-notes-field">
+            <label>Notes</label>
+
+            <input
+              type="text"
+              value={notes}
+              onChange={(event) =>
+                setNotes(
+                  event.target.value
+                )
+              }
+              className="ep-input"
+              placeholder="Optional notes"
+              disabled={saving}
+            />
+          </div>
+
+          <div className="attendance-form-actions">
+
+            <button
+              type="submit"
+              className="ep-btn ep-btn-primary"
+              disabled={saving}
+            >
+              {saving
+                ? editRecordId
+                  ? "Updating..."
+                  : "Saving..."
+                : editRecordId
+                  ? "Update Attendance"
+                  : "Mark Attendance"}
+            </button>
+
+            {editRecordId && (
+              <button
+                type="button"
+                className="ep-btn ep-btn-secondary"
+                onClick={
+                  resetForm
+                }
+                disabled={saving}
+              >
+                Cancel
+              </button>
             )}
-          </tbody>
-        </table>
+
+          </div>
+
+        </form>
       </div>
+
+      {/* ============================
+          REGISTER
+      ============================ */}
+
+      <div className="attendance-card attendance-register-card">
+
+        <div className="att-register-header">
+
+          <div className="att-register-heading">
+            <h2>
+              Attendance Register
+            </h2>
+
+            <p>
+              Click any date cell to add
+              or edit attendance.
+            </p>
+          </div>
+
+          <div className="att-month-control">
+            <label htmlFor="attendance-month">
+              Month
+            </label>
+
+            <input
+              id="attendance-month"
+              type="month"
+              value={month}
+              onChange={(event) =>
+                setMonth(
+                  event.target.value
+                )
+              }
+              className="ep-input"
+            />
+          </div>
+
+        </div>
+
+        {/* ============================
+            LEGEND
+        ============================ */}
+
+        <div className="att-legend">
+
+          <span className="att-legend-item">
+            <span className="att-tick">
+              ✓
+            </span>
+            Present
+          </span>
+
+          <span className="att-legend-item">
+            <span className="att-cross">
+              ✕
+            </span>
+            Absent
+          </span>
+
+          <span className="att-legend-item">
+            <span className="att-none">
+              –
+            </span>
+            No Record
+          </span>
+
+          <span className="att-legend-item">
+            <span className="att-overtime-symbol">
+              +
+            </span>
+            Overtime
+          </span>
+
+          <span className="att-legend-item">
+            <span className="att-advance-symbol">
+              ₹
+            </span>
+            Advance
+          </span>
+
+        </div>
+
+        {loadingRegister ? (
+
+          <div className="attendance-state">
+            Loading attendance register...
+          </div>
+
+        ) : (
+
+          <div className="att-register-wrap">
+
+            <table className="att-register">
+
+              <thead>
+                <tr>
+
+                  <th className="att-sticky-col">
+                    Employee
+                  </th>
+
+                  {days.map(
+                    (day) => (
+                      <th key={day}>
+                        {day}
+                      </th>
+                    )
+                  )}
+
+                  <th className="att-total-col">
+                    Total
+                  </th>
+
+                </tr>
+              </thead>
+
+              <tbody>
+
+                {employees.map(
+                  (employee) => {
+                    let presentCount = 0;
+
+                    let totalHours = 0;
+
+                    const cells =
+                      days.map(
+                        (day) => {
+                          const record =
+                            recordMap[
+                              `${employee._id}-${day}`
+                            ];
+
+                          if (
+                            !record
+                          ) {
+                            return (
+                              <td
+                                key={day}
+                                className="att-cell-none"
+                                onClick={() =>
+                                  handleCellClick(
+                                    employee,
+                                    day,
+                                    null
+                                  )
+                                }
+                                title="No attendance record. Click to mark attendance."
+                              >
+                                –
+                              </td>
+                            );
+                          }
+
+                          let cellTitle =
+                            "";
+
+                          if (
+                            record.overtime >
+                              0 ||
+                            record.advancePayment >
+                              0 ||
+                            record.notes
+                          ) {
+                            cellTitle =
+                              `Overtime: ${
+                                record.overtime ||
+                                0
+                              }h\n` +
+                              `Advance: ₹${
+                                record.advancePayment ||
+                                0
+                              }\n` +
+                              `Notes: ${
+                                record.notes ||
+                                "N/A"
+                              }`;
+                          }
+
+                          if (
+                            record.present
+                          ) {
+                            presentCount +=
+                              1;
+
+                            totalHours +=
+                              Number(
+                                record.workHours ||
+                                  0
+                              );
+
+                            return (
+                              <td
+                                key={
+                                  day
+                                }
+                                className="att-cell-present"
+                                onClick={() =>
+                                  handleCellClick(
+                                    employee,
+                                    day,
+                                    record
+                                  )
+                                }
+                                title={
+                                  cellTitle ||
+                                  "Present. Click to edit."
+                                }
+                              >
+                                <span className="att-tick">
+                                  ✓
+                                </span>
+
+                                <span className="att-hrs">
+                                  {record.workHours ||
+                                    0}
+                                  h
+
+                                  {record.overtime >
+                                    0 && (
+                                    <span className="att-overtime-symbol att-indicator">
+                                      +
+                                    </span>
+                                  )}
+
+                                  {record.advancePayment >
+                                    0 && (
+                                    <span className="att-advance-symbol att-indicator">
+                                      ₹
+                                    </span>
+                                  )}
+                                </span>
+                              </td>
+                            );
+                          }
+
+                          return (
+                            <td
+                              key={day}
+                              className="att-cell-absent"
+                              onClick={() =>
+                                handleCellClick(
+                                  employee,
+                                  day,
+                                  record
+                                )
+                              }
+                              title={
+                                cellTitle ||
+                                "Absent. Click to edit."
+                              }
+                            >
+                              <span className="att-cross">
+                                ✕
+                              </span>
+                            </td>
+                          );
+                        }
+                      );
+
+                    return (
+                      <tr
+                        key={
+                          employee._id
+                        }
+                      >
+                        <td className="att-sticky-col att-emp-name">
+                          {employee.name}
+                        </td>
+
+                        {cells}
+
+                        <td className="att-total-col">
+                          <strong>
+                            {presentCount}P
+                          </strong>
+
+                          <span>
+                            {totalHours}h
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  }
+                )}
+
+                {employees.length ===
+                  0 && (
+                  <tr>
+                    <td
+                      colSpan={
+                        days.length +
+                        2
+                      }
+                      className="att-empty-row"
+                    >
+                      No active employees
+                      found.
+                    </td>
+                  </tr>
+                )}
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+        )}
+
+      </div>
+
     </div>
   );
 };
