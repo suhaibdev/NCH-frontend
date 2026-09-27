@@ -1,179 +1,1002 @@
-.payout-container {
-  max-width: 900px;
-  margin: 32px auto;
-  padding: 20px;
-  background: #fafbfc;
-  border-radius: 10px;
-  border: 1px solid #e0e0e0;
+/* ==========================================================
+   PAYOUT PAGE
+========================================================== */
+
+.payout-page {
+    width: 100%;
+    max-width: 1200px;
+    box-sizing: border-box;
 }
 
-.payout-title {
-  font-size: 1.3rem;
-  font-weight: bold;
-  margin-bottom: 18px;
-  color: #2d3a4a;
+
+/* ==========================================================
+   PAGE HEADER
+========================================================== */
+
+.payout-page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    margin-bottom: 28px;
 }
 
-.payout-form {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 18px;
-  align-items: center;
+.payout-page-header h1 {
+    margin: 0;
+
+    color: #24324a;
+
+    font-size: 30px;
+    line-height: 1.25;
+
+    font-weight: 750;
 }
 
-.payout-input {
-  padding: 7px 10px;
-  border: 1px solid #bbb;
-  border-radius: 4px;
+.payout-page-header p {
+    margin: 7px 0 0;
 
-  width: 100%;
-  min-width: 0;
-  max-width: 100%;
-  box-sizing: border-box;
+    color: #667085;
+
+    font-size: 14px;
+    line-height: 1.5;
 }
 
-.payout-btn {
-  .payout-btn {
-  padding: 8px 16px;
-  background: #1976d2;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: 500;
-  margin-left: 0;
 
-  width: 100%;
-  box-sizing: border-box;
-}
+/* ==========================================================
+   PAYOUT COUNT
+========================================================== */
+
+.payout-count {
+    min-width: 150px;
+
+    display: flex;
+    flex-direction: column;
+
+    padding: 15px 20px;
+
+    background: #eef6ff;
+
+    border: 1px solid #d8eaff;
+    border-radius: 12px;
+
+    box-sizing: border-box;
 }
 
-.payout-btn:hover {
-  background: #1253a2;
+.payout-count span {
+    color: #667085;
+
+    font-size: 12px;
+    font-weight: 600;
 }
+
+.payout-count strong {
+    margin-top: 3px;
+
+    color: #1976d2;
+
+    font-size: 25px;
+    line-height: 1.2;
+}
+
+
+/* ==========================================================
+   MESSAGE
+========================================================== */
 
 .payout-message {
-  color: #d32f2f;
-  margin-bottom: 10px;
+    width: 100%;
+
+    margin-bottom: 20px;
+
+    padding: 13px 16px;
+
+    border-radius: 9px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    box-sizing: border-box;
 }
 
-.payout-preview {
-  background: #f0f7fa;
-  border: 1px solid #b3e5fc;
-  border-radius: 6px;
-  padding: 16px;
-  margin-bottom: 18px;
-  margin-top: 8px;
+.payout-message.success {
+    color: #176b2c;
 
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
-  overflow: hidden;
+    background: #edf8f0;
+
+    border: 1px solid #c8e8d0;
+    border-left: 4px solid #2e7d32;
+}
+
+.payout-message.error {
+    color: #b42318;
+
+    background: #fff3f2;
+
+    border: 1px solid #f6cac7;
+    border-left: 4px solid #d32f2f;
+}
+
+
+/* ==========================================================
+   MAIN CARD
+========================================================== */
+
+.payout-card {
+    width: 100%;
+
+    margin-bottom: 30px;
+
+    background: #ffffff;
+
+    border: 1px solid #e7ecf1;
+    border-radius: 15px;
+
+    box-shadow:
+        0 7px 22px
+        rgba(31, 45, 61, 0.07);
+
+    overflow: hidden;
+
+    box-sizing: border-box;
+}
+
+
+/* ==========================================================
+   CARD HEADER
+========================================================== */
+
+.payout-card-header {
+    padding: 20px 22px;
+
+    border-bottom: 1px solid #edf0f3;
+}
+
+.payout-card-header h2 {
+    margin: 0;
+
+    color: #24324a;
+
+    font-size: 20px;
+    line-height: 1.3;
+}
+
+.payout-card-header p {
+    margin: 5px 0 0;
+
+    color: #667085;
+
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+
+/* ==========================================================
+   PAYROLL PERIOD
+========================================================== */
+
+.payout-period-section {
+    padding: 18px 22px 0;
+}
+
+.payout-period-label {
+    display: block;
+
+    margin-bottom: 9px;
+
+    color: #344054;
+
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.payout-period-buttons {
+    display: flex;
+    flex-wrap: wrap;
+
+    gap: 8px;
+}
+
+.payout-period-btn {
+    padding: 9px 14px;
+
+    background: #ffffff;
+    color: #475467;
+
+    border: 1px solid #d7dde5;
+    border-radius: 8px;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.payout-period-btn:hover {
+    border-color: #1976d2;
+
+    color: #1976d2;
+}
+
+.payout-period-btn.active {
+    background: #1976d2;
+    color: #ffffff;
+
+    border-color: #1976d2;
+}
+
+
+/* ==========================================================
+   PAYOUT FORM
+========================================================== */
+
+.payout-form {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr))
+        auto;
+
+    align-items: end;
+
+    gap: 18px;
+
+    padding: 20px 22px 22px;
+}
+
+.payout-field {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 7px;
+}
+
+.payout-field label {
+    color: #344054;
+
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.payout-field label span {
+    margin-left: 3px;
+
+    color: #d32f2f;
+}
+
+.payout-page .ep-input {
+    width: 100%;
+
+    min-width: 0;
+
+    margin: 0;
+
+    box-sizing: border-box;
+}
+
+.payout-preview-action {
+    display: flex;
+}
+
+.payout-preview-action .ep-btn {
+    min-height: 42px;
+
+    margin: 0;
+
+    white-space: nowrap;
+}
+
+
+/* ==========================================================
+   PREVIEW
+========================================================== */
+
+.payout-preview-card {
+    border-top: 4px solid #1976d2;
+}
+
+.payout-preview-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 14px;
+
+    padding: 22px;
+}
+
+.payout-stat {
+    min-width: 0;
+
+    padding: 16px;
+
+    background: #f8fafc;
+
+    border: 1px solid #e7ecf1;
+    border-radius: 10px;
+
+    box-sizing: border-box;
+}
+
+.payout-stat span {
+    display: block;
+
+    color: #667085;
+
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.payout-stat strong {
+    display: block;
+
+    margin-top: 6px;
+
+    color: #24324a;
+
+    font-size: 19px;
+
+    overflow-wrap: anywhere;
+}
+
+
+/* ==========================================================
+   ADVANCE NOTICE
+========================================================== */
+
+.payout-advance-notice {
+    display: flex;
+    flex-direction: column;
+
+    gap: 5px;
+
+    margin: 0 22px 20px;
+
+    padding: 14px 16px;
+
+    background: #fff3f2;
+
+    border: 1px solid #f5c8c5;
+    border-left: 4px solid #d32f2f;
+
+    border-radius: 9px;
+}
+
+.payout-advance-notice strong {
+    color: #b42318;
+
+    font-size: 14px;
+}
+
+.payout-advance-notice span {
+    color: #667085;
+
+    font-size: 12px;
+}
+
+
+/* ==========================================================
+   DEDUCTIONS
+========================================================== */
+
+.payout-deduction-section {
+    padding: 0 22px 22px;
+}
+
+.payout-outstanding {
+    display: flex;
+    flex-direction: column;
+
+    gap: 4px;
+
+    margin-bottom: 18px;
+
+    padding: 15px 17px;
+
+    border-radius: 10px;
+}
+
+.payout-outstanding.warning {
+    background: #fff8e1;
+
+    border: 1px solid #f3d66c;
+}
+
+.payout-outstanding.clear {
+    background: #edf8f0;
+
+    border: 1px solid #bfe1c5;
+}
+
+.payout-outstanding span {
+    color: #667085;
+
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.payout-outstanding strong {
+    color: #24324a;
+
+    font-size: 19px;
+}
+
+.payout-outstanding small {
+    color: #667085;
+
+    font-size: 12px;
+}
+
+.payout-deduction-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 18px;
+}
+
+.payout-field-note {
+    color: #667085;
+
+    font-size: 11px;
+}
+
+.payout-deduction-buttons {
+    display: flex;
+    flex-wrap: wrap;
+
+    gap: 7px;
+
+    margin-top: 3px;
+}
+
+.payout-small-btn {
+    padding: 7px 10px;
+
+    background: #f8fafc;
+    color: #344054;
+
+    border: 1px solid #d7dde5;
+    border-radius: 7px;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+.payout-small-btn:hover:not(:disabled) {
+    background: #eef6ff;
+
+    border-color: #b9d9ff;
+
+    color: #1976d2;
+}
+
+.payout-small-btn:disabled {
+    cursor: not-allowed;
+
+    opacity: 0.5;
+}
+
+
+/* ==========================================================
+   SALARY SUMMARY
+========================================================== */
+
+.payout-salary-summary {
+    margin: 0 22px 22px;
+
+    padding: 18px;
+
+    background: #f8fafc;
+
+    border: 1px solid #e5eaf0;
+    border-radius: 11px;
+}
+
+.payout-salary-summary > div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding: 8px 0;
+
+    color: #475467;
+
+    font-size: 14px;
+}
+
+.payout-salary-summary strong {
+    color: #24324a;
+
+    overflow-wrap: anywhere;
+}
+
+.payout-salary-summary .deduction {
+    color: #d32f2f;
+}
+
+.payout-salary-summary .payout-net-salary {
+    margin-top: 8px;
+
+    padding-top: 15px;
+
+    border-top: 1px solid #d9e0e7;
+
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.payout-net-salary strong {
+    color: #2e7d32;
+
+    font-size: 23px;
+}
+
+
+/* ==========================================================
+   CREATE BUTTON
+========================================================== */
+
+.payout-create-action {
+    display: flex;
+    justify-content: flex-end;
+
+    padding: 0 22px 22px;
+}
+
+.payout-create-action .ep-btn {
+    min-width: 180px;
+
+    margin: 0;
+}
+
+
+/* ==========================================================
+   FILTERS
+========================================================== */
+
+.payout-filters {
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        minmax(180px, 0.6fr)
+        auto
+        auto;
+
+    align-items: end;
+
+    gap: 14px;
+
+    padding: 20px 22px;
+
+    background: #fafbfd;
+
+    border-bottom: 1px solid #edf0f3;
+}
+
+.payout-filter-btn {
+    min-height: 42px;
+
+    margin: 0 !important;
+
+    white-space: nowrap;
+}
+
+
+/* ==========================================================
+   PAYOUT TABLE
+========================================================== */
+
+.payout-table-wrapper {
+    width: 100%;
+
+    overflow-x: auto;
+
+    -webkit-overflow-scrolling: touch;
 }
 
 .payout-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 18px;
-  background: #fff;
-}
+    width: 100%;
 
-.payout-table th, .payout-table td {
-  border: 1px solid #ddd;
-  padding: 8px;
-  text-align: left;
-  font-size: 0.98rem;
+    min-width: 1450px;
+
+    margin: 0;
+
+    border-collapse: collapse;
 }
 
 .payout-table th {
-  background: #f0f0f0;
-  font-weight: bold;
+    white-space: nowrap;
 }
 
-.payout-table tr:nth-child(even) {
-  background: #fafafa;
+.payout-table td {
+    vertical-align: middle;
+
+    white-space: nowrap;
 }
 
-/* ==============================
-   Remove Number Input Arrows
-================================ */
+.payout-table td strong {
+    color: #24324a;
+}
 
+.payout-checkbox-column {
+    width: 45px;
+
+    text-align: center !important;
+}
+
+.payout-checkbox-column input {
+    width: 16px;
+    height: 16px;
+
+    cursor: pointer;
+}
+
+
+/* ==========================================================
+   PERIOD CELL
+========================================================== */
+
+.payout-period-cell span {
+    margin: 0 5px;
+
+    color: #98a2b3;
+
+    font-size: 11px;
+}
+
+
+/* ==========================================================
+   OVERTIME CELL
+========================================================== */
+
+.payout-overtime-cell {
+    display: flex;
+    flex-direction: column;
+
+    gap: 2px;
+}
+
+.payout-overtime-cell small {
+    color: #667085;
+}
+
+
+/* ==========================================================
+   NET VALUE
+========================================================== */
+
+.payout-net-value {
+    color: #2e7d32 !important;
+}
+
+
+/* ==========================================================
+   RECORD ACTIONS
+========================================================== */
+
+.payout-record-actions {
+    display: flex;
+    flex-direction: column;
+
+    gap: 6px;
+
+    min-width: 115px;
+}
+
+.payout-status-select {
+    width: 100%;
+
+    padding: 7px 8px;
+
+    border-radius: 7px;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    box-sizing: border-box;
+}
+
+.payout-status-select.pending {
+    color: #b54708;
+
+    background: #fff7ed;
+
+    border: 1px solid #fed7aa;
+}
+
+.payout-status-select.paid {
+    color: #176b2c;
+
+    background: #edf8f0;
+
+    border: 1px solid #bfe1c5;
+}
+
+.payout-action-btn {
+    width: 100%;
+
+    padding: 7px 9px;
+
+    border: none;
+    border-radius: 7px;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        opacity 0.2s ease,
+        transform 0.2s ease;
+}
+
+.payout-action-btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+
+    opacity: 0.9;
+}
+
+.payout-action-btn.slip {
+    background: #1976d2;
+
+    color: #ffffff;
+}
+
+.payout-action-btn.delete {
+    background: #d32f2f;
+
+    color: #ffffff;
+}
+
+.payout-action-btn:disabled {
+    cursor: not-allowed;
+
+    opacity: 0.55;
+}
+
+.payout-method {
+    font-size: 12px;
+    font-weight: 700;
+}
+
+
+/* ==========================================================
+   LOADING / EMPTY
+========================================================== */
+
+.payout-state {
+    width: 100%;
+
+    padding: 45px 20px;
+
+    color: #667085;
+
+    text-align: center;
+
+    font-size: 14px;
+    font-weight: 500;
+
+    box-sizing: border-box;
+}
+
+
+/* ==========================================================
+   BUTTON DISABLED
+========================================================== */
+
+.payout-page button:disabled,
+.payout-page select:disabled {
+    cursor: not-allowed;
+
+    opacity: 0.6;
+}
+
+
+/* ==========================================================
+   REMOVE NUMBER SPINNERS
+========================================================== */
+
+.payout-page
 input[type="number"]::-webkit-outer-spin-button,
-input[type="number"]::-webkit-inner-spin-button{
-    -webkit-appearance:none;
-    margin:0;
+.payout-page
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+
+    margin: 0;
 }
 
-input[type="number"]{
-    -moz-appearance:textfield;
-    appearance:textfield;
+.payout-page input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
 }
 
-/* ===============================
-   Mobile Responsive
-================================ */
 
-@media (max-width:768px){
+/* ==========================================================
+   TABLET
+========================================================== */
 
-.payout-container{
-    width:100%;
-    margin:15px 0;
-    padding:15px;
-    box-sizing:border-box;
+@media (max-width: 1000px) {
+
+    .payout-form {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .payout-preview-action {
+        align-self: end;
+    }
+
+    .payout-deduction-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .payout-filters {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .payout-filter-btn {
+        width: 100%;
+    }
 }
 
-.payout-form{
-    flex-direction:column;
-    align-items:stretch;
+
+/* ==========================================================
+   MOBILE
+========================================================== */
+
+@media (max-width: 650px) {
+
+    .payout-page-header {
+        align-items: stretch;
+
+        flex-direction: column;
+    }
+
+    .payout-page-header h1 {
+        font-size: 25px;
+    }
+
+    .payout-count {
+        width: 100%;
+
+        min-width: 0;
+    }
+
+    .payout-card-header {
+        padding: 18px;
+    }
+
+    .payout-period-section {
+        padding: 18px 18px 0;
+    }
+
+    .payout-period-buttons {
+        display: grid;
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .payout-period-btn {
+        width: 100%;
+    }
+
+    .payout-form {
+        grid-template-columns: 1fr;
+
+        gap: 16px;
+
+        padding: 18px;
+    }
+
+    .payout-preview-action {
+        width: 100%;
+    }
+
+    .payout-preview-action .ep-btn {
+        width: 100%;
+    }
+
+    .payout-preview-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        padding: 18px;
+    }
+
+    .payout-advance-notice {
+        margin-left: 18px;
+        margin-right: 18px;
+    }
+
+    .payout-deduction-section {
+        padding:
+            0 18px 18px;
+    }
+
+    .payout-deduction-grid {
+        grid-template-columns:
+            1fr;
+    }
+
+    .payout-salary-summary {
+        margin:
+            0 18px 18px;
+    }
+
+    .payout-create-action {
+        padding:
+            0 18px 18px;
+    }
+
+    .payout-create-action .ep-btn {
+        width: 100%;
+
+        min-width: 0;
+    }
+
+    .payout-filters {
+        grid-template-columns:
+            1fr;
+
+        padding: 18px;
+    }
 }
 
-.payout-preview{
-    background:#f0f7fa;
-    border:1px solid #b3e5fc;
-    border-radius:8px;
-    padding:20px;
-    margin:20px 0;
-    width:100%;
-    box-sizing:border-box;
-}
 
-.payout-preview input,
-.payout-preview select,
-.payout-preview button{
+/* ==========================================================
+   SMALL MOBILE
+========================================================== */
 
-    width:100%;
-    box-sizing:border-box;
+@media (max-width: 420px) {
 
-}
+    .payout-page-header h1 {
+        font-size: 23px;
+    }
 
-.payout-table{
+    .payout-card-header h2 {
+        font-size: 18px;
+    }
 
-    display:block;
-    overflow-x:auto;
+    .payout-preview-grid {
+        grid-template-columns:
+            1fr;
+    }
 
-}
+    .payout-period-buttons {
+        grid-template-columns:
+            1fr;
+    }
 
-}
+    .payout-salary-summary > div {
+        align-items: flex-start;
 
-@media(max-width:768px){
+        flex-direction: column;
 
-.payout-form{
-    flex-direction:column;
-}
+        gap: 4px;
+    }
 
-.payout-form .ep-input,
-.payout-form button{
-    width:100%;
-}
-
-.payout-preview .ep-input{
-    width:100%;
-    margin:0;
-}
-
-.payout-preview select{
-    width:100%;
-}
-
+    .payout-net-salary strong {
+        font-size: 21px;
+    }
 }
