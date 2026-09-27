@@ -2,17 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../config/axios";
 
-import {
-  FaUsers,
-  FaUserCheck,
-  FaUserTimes,
-  FaCalendarCheck,
-  FaMoneyBillWave,
-  FaWallet,
-  FaBoxes,
-  FaArrowRight,
-} from "react-icons/fa";
-
 import "./HomePage.css";
 import "./AdminPortalPage.css";
 
@@ -30,6 +19,7 @@ const AdminPortalPage = () => {
   });
 
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     loadDashboard();
@@ -37,10 +27,28 @@ const AdminPortalPage = () => {
 
   const loadDashboard = async () => {
     try {
-      const res = await api.get('/dashboard');
-      setStats(res.data);
+      setError("");
+
+      const res = await api.get("/dashboard");
+
+      setStats({
+        totalEmployees: res.data.totalEmployees || 0,
+        activeEmployees: res.data.activeEmployees || 0,
+        totalCustomers: res.data.totalCustomers || 0,
+        attendanceToday: res.data.attendanceToday || 0,
+        absentToday: res.data.absentToday || 0,
+        attendanceMarked: res.data.attendanceMarked || 0,
+        monthSalary: res.data.monthSalary || 0,
+        monthAdvance: res.data.monthAdvance || 0,
+        recentEmployees: res.data.recentEmployees || [],
+      });
     } catch (err) {
-      console.error(err);
+      console.error("Dashboard error:", err);
+
+      setError(
+        err.response?.data?.message ||
+          "Unable to load dashboard data."
+      );
     } finally {
       setLoading(false);
     }
@@ -48,185 +56,164 @@ const AdminPortalPage = () => {
 
   if (loading) {
     return (
-      <div className="landing-page">
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            height: "80vh",
-            fontSize: 24,
-            fontWeight: 600,
-          }}
-        >
-          Loading Dashboard...
-        </div>
+      <div className="dashboard-loading">
+        Loading Dashboard...
       </div>
     );
   }
 
   return (
     <div className="landing-page">
-
       <section className="admin-portal">
-
         <div className="container">
 
+          {/* =====================================
+              DASHBOARD HEADER
+          ====================================== */}
+
           <div className="dashboard-header">
+            <div>
+              <h1>Employee Management Dashboard</h1>
 
-            <h1>Employee Management Dashboard</h1>
-
-            <p>
-
-            Manage employees, attendance, customers and salary from one place.
-
-            </p>
-
+              <p>
+                Manage employees, attendance, customers and salary
+                from one place.
+              </p>
             </div>
+          </div>
 
-          {/* =======================
-              Statistics Cards
-          ========================== */}
+          {/* =====================================
+              ERROR MESSAGE
+          ====================================== */}
+
+          {error && (
+            <div className="dashboard-error">
+              <span>{error}</span>
+
+              <button
+                type="button"
+                onClick={loadDashboard}
+              >
+                Retry
+              </button>
+            </div>
+          )}
+
+          {/* =====================================
+              STATISTICS CARDS
+          ====================================== */}
 
           <div className="dashboard-grid">
 
             <div className="dashboard-card blue">
-
               <div className="card-icon">
-              <FaUsers />
+                👥
               </div>
 
-              <div>
-
-              <h4>Total Employees</h4>
-
-              <h2>{stats.totalEmployees}</h2>
-
+              <div className="card-content">
+                <h4>Total Employees</h4>
+                <h2>{stats.totalEmployees}</h2>
               </div>
-
-              </div>
+            </div>
 
             <div className="dashboard-card green">
-
               <div className="card-icon">
-              <FaUserCheck />
+                ✓
               </div>
 
-              <div>
-
-              <h4>Active Employees</h4>
-
-              <h2>{stats.activeEmployees}</h2>
-
+              <div className="card-content">
+                <h4>Active Employees</h4>
+                <h2>{stats.activeEmployees}</h2>
               </div>
-
-              </div>
+            </div>
 
             <div className="dashboard-card purple">
-
               <div className="card-icon">
-              <FaBoxes />
+                👤
               </div>
 
-              <div>
-
-              <h4>Total Customers</h4>
-
-              <h2>{stats.totalCustomers}</h2>
-
+              <div className="card-content">
+                <h4>Total Customers</h4>
+                <h2>{stats.totalCustomers}</h2>
               </div>
-
-              </div>
+            </div>
 
             <div className="dashboard-card orange">
-
               <div className="card-icon">
-              <FaCalendarCheck />
+                ✓
               </div>
 
-              <div>
-
-              <h4>Present Today</h4>
-
-              <h2>{stats.attendanceToday}</h2>
-
+              <div className="card-content">
+                <h4>Present Today</h4>
+                <h2>{stats.attendanceToday}</h2>
               </div>
-
-              </div>
+            </div>
 
             <div className="dashboard-card red">
-
               <div className="card-icon">
-              <FaUserTimes />
+                ✕
               </div>
 
-              <div>
-
-              <h4>Absent Today</h4>
-
-              <h2>{stats.absentToday}</h2>
-
+              <div className="card-content">
+                <h4>Absent Today</h4>
+                <h2>{stats.absentToday}</h2>
               </div>
-
-              </div>
+            </div>
 
             <div className="dashboard-card teal">
-
               <div className="card-icon">
-              <FaCalendarCheck />
+                📅
               </div>
 
-              <div>
-
-              <h4>Attendance Marked</h4>
-
-              <h2>{stats.attendanceMarked}</h2>
-
+              <div className="card-content">
+                <h4>Attendance Marked</h4>
+                <h2>{stats.attendanceMarked}</h2>
               </div>
-
-              </div>
+            </div>
 
             <div className="dashboard-card salary">
-
               <div className="card-icon">
-              <FaMoneyBillWave />
+                ₹
               </div>
 
-              <div>
+              <div className="card-content">
+                <h4>Salary Paid This Month</h4>
 
-              <h4>Salary Paid</h4>
-
-              <h2>₹{stats.monthSalary.toLocaleString()}</h2>
-
+                <h2>
+                  ₹{Number(stats.monthSalary || 0).toLocaleString("en-IN")}
+                </h2>
               </div>
-
-              </div>
+            </div>
 
             <div className="dashboard-card advance">
+              <div className="card-icon">
+                ₹
+              </div>
 
-            <div className="card-icon">
-            <FaWallet />
-            </div>
+              <div className="card-content">
+                <h4>Advance Given This Month</h4>
 
-            <div>
-
-            <h4>Advance Given</h4>
-
-            <h2>₹{stats.monthAdvance.toLocaleString()}</h2>
-
-            </div>
-
+                <h2>
+                  ₹{Number(stats.monthAdvance || 0).toLocaleString("en-IN")}
+                </h2>
+              </div>
             </div>
 
           </div>
 
-          {/* =======================
-              Quick Actions
-          ========================== */}
+          {/* =====================================
+              QUICK ACTIONS
+          ====================================== */}
 
-          <h2 className="dashboard-subtitle">
-            Quick Actions
+          <div className="dashboard-section-header">
+            <h2 className="dashboard-subtitle">
+              Quick Actions
             </h2>
+
+            <p>
+              Quickly access frequently used management pages.
+            </p>
+          </div>
 
           <div className="home-links">
 
@@ -260,68 +247,79 @@ const AdminPortalPage = () => {
 
           </div>
 
-          {/* =======================
-              Recent Employees
-          ========================== */}
+          {/* =====================================
+              RECENT EMPLOYEES
+          ====================================== */}
 
           <div className="dashboard-table">
 
-            <h2>Recently Added Employees</h2>
+            <div className="dashboard-table-header">
+              <div>
+                <h2>Recently Added Employees</h2>
 
-            <table>
+                <p>
+                  Latest employees added to the system.
+                </p>
+              </div>
 
-              <thead>
+              <Link
+                to="/admin/employees"
+                className="dashboard-view-all"
+              >
+                View All
+              </Link>
+            </div>
 
-                <tr>
+            <div className="dashboard-table-scroll">
+              <table>
 
-                  <th>Name</th>
-
-                  <th>Daily Salary</th>
-
-                </tr>
-
-              </thead>
-
-              <tbody>
-
-                {stats.recentEmployees.length === 0 ? (
-
+                <thead>
                   <tr>
-
-                    <td colSpan="2">
-
-                      No Employees Found
-
-                    </td>
-
+                    <th>Name</th>
+                    <th>Daily Salary</th>
                   </tr>
+                </thead>
 
-                ) : (
+                <tbody>
 
-                  stats.recentEmployees.map((emp) => (
-
-                    <tr key={emp._id}>
-
-                      <td>{emp.name}</td>
-
-                      <td>₹{emp.baseDailySalary}</td>
-
+                  {stats.recentEmployees.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan="2"
+                        className="dashboard-empty"
+                      >
+                        No employees found.
+                      </td>
                     </tr>
+                  ) : (
+                    stats.recentEmployees.map((emp) => (
+                      <tr key={emp._id}>
 
-                  ))
+                        <td>
+                          <strong>
+                            {emp.name}
+                          </strong>
+                        </td>
 
-                )}
+                        <td>
+                          ₹{Number(
+                            emp.baseDailySalary || 0
+                          ).toLocaleString("en-IN")}
+                        </td>
 
-              </tbody>
+                      </tr>
+                    ))
+                  )}
 
-            </table>
+                </tbody>
+
+              </table>
+            </div>
 
           </div>
 
         </div>
-
       </section>
-
     </div>
   );
 };
