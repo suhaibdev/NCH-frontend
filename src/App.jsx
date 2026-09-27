@@ -14,6 +14,7 @@ import EmployeesPage from "./pages/Employees/EmployeesPage";
 import CustomersPage from "./pages/Customer/CustomersPage";
 import AttendancePage from "./pages/Employees/Attendance";
 import PayoutPage from "./pages/Employees/PayoutPage";
+import StockPage from "./pages/Stock/StockPage";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLayout from "./components/AdminLayout";
@@ -137,6 +138,13 @@ const App = () => {
               path="/admin/payout"
               element={
                 <PayoutPage />
+              }
+            />
+
+            <Route
+              path="/admin/stock"
+              element={
+                <StockPage />
               }
             />
 

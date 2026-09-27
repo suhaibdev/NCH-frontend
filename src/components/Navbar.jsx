@@ -18,30 +18,107 @@ const Navbar = () => {
   return (
     <header className="navbar">
       <div className="nav-container">
+
         <div className="nav-logo">
-          <Link to="/" style={{ textDecoration: 'none' }}>
+          <Link
+            to="/"
+            style={{ textDecoration: 'none' }}
+          >
             <h2>NCH</h2>
           </Link>
         </div>
-        <button className="mobile-menu-btn" onClick={() => setIsOpen(!isOpen)}>
+
+        <button
+          className="mobile-menu-btn"
+          onClick={() => setIsOpen(!isOpen)}
+        >
           ☰
         </button>
-        <nav className={`nav-links ${isOpen ? 'open' : ''}`}>
-          <a href="/#hero" onClick={() => setIsOpen(false)}>Home</a>
-          <a href="/#products" onClick={() => setIsOpen(false)}>Products</a>
+
+        <nav
+          className={`nav-links ${
+            isOpen ? 'open' : ''
+          }`}
+        >
+
+          <a
+            href="/#hero"
+            onClick={() => setIsOpen(false)}
+          >
+            Home
+          </a>
+
+          <a
+            href="/#products"
+            onClick={() => setIsOpen(false)}
+          >
+            Products
+          </a>
+
           {loggedIn && user?.role === 'admin' ? (
             <>
-              <Link to="/admin/dashboard" onClick={() => setIsOpen(false)}>Admin Dashboard</Link>
-              <Link to="/admin/employees" onClick={() => setIsOpen(false)}>Employees</Link>
-              <Link to="/admin/attendance" onClick={() => setIsOpen(false)}>Attendance</Link>
-              <Link to="/admin/payout" onClick={() => setIsOpen(false)}>Payout</Link>
-              <Link to="/admin/customers" onClick={() => setIsOpen(false)}>Customers</Link>
-              <button type="button" onClick={handleLogout}>Logout</button>
+
+              <Link
+                to="/admin/dashboard"
+                onClick={() => setIsOpen(false)}
+              >
+                Admin Dashboard
+              </Link>
+
+              <Link
+                to="/admin/employees"
+                onClick={() => setIsOpen(false)}
+              >
+                Employees
+              </Link>
+
+              <Link
+                to="/admin/attendance"
+                onClick={() => setIsOpen(false)}
+              >
+                Attendance
+              </Link>
+
+              <Link
+                to="/admin/payout"
+                onClick={() => setIsOpen(false)}
+              >
+                Payout
+              </Link>
+
+              <Link
+                to="/admin/customers"
+                onClick={() => setIsOpen(false)}
+              >
+                Customers
+              </Link>
+
+              <Link
+                to="/admin/stock"
+                onClick={() => setIsOpen(false)}
+              >
+                Stock
+              </Link>
+
+              <button
+                type="button"
+                onClick={handleLogout}
+              >
+                Logout
+              </button>
+
             </>
           ) : (
-            <Link to="/login" onClick={() => setIsOpen(false)}>Login</Link>
+            <Link
+              to="/login"
+              onClick={() => setIsOpen(false)}
+            >
+              Login
+            </Link>
           )}
+
         </nav>
+
       </div>
     </header>
   );
