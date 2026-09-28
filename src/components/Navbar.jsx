@@ -1,108 +1,257 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import "./Navbar.css";
-import { Link, useNavigate } from 'react-router-dom';
-import { getUser, isAuthenticated, logout } from '../config/auth';
+
+import {
+  Link,
+  useNavigate,
+} from "react-router-dom";
+
+import {
+  getUser,
+  isAuthenticated,
+  logout,
+} from "../config/auth";
+
 
 const Navbar = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const navigate = useNavigate();
-  const user = getUser();
-  const loggedIn = isAuthenticated();
+  const [isOpen, setIsOpen] =
+    useState(false);
+
+  const [
+    stockMenuOpen,
+    setStockMenuOpen,
+  ] = useState(false);
+
+  const navigate =
+    useNavigate();
+
+  const user =
+    getUser();
+
+  const loggedIn =
+    isAuthenticated();
+
+
+  /* =========================================================
+     CLOSE MENUS
+  ========================================================= */
+
+  const closeMenus = () => {
+    setIsOpen(false);
+    setStockMenuOpen(false);
+  };
+
+
+  /* =========================================================
+     LOGOUT
+  ========================================================= */
 
   const handleLogout = () => {
     logout();
-    setIsOpen(false);
-    navigate('/login');
+    closeMenus();
+    navigate("/login");
   };
+
 
   return (
     <header className="navbar">
+
       <div className="nav-container">
 
+        {/* ===============================================
+            LOGO
+        ================================================ */}
+
         <div className="nav-logo">
+
           <Link
             to="/"
-            style={{ textDecoration: 'none' }}
+            onClick={closeMenus}
           >
             <h2>NCH</h2>
           </Link>
+
         </div>
 
+
+        {/* ===============================================
+            MOBILE MENU BUTTON
+        ================================================ */}
+
         <button
+          type="button"
           className="mobile-menu-btn"
-          onClick={() => setIsOpen(!isOpen)}
+          aria-label="Toggle navigation"
+          onClick={() => {
+            setIsOpen(
+              (previous) =>
+                !previous
+            );
+
+            setStockMenuOpen(
+              false
+            );
+          }}
         >
           ☰
         </button>
 
+
+        {/* ===============================================
+            NAVIGATION
+        ================================================ */}
+
         <nav
           className={`nav-links ${
-            isOpen ? 'open' : ''
+            isOpen
+              ? "open"
+              : ""
           }`}
         >
 
           <a
             href="/#hero"
-            onClick={() => setIsOpen(false)}
+            onClick={
+              closeMenus
+            }
           >
             Home
           </a>
 
           <a
             href="/#products"
-            onClick={() => setIsOpen(false)}
+            onClick={
+              closeMenus
+            }
           >
             Products
           </a>
 
-          {loggedIn && user?.role === 'admin' ? (
+
+          {loggedIn &&
+          user?.role ===
+            "admin" ? (
             <>
 
               <Link
                 to="/admin/dashboard"
-                onClick={() => setIsOpen(false)}
+                onClick={
+                  closeMenus
+                }
               >
                 Admin Dashboard
               </Link>
 
+
               <Link
                 to="/admin/employees"
-                onClick={() => setIsOpen(false)}
+                onClick={
+                  closeMenus
+                }
               >
                 Employees
               </Link>
 
+
               <Link
                 to="/admin/attendance"
-                onClick={() => setIsOpen(false)}
+                onClick={
+                  closeMenus
+                }
               >
                 Attendance
               </Link>
 
+
               <Link
                 to="/admin/payout"
-                onClick={() => setIsOpen(false)}
+                onClick={
+                  closeMenus
+                }
               >
                 Payout
               </Link>
 
+
               <Link
                 to="/admin/customers"
-                onClick={() => setIsOpen(false)}
+                onClick={
+                  closeMenus
+                }
               >
                 Customers
               </Link>
 
-              <Link
-                to="/admin/stock"
-                onClick={() => setIsOpen(false)}
+
+              {/* =========================================
+                  STOCK DROPDOWN
+              ========================================== */}
+
+              <div
+                className={`stock-nav-menu ${
+                  stockMenuOpen
+                    ? "open"
+                    : ""
+                }`}
               >
-                Stock
-              </Link>
+
+                <button
+                  type="button"
+                  className="stock-menu-trigger"
+                  aria-expanded={
+                    stockMenuOpen
+                  }
+                  onClick={() =>
+                    setStockMenuOpen(
+                      (previous) =>
+                        !previous
+                    )
+                  }
+                >
+                  <span>
+                    Stock
+                  </span>
+
+                  <span
+                    className="stock-menu-arrow"
+                  >
+                    ▾
+                  </span>
+                </button>
+
+
+                <div className="stock-dropdown">
+
+                  <Link
+                    to="/admin/stock"
+                    onClick={
+                      closeMenus
+                    }
+                  >
+                    Stock Management
+                  </Link>
+
+
+                  <Link
+                    to="/admin/stock/types"
+                    onClick={
+                      closeMenus
+                    }
+                  >
+                    Stock Types
+                  </Link>
+
+                </div>
+
+              </div>
+
 
               <button
                 type="button"
-                onClick={handleLogout}
+                className="nav-logout-btn"
+                onClick={
+                  handleLogout
+                }
               >
                 Logout
               </button>
@@ -111,7 +260,9 @@ const Navbar = () => {
           ) : (
             <Link
               to="/login"
-              onClick={() => setIsOpen(false)}
+              onClick={
+                closeMenus
+              }
             >
               Login
             </Link>
@@ -120,8 +271,10 @@ const Navbar = () => {
         </nav>
 
       </div>
+
     </header>
   );
 };
+
 
 export default Navbar;
