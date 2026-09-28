@@ -14,7 +14,9 @@ import EmployeesPage from "./pages/Employees/EmployeesPage";
 import CustomersPage from "./pages/Customer/CustomersPage";
 import AttendancePage from "./pages/Employees/Attendance";
 import PayoutPage from "./pages/Employees/PayoutPage";
+
 import StockPage from "./pages/Stock/StockPage";
+import StockTypesPage from "./pages/Stock/StockTypesPage";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLayout from "./components/AdminLayout";
@@ -141,12 +143,25 @@ const App = () => {
               }
             />
 
+
+            {/* ============================
+                STOCK
+            ============================= */}
+
             <Route
               path="/admin/stock"
               element={
                 <StockPage />
               }
             />
+
+            <Route
+              path="/admin/stock/types"
+              element={
+                <StockTypesPage />
+              }
+            />
+
 
             <Route
               path="/admin/salary-slip"
