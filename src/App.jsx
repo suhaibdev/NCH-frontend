@@ -17,6 +17,7 @@ import PayoutPage from "./pages/Employees/PayoutPage";
 
 import StockPage from "./pages/Stock/StockPage";
 import StockTypesPage from "./pages/Stock/StockTypesPage";
+import StockTypeProductsPage from "./pages/Stock/StockTypeProductsPage";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLayout from "./components/AdminLayout";
@@ -159,6 +160,13 @@ const App = () => {
               path="/admin/stock/types"
               element={
                 <StockTypesPage />
+              }
+            />
+
+            <Route
+              path="/admin/stock/type/:typeId"
+              element={
+                <StockTypeProductsPage />
               }
             />
 

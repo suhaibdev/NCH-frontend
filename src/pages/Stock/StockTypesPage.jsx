@@ -4,6 +4,8 @@ import React, {
   useState,
 } from "react";
 
+import { Link } from "react-router-dom";
+
 import api from "../../config/axios";
 
 import "./StockTypesPage.css";
@@ -615,38 +617,45 @@ const StockTypesPage = () => {
                           <td>
                             <div className="stock-type-actions">
 
-                              <button
-                                type="button"
-                                className="stock-type-edit-btn"
-                                onClick={() =>
-                                  openEdit(
-                                    type
-                                  )
-                                }
-                              >
-                                Edit
-                              </button>
+                                <Link
+                                    to={`/admin/stock/type/${type._id}`}
+                                    className="stock-type-open-btn"
+                                >
+                                    Open Products
+                                </Link>
 
-                              <button
-                                type="button"
-                                className="stock-type-delete-btn"
-                                disabled={
-                                  deletingId ===
-                                  type._id
-                                }
-                                onClick={() =>
-                                  handleDelete(
-                                    type
-                                  )
-                                }
-                              >
-                                {deletingId ===
-                                type._id
-                                  ? "Deleting..."
-                                  : "Delete"}
-                              </button>
+                                <button
+                                    type="button"
+                                    className="stock-type-edit-btn"
+                                    onClick={() =>
+                                    openEdit(
+                                        type
+                                    )
+                                    }
+                                >
+                                    Edit
+                                </button>
 
-                            </div>
+                                <button
+                                    type="button"
+                                    className="stock-type-delete-btn"
+                                    disabled={
+                                    deletingId ===
+                                    type._id
+                                    }
+                                    onClick={() =>
+                                    handleDelete(
+                                        type
+                                    )
+                                    }
+                                >
+                                    {deletingId ===
+                                    type._id
+                                    ? "Deleting..."
+                                    : "Delete"}
+                                </button>
+
+                                </div>
                           </td>
 
                         </tr>
