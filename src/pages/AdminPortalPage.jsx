@@ -245,6 +245,13 @@ const AdminPortalPage = () => {
               Payouts
             </Link>
 
+            <Link
+              to="/admin/stock"
+              className="home-link home-link-blue"
+            >
+              Stock
+            </Link>
+
           </div>
 
           {/* =====================================

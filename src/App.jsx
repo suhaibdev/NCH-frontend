@@ -16,6 +16,7 @@ import AttendancePage from "./pages/Employees/Attendance";
 import PayoutPage from "./pages/Employees/PayoutPage";
 
 import StockPage from "./pages/Stock/StockPage";
+import StockHomePage from "./pages/Stock/StockHomePage";
 import StockTypesPage from "./pages/Stock/StockTypesPage";
 import StockTypeProductsPage from "./pages/Stock/StockTypeProductsPage";
 
@@ -151,6 +152,13 @@ const App = () => {
 
             <Route
               path="/admin/stock"
+              element={
+                <StockHomePage />
+              }
+            />
+
+            <Route
+              path="/admin/stock/manage"
               element={
                 <StockPage />
               }

@@ -1,0 +1,24 @@
+.stock-home-page { min-height: calc(100vh - 120px); padding: 32px 18px 48px; background: #f5f7fb; }
+.stock-home-container { width: min(1200px, 100%); margin: 0 auto; }
+.stock-home-header { margin-bottom: 24px; }
+.stock-home-eyebrow, .stock-home-card-kicker { margin: 0 0 7px; color: #1976d2; font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.stock-home-header h1, .stock-home-search-panel h2, .stock-home-section-heading h2 { margin: 0; color: #172033; }
+.stock-home-header h1 { font-size: 32px; }
+.stock-home-header > p:last-child, .stock-home-search-panel > div > p, .stock-home-section-heading p { margin: 7px 0 0; color: #667085; }
+.stock-home-search-panel, .stock-home-navigation { padding: 22px; border: 1px solid #e4e7ec; border-radius: 12px; background: #fff; }
+.stock-home-search-panel { margin-bottom: 24px; }
+.stock-home-search-panel h2, .stock-home-section-heading h2 { font-size: 21px; }
+.stock-home-search-field { display: block; margin-top: 20px; }
+.stock-home-search-field span { display: block; margin-bottom: 7px; color: #344054; font-size: 13px; font-weight: 700; }
+.stock-home-search-field input { width: 100%; box-sizing: border-box; padding: 12px 14px; border: 1px solid #d0d5dd; border-radius: 9px; color: #172033; font: inherit; outline: none; }
+.stock-home-search-field input:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.08); }
+.stock-home-search-state, .stock-home-search-error { margin: 13px 0 0; font-size: 14px; font-weight: 600; }
+.stock-home-search-state { color: #475467; }.stock-home-search-error { color: #b91c1c; }
+.stock-home-results { margin-top: 22px; overflow: hidden; border: 1px solid #e4e7ec; border-radius: 10px; }
+.stock-home-results-heading { display: flex; justify-content: space-between; gap: 16px; align-items: center; padding: 15px 16px; border-bottom: 1px solid #e4e7ec; }
+.stock-home-results-heading h3 { margin: 0; color: #172033; font-size: 16px; }.stock-home-results-heading span { color: #667085; font-size: 13px; }.stock-home-table-scroll { overflow-x: auto; }
+.stock-home-table { width: 100%; min-width: 880px; border-collapse: collapse; }.stock-home-table th, .stock-home-table td { padding: 13px 16px; text-align: left; border-bottom: 1px solid #eaecf0; color: #344054; }.stock-home-table th { background: #f9fafb; color: #475467; font-size: 12px; letter-spacing: .04em; text-transform: uppercase; }.stock-home-table tbody tr:last-child td { border-bottom: 0; }.stock-home-table strong { color: #172033; }.stock-home-empty { padding: 32px !important; text-align: center; color: #667085 !important; }
+.stock-home-status { display: inline-block; padding: 5px 9px; border-radius: 999px; font-size: 12px; font-weight: 800; white-space: nowrap; }.stock-home-status.in { background: #ecfdf3; color: #166534; }.stock-home-status.low { background: #fff7ed; color: #c2410c; }.stock-home-status.out { background: #fef2f2; color: #b91c1c; }
+.stock-home-section-heading { margin-bottom: 18px; }.stock-home-cards { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 16px; }.stock-home-card { display: flex; min-height: 175px; flex-direction: column; padding: 20px; border: 1px solid #e4e7ec; border-radius: 10px; background: #fff; color: inherit; text-decoration: none; transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease; }.stock-home-card:not(.stock-home-card-future):hover { border-color: #93c5fd; box-shadow: 0 8px 20px rgba(16,24,40,.08); transform: translateY(-2px); }.stock-home-card h3 { margin: 0; color: #172033; font-size: 18px; }.stock-home-card p { margin: 9px 0 18px; color: #667085; line-height: 1.5; }.stock-home-card-link { margin-top: auto; color: #1976d2; font-size: 14px; font-weight: 800; }.stock-home-card-future { background: #f8fafc; }
+@media (max-width: 900px) { .stock-home-cards { grid-template-columns: 1fr; } }
+@media (max-width: 768px) { .stock-home-page { padding: 22px 12px 36px; }.stock-home-search-panel, .stock-home-navigation { padding: 18px; }.stock-home-header h1 { font-size: 28px; } }

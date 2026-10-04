@@ -228,6 +228,15 @@ const Navbar = () => {
                       closeMenus
                     }
                   >
+                    Stock Home
+                  </Link>
+
+                  <Link
+                    to="/admin/stock/manage"
+                    onClick={
+                      closeMenus
+                    }
+                  >
                     Stock Management
                   </Link>
 
