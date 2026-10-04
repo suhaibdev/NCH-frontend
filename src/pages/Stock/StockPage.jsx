@@ -27,6 +27,7 @@ const CATEGORIES = [
 
 const EMPTY_ADD_FORM = {
   productName: "",
+  stockType: "",
   unit: "pcs",
   openingStock: "",
   minimumStock: "",
@@ -63,6 +64,18 @@ const StockPage = () => {
   const [saving, setSaving] =
     useState(false);
 
+  const [stockTypes, setStockTypes] =
+    useState([]);
+
+  const [stockTypesCategory, setStockTypesCategory] =
+    useState("");
+
+  const [stockTypesLoading, setStockTypesLoading] =
+    useState(false);
+
+  const [stockTypesError, setStockTypesError] =
+    useState("");
+
 
   /* =========================================================
      STOCK ACTION STATE
@@ -97,6 +110,7 @@ const StockPage = () => {
   const [editForm, setEditForm] =
     useState({
       productName: "",
+      stockType: "",
       minimumStock: "",
       notes: "",
     });
@@ -128,6 +142,84 @@ const StockPage = () => {
   useEffect(() => {
     loadLowStock();
   }, []);
+
+
+  const stockTypeCategory =
+    showAddForm
+      ? activeCategory
+      : editItem?.category;
+
+  const compatibleStockTypes =
+    stockTypesCategory ===
+    stockTypeCategory
+      ? stockTypes
+      : [];
+
+
+  useEffect(() => {
+    if (!stockTypeCategory) {
+      return undefined;
+    }
+
+    let cancelled = false;
+
+    const loadStockTypes =
+      async () => {
+        try {
+          setStockTypesLoading(true);
+          setStockTypesError("");
+
+          const res = await api.get(
+            "/stock/types",
+            {
+              params: {
+                category:
+                  stockTypeCategory,
+              },
+            }
+          );
+
+          if (!cancelled) {
+            setStockTypes(
+              Array.isArray(res.data)
+                ? res.data.filter(
+                    (type) =>
+                      type.category ===
+                      stockTypeCategory
+                  )
+                : []
+            );
+
+            setStockTypesCategory(
+              stockTypeCategory
+            );
+          }
+        } catch (err) {
+          if (!cancelled) {
+            console.error(
+              "Load Stock Types error:",
+              err
+            );
+
+            setStockTypes([]);
+            setStockTypesError(
+              err.response?.data?.message ||
+                "Unable to load Stock Types. You can still leave this product unassigned."
+            );
+          }
+        } finally {
+          if (!cancelled) {
+            setStockTypesLoading(false);
+          }
+        }
+      };
+
+    loadStockTypes();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [stockTypeCategory]);
 
 
   const loadStock = async () => {
@@ -357,6 +449,9 @@ const StockPage = () => {
             productName,
             category:
               activeCategory,
+            stockType:
+              addForm.stockType ||
+              null,
             unit:
               addForm.unit,
             openingStock,
@@ -508,6 +603,9 @@ const StockPage = () => {
     setEditForm({
       productName:
         item.productName || "",
+      stockType:
+        item.stockType?._id ||
+        "",
       minimumStock:
         item.minimumStock ?? 0,
       notes:
@@ -585,6 +683,9 @@ const StockPage = () => {
           `/stock/${editItem._id}`,
           {
             productName,
+            stockType:
+              editForm.stockType ||
+              null,
             minimumStock,
             notes:
               editForm.notes.trim(),
@@ -1122,6 +1223,53 @@ const StockPage = () => {
 
                 <div className="stock-field">
                   <label>
+                    Stock Type (Optional)
+                  </label>
+
+                  <select
+                    name="stockType"
+                    value={
+                      addForm.stockType
+                    }
+                    onChange={
+                      handleAddChange
+                    }
+                    disabled={
+                      stockTypesLoading
+                    }
+                  >
+                    <option value="">
+                      No Stock Type
+                    </option>
+
+                    {compatibleStockTypes.map(
+                      (type) => (
+                        <option
+                          key={type._id}
+                          value={type._id}
+                        >
+                          {type.name}
+                        </option>
+                      )
+                    )}
+                  </select>
+
+                  {stockTypesLoading && (
+                    <small>
+                      Loading compatible Stock Types...
+                    </small>
+                  )}
+
+                  {stockTypesError && (
+                    <small className="stock-field-error">
+                      {stockTypesError}
+                    </small>
+                  )}
+                </div>
+
+
+                <div className="stock-field">
+                  <label>
                     Unit *
                   </label>
 
@@ -1478,6 +1626,53 @@ const StockPage = () => {
                     handleEditChange
                   }
                 />
+              </div>
+
+
+              <div className="stock-field">
+                <label>
+                  Stock Type (Optional)
+                </label>
+
+                <select
+                  name="stockType"
+                  value={
+                    editForm.stockType
+                  }
+                  onChange={
+                    handleEditChange
+                  }
+                  disabled={
+                    stockTypesLoading
+                  }
+                >
+                  <option value="">
+                    No Stock Type
+                  </option>
+
+                  {compatibleStockTypes.map(
+                    (type) => (
+                      <option
+                        key={type._id}
+                        value={type._id}
+                      >
+                        {type.name}
+                      </option>
+                    )
+                  )}
+                </select>
+
+                {stockTypesLoading && (
+                  <small>
+                    Loading compatible Stock Types...
+                  </small>
+                )}
+
+                {stockTypesError && (
+                  <small className="stock-field-error">
+                    {stockTypesError}
+                  </small>
+                )}
               </div>
 
 

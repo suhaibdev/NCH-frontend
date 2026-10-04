@@ -186,6 +186,10 @@
   color: #667085;
 }
 
+.stock-field .stock-field-error {
+  color: #b91c1c;
+}
+
 .stock-category-title {
   display: flex;
   flex-direction: column;
