@@ -115,6 +115,10 @@
   resize: vertical;
 }
 
+.suppliers-uppercase {
+  text-transform: uppercase;
+}
+
 .suppliers-field input:focus,
 .suppliers-field textarea:focus {
   outline: none;

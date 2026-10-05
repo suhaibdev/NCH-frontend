@@ -211,9 +211,24 @@ const SuppliersPage = () => {
   const handleFormChange = (event) => {
     const { name, value } = event.target;
 
+    let nextValue = value;
+
+    if (name === "phone") {
+      nextValue = value
+        .replace(/\D/g, "")
+        .slice(0, 10);
+    }
+
+    if (name === "gstNumber") {
+      nextValue = value
+        .toUpperCase()
+        .replace(/[^A-Z0-9]/g, "")
+        .slice(0, 15);
+    }
+
     setForm((previous) => ({
       ...previous,
-      [name]: value,
+      [name]: nextValue,
     }));
   };
 
@@ -227,6 +242,28 @@ const SuppliersPage = () => {
 
     if (!form.name.trim()) {
       setFormError("Supplier Name is required.");
+      return;
+    }
+
+    if (
+      form.phone &&
+      !/^\d{10}$/.test(form.phone)
+    ) {
+      setFormError(
+        "Contact number must be exactly 10 digits."
+      );
+      return;
+    }
+
+    if (
+      form.gstNumber &&
+      !/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/.test(
+        form.gstNumber
+      )
+    ) {
+      setFormError(
+        "GSTIN must be a valid 15-character GST number."
+      );
       return;
     }
 
@@ -493,7 +530,7 @@ const SuppliersPage = () => {
                 </label>
                 <label className="suppliers-field">
                   <span>Phone</span>
-                  <input type="tel" name="phone" value={form.phone} onChange={handleFormChange} maxLength="30" />
+                  <input type="text" inputMode="numeric" name="phone" value={form.phone} onChange={handleFormChange} maxLength="10" />
                 </label>
                 <label className="suppliers-field">
                   <span>Email</span>
@@ -505,7 +542,7 @@ const SuppliersPage = () => {
                 </label>
                 <label className="suppliers-field">
                   <span>GST Number</span>
-                  <input type="text" name="gstNumber" value={form.gstNumber} onChange={handleFormChange} maxLength="30" />
+                  <input type="text" name="gstNumber" value={form.gstNumber} onChange={handleFormChange} maxLength="15" className="suppliers-uppercase" />
                 </label>
                 <label className="suppliers-field suppliers-field-wide">
                   <span>Notes</span>
