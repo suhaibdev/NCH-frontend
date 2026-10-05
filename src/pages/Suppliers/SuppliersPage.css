@@ -1,0 +1,355 @@
+.suppliers-page {
+  width: 100%;
+  max-width: 1200px;
+  box-sizing: border-box;
+}
+
+.suppliers-header,
+.suppliers-list-header,
+.suppliers-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.suppliers-header {
+  margin-bottom: 28px;
+}
+
+.suppliers-header h1,
+.suppliers-list-header h2,
+.supplier-detail-card h2,
+.suppliers-modal-header h2 {
+  margin: 0;
+  color: #24324a;
+}
+
+.suppliers-header h1 {
+  margin-top: 8px;
+  font-size: 30px;
+}
+
+.suppliers-header p,
+.suppliers-list-header p,
+.suppliers-modal-header p {
+  margin: 7px 0 0;
+  color: #667085;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.suppliers-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #e7ecf1;
+  border-radius: 15px;
+  background: #fff;
+  box-shadow: 0 7px 22px rgba(31, 45, 61, 0.07);
+}
+
+.suppliers-list-header {
+  padding: 20px 22px;
+  border-bottom: 1px solid #edf0f3;
+}
+
+.suppliers-list-header h2,
+.supplier-detail-card h2,
+.suppliers-modal-header h2 {
+  font-size: 20px;
+}
+
+.suppliers-count {
+  flex-shrink: 0;
+  padding: 7px 11px;
+  border-radius: 999px;
+  background: #eef6ff;
+  color: #1976d2;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.suppliers-toolbar {
+  padding: 18px 22px;
+  border-bottom: 1px solid #edf0f3;
+  background: #fafbfd;
+}
+
+.suppliers-search-field,
+.suppliers-field {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.suppliers-search-field {
+  width: min(540px, 100%);
+}
+
+.suppliers-search-field span,
+.suppliers-field span {
+  color: #344054;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.suppliers-page .ep-input,
+.suppliers-field input,
+.suppliers-field textarea {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.suppliers-field input,
+.suppliers-field textarea {
+  padding: 11px 14px;
+  border: 1px solid #d5d5d5;
+  border-radius: 8px;
+  color: #24324a;
+  font: inherit;
+}
+
+.suppliers-field textarea {
+  resize: vertical;
+}
+
+.suppliers-field input:focus,
+.suppliers-field textarea:focus {
+  outline: none;
+  border-color: #1976d2;
+  box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.15);
+}
+
+.suppliers-table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.suppliers-table {
+  width: 100%;
+  min-width: 810px;
+  margin: 0;
+}
+
+.suppliers-table td strong {
+  color: #24324a;
+}
+
+.suppliers-gstin {
+  font-family: monospace;
+  white-space: nowrap;
+}
+
+.suppliers-actions {
+  display: flex;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.suppliers-actions .ep-btn,
+.suppliers-pagination .ep-btn {
+  width: auto;
+  text-decoration: none;
+}
+
+.suppliers-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  padding: 18px 22px;
+  border-top: 1px solid #edf0f3;
+  color: #475467;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.suppliers-state {
+  padding: 46px 22px;
+  color: #667085;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.suppliers-state p {
+  margin: 0 0 16px;
+}
+
+.suppliers-error-state {
+  color: #b42318;
+}
+
+.suppliers-list-loading {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  padding: 8px 10px;
+  border-radius: 7px;
+  background: #24324a;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.suppliers-message {
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 20px;
+  padding: 13px 16px;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.suppliers-message.success {
+  border: 1px solid #c8e8d0;
+  border-left: 4px solid #2e7d32;
+  background: #edf8f0;
+  color: #176b2c;
+}
+
+.suppliers-message.error {
+  border: 1px solid #f6cac7;
+  border-left: 4px solid #d32f2f;
+  background: #fff3f2;
+  color: #b42318;
+}
+
+.suppliers-modal-backdrop {
+  position: fixed;
+  z-index: 2000;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  background: rgba(16, 24, 40, 0.55);
+}
+
+.suppliers-modal {
+  width: min(720px, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 20px 60px rgba(16, 24, 40, 0.24);
+}
+
+.suppliers-modal-header {
+  align-items: flex-start;
+  padding: 22px;
+  border-bottom: 1px solid #edf0f3;
+}
+
+.suppliers-close {
+  border: 0;
+  background: transparent;
+  color: #667085;
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.suppliers-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  padding: 22px;
+}
+
+.suppliers-field-wide,
+.suppliers-form-actions,
+.suppliers-form .suppliers-message {
+  grid-column: 1 / -1;
+}
+
+.suppliers-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.suppliers-form-actions .ep-btn {
+  width: auto;
+}
+
+.suppliers-form button:disabled,
+.suppliers-pagination button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  transform: none;
+}
+
+.supplier-detail-card {
+  padding: 22px;
+}
+
+.supplier-details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin: 20px 0 0;
+}
+
+.supplier-details-grid div {
+  min-width: 0;
+  padding: 15px;
+  border-radius: 9px;
+  background: #fafbfd;
+}
+
+.supplier-details-grid dt {
+  color: #667085;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.supplier-details-grid dd {
+  margin: 6px 0 0;
+  color: #24324a;
+  overflow-wrap: anywhere;
+}
+
+.suppliers-back-link {
+  color: #1976d2;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+@media (max-width: 700px) {
+  .suppliers-header,
+  .suppliers-list-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .suppliers-header > .ep-btn,
+  .suppliers-form-actions .ep-btn {
+    width: 100%;
+  }
+
+  .suppliers-form,
+  .supplier-details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .suppliers-form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .suppliers-modal-header,
+  .suppliers-toolbar,
+  .suppliers-list-header,
+  .supplier-detail-card {
+    padding: 18px;
+  }
+
+  .suppliers-pagination {
+    gap: 10px;
+    padding: 16px;
+  }
+}

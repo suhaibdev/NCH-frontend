@@ -239,6 +239,13 @@ const AdminPortalPage = () => {
             </Link>
 
             <Link
+              to="/admin/suppliers"
+              className="home-link home-link-purple"
+            >
+              Suppliers
+            </Link>
+
+            <Link
               to="/admin/payout"
               className="home-link home-link-orange"
             >

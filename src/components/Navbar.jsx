@@ -182,6 +182,15 @@ const Navbar = () => {
                 Customers
               </Link>
 
+              <Link
+                to="/admin/suppliers"
+                onClick={
+                  closeMenus
+                }
+              >
+                Suppliers
+              </Link>
+
 
               {/* =========================================
                   STOCK DROPDOWN

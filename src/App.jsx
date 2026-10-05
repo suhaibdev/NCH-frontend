@@ -12,6 +12,8 @@ import SalarySlip from "./pages/Employees/SalarySlip";
 import AdminPortalPage from "./pages/AdminPortalPage";
 import EmployeesPage from "./pages/Employees/EmployeesPage";
 import CustomersPage from "./pages/Customer/CustomersPage";
+import SuppliersPage from "./pages/Suppliers/SuppliersPage";
+import SupplierDetailPage from "./pages/Suppliers/SupplierDetailPage";
 import AttendancePage from "./pages/Employees/Attendance";
 import PayoutPage from "./pages/Employees/PayoutPage";
 
@@ -128,6 +130,20 @@ const App = () => {
               path="/admin/customers"
               element={
                 <CustomersPage />
+              }
+            />
+
+            <Route
+              path="/admin/suppliers"
+              element={
+                <SuppliersPage />
+              }
+            />
+
+            <Route
+              path="/admin/suppliers/:supplierId"
+              element={
+                <SupplierDetailPage />
               }
             />
 
