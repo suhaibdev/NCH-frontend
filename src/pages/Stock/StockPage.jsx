@@ -1,6 +1,7 @@
 import React, {
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
@@ -28,6 +29,13 @@ const CATEGORIES = [
 const EMPTY_ADD_FORM = {
   productName: "",
   stockType: "",
+  supplier: "",
+  size: {
+    lengthValue: "",
+    lengthUnit: "m",
+    widthValue: "",
+    widthUnit: "cm",
+  },
   unit: "pcs",
   openingStock: "",
   minimumStock: "",
@@ -76,6 +84,18 @@ const StockPage = () => {
   const [stockTypesError, setStockTypesError] =
     useState("");
 
+  const [supplierQuery, setSupplierQuery] =
+    useState("");
+
+  const [supplierOptions, setSupplierOptions] =
+    useState([]);
+
+  const [suppliersLoading, setSuppliersLoading] =
+    useState(false);
+
+  const [suppliersError, setSuppliersError] =
+    useState("");
+
 
   /* =========================================================
      STOCK ACTION STATE
@@ -111,6 +131,13 @@ const StockPage = () => {
     useState({
       productName: "",
       stockType: "",
+      supplier: "",
+      size: {
+        lengthValue: "",
+        lengthUnit: "m",
+        widthValue: "",
+        widthUnit: "cm",
+      },
       minimumStock: "",
       notes: "",
     });
@@ -154,6 +181,23 @@ const StockPage = () => {
     stockTypeCategory
       ? stockTypes
       : [];
+
+  const selectedAddStockType =
+    compatibleStockTypes.find(
+      (type) => type._id === addForm.stockType
+    );
+
+  const selectedEditStockType =
+    compatibleStockTypes.find(
+      (type) => type._id === editForm.stockType
+    );
+
+  const selectedIdentityType =
+    showAddForm
+      ? selectedAddStockType
+      : selectedEditStockType;
+
+  const supplierSearchTimer = useRef(null);
 
 
   useEffect(() => {
@@ -220,6 +264,51 @@ const StockPage = () => {
       cancelled = true;
     };
   }, [stockTypeCategory]);
+
+
+  useEffect(() => {
+    if (!selectedIdentityType?.requiresSupplier) {
+      setSupplierOptions([]);
+      setSuppliersError("");
+      return undefined;
+    }
+
+    const controller = new AbortController();
+
+    supplierSearchTimer.current = setTimeout(
+      async () => {
+        try {
+          setSuppliersLoading(true);
+          setSuppliersError("");
+
+          const res = await api.get("/suppliers", {
+            params: { search: supplierQuery.trim(), page: 1, limit: 20 },
+            signal: controller.signal,
+          });
+
+          setSupplierOptions(
+            Array.isArray(res.data?.items) ? res.data.items : []
+          );
+        } catch (err) {
+          if (err.code !== "ERR_CANCELED") {
+            setSuppliersError(
+              err.response?.data?.message || "Unable to load suppliers."
+            );
+          }
+        } finally {
+          if (!controller.signal.aborted) {
+            setSuppliersLoading(false);
+          }
+        }
+      },
+      250
+    );
+
+    return () => {
+      controller.abort();
+      clearTimeout(supplierSearchTimer.current);
+    };
+  }, [selectedIdentityType?._id, selectedIdentityType?.requiresSupplier, supplierQuery]);
 
 
   const loadStock = async () => {
@@ -365,6 +454,93 @@ const StockPage = () => {
   };
 
 
+  const renderIdentityFields = (
+    form,
+    onChange,
+    stockType
+  ) => {
+    if (!stockType) {
+      return null;
+    }
+
+    return (
+      <>
+        {stockType.requiresSupplier && (
+          <div className="stock-field">
+            <label>Supplier *</label>
+            <input
+              type="search"
+              value={supplierQuery}
+              onChange={(event) => setSupplierQuery(event.target.value)}
+              placeholder="Search suppliers"
+            />
+            <select
+              name="supplier"
+              value={form.supplier}
+              onChange={onChange}
+              disabled={suppliersLoading}
+            >
+              <option value="">
+                {suppliersLoading ? "Loading suppliers..." : "Select supplier"}
+              </option>
+              {supplierOptions.map((supplier) => (
+                <option key={supplier._id} value={supplier._id}>
+                  {supplier.name}
+                </option>
+              ))}
+            </select>
+            {suppliersError && (
+              <small className="stock-field-error">{suppliersError}</small>
+            )}
+            {!suppliersLoading && !suppliersError && supplierOptions.length === 0 && (
+              <small>No suppliers found. Add a supplier before creating this stock item.</small>
+            )}
+          </div>
+        )}
+
+        {stockType.requiresSize && (
+          <div className="stock-field stock-size-field">
+            <label>Structured Size *</label>
+            <div className="stock-size-inputs">
+              <input
+                type="number"
+                min="0.01"
+                step="0.01"
+                name="size.lengthValue"
+                value={form.size.lengthValue}
+                onChange={onChange}
+                placeholder="Length"
+              />
+              <select name="size.lengthUnit" value={form.size.lengthUnit} onChange={onChange}>
+                <option value="m">m</option>
+                <option value="cm">cm</option>
+                <option value="inch">inch</option>
+                <option value="ft">ft</option>
+              </select>
+              <input
+                type="number"
+                min="0.01"
+                step="0.01"
+                name="size.widthValue"
+                value={form.size.widthValue}
+                onChange={onChange}
+                placeholder="Width"
+              />
+              <select name="size.widthUnit" value={form.size.widthUnit} onChange={onChange}>
+                <option value="m">m</option>
+                <option value="cm">cm</option>
+                <option value="inch">inch</option>
+                <option value="ft">ft</option>
+              </select>
+            </div>
+            <small>Enter length and width exactly as supplied; units are not converted.</small>
+          </div>
+        )}
+      </>
+    );
+  };
+
+
   /* =========================================================
      ADD PRODUCT
   ========================================================= */
@@ -380,7 +556,14 @@ const StockPage = () => {
     setAddForm(
       (previous) => ({
         ...previous,
-        [name]: value,
+        ...(name.startsWith("size.")
+          ? {
+              size: {
+                ...previous.size,
+                [name.replace("size.", "")]: value,
+              },
+            }
+          : { [name]: value }),
       })
     );
   };
@@ -399,6 +582,22 @@ const StockPage = () => {
         showError(
           "Product name is required."
         );
+        return;
+      }
+
+      if (
+        activeCategory !== "finished_goods" &&
+        !addForm.stockType
+      ) {
+        showError("Stock Type is required for Raw Material and Washed Raw Material.");
+        return;
+      }
+
+      if (
+        selectedAddStockType?.requiresSupplier &&
+        !addForm.supplier
+      ) {
+        showError("Select a supplier for this Stock Type.");
         return;
       }
 
@@ -452,6 +651,12 @@ const StockPage = () => {
             stockType:
               addForm.stockType ||
               null,
+            supplier:
+              addForm.supplier || null,
+            size:
+              selectedAddStockType?.requiresSize
+                ? addForm.size
+                : null,
             unit:
               addForm.unit,
             openingStock,
@@ -606,11 +811,26 @@ const StockPage = () => {
       stockType:
         item.stockType?._id ||
         "",
+      supplier:
+        item.supplier?._id || "",
+      size: {
+        lengthValue: item.size?.lengthValue ?? "",
+        lengthUnit: item.size?.lengthUnit || "m",
+        widthValue: item.size?.widthValue ?? "",
+        widthUnit: item.size?.widthUnit || "cm",
+      },
       minimumStock:
         item.minimumStock ?? 0,
       notes:
         item.notes || "",
     });
+
+    setSupplierQuery(item.supplier?.name || "");
+    setSupplierOptions(
+      item.supplier
+        ? [item.supplier]
+        : []
+    );
 
     setMessage("");
   };
@@ -632,7 +852,14 @@ const StockPage = () => {
     setEditForm(
       (previous) => ({
         ...previous,
-        [name]: value,
+        ...(name.startsWith("size.")
+          ? {
+              size: {
+                ...previous.size,
+                [name.replace("size.", "")]: value,
+              },
+            }
+          : { [name]: value }),
       })
     );
   };
@@ -665,6 +892,22 @@ const StockPage = () => {
       }
 
       if (
+        editItem.category !== "finished_goods" &&
+        !editForm.stockType
+      ) {
+        showError("Select a Stock Type to classify this item.");
+        return;
+      }
+
+      if (
+        selectedEditStockType?.requiresSupplier &&
+        !editForm.supplier
+      ) {
+        showError("Select a supplier for this Stock Type.");
+        return;
+      }
+
+      if (
         !Number.isInteger(
           minimumStock
         ) ||
@@ -686,6 +929,12 @@ const StockPage = () => {
             stockType:
               editForm.stockType ||
               null,
+            supplier:
+              editForm.supplier || null,
+            size:
+              selectedEditStockType?.requiresSize
+                ? editForm.size
+                : null,
             minimumStock,
             notes:
               editForm.notes.trim(),
@@ -800,6 +1049,9 @@ const StockPage = () => {
             type="button"
             className="stock-primary-btn"
             onClick={() => {
+              setAddForm(EMPTY_ADD_FORM);
+              setSupplierQuery("");
+              setSupplierOptions([]);
               setShowAddForm(
                 true
               );
@@ -1030,6 +1282,18 @@ const StockPage = () => {
                                   )}
                                 </span>
 
+                                {item.supplier && (
+                                  <small>
+                                    Supplier: {item.supplier.name}
+                                  </small>
+                                )}
+
+                                {item.size?.lengthValue && (
+                                  <small>
+                                    Size: {item.size.lengthValue} {item.size.lengthUnit} × {item.size.widthValue} {item.size.widthUnit}
+                                  </small>
+                                )}
+
                                 {item.notes && (
                                   <small>
                                     {
@@ -1223,7 +1487,7 @@ const StockPage = () => {
 
                 <div className="stock-field">
                   <label>
-                    Stock Type (Optional)
+                    Stock Type {activeCategory === "finished_goods" ? "(Optional)" : "*"}
                   </label>
 
                   <select
@@ -1238,9 +1502,9 @@ const StockPage = () => {
                       stockTypesLoading
                     }
                   >
-                    <option value="">
-                      No Stock Type
-                    </option>
+                    {activeCategory === "finished_goods" && (
+                      <option value="">No Stock Type</option>
+                    )}
 
                     {compatibleStockTypes.map(
                       (type) => (
@@ -1266,6 +1530,12 @@ const StockPage = () => {
                     </small>
                   )}
                 </div>
+
+                {renderIdentityFields(
+                  addForm,
+                  handleAddChange,
+                  selectedAddStockType
+                )}
 
 
                 <div className="stock-field">
@@ -1631,7 +1901,7 @@ const StockPage = () => {
 
               <div className="stock-field">
                 <label>
-                  Stock Type (Optional)
+                  Stock Type {editItem.category === "finished_goods" ? "(Optional)" : "*"}
                 </label>
 
                 <select
@@ -1646,9 +1916,9 @@ const StockPage = () => {
                     stockTypesLoading
                   }
                 >
-                  <option value="">
-                    No Stock Type
-                  </option>
+                  {editItem.category === "finished_goods" && (
+                    <option value="">No Stock Type</option>
+                  )}
 
                   {compatibleStockTypes.map(
                     (type) => (
@@ -1674,6 +1944,12 @@ const StockPage = () => {
                   </small>
                 )}
               </div>
+
+              {renderIdentityFields(
+                editForm,
+                handleEditChange,
+                selectedEditStockType
+              )}
 
 
               <div className="stock-field">

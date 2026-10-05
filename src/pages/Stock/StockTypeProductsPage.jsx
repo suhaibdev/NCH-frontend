@@ -24,6 +24,13 @@ const CATEGORY_LABELS = {
 
 const EMPTY_FORM = {
   productName: "",
+  supplier: "",
+  size: {
+    lengthValue: "",
+    lengthUnit: "m",
+    widthValue: "",
+    widthUnit: "cm",
+  },
   unit: "pcs",
   openingStock: 0,
   minimumStock: 0,
@@ -83,6 +90,11 @@ const StockTypeProductsPage = () => {
     setMessageType,
   ] = useState("");
 
+  const [supplierQuery, setSupplierQuery] = useState("");
+  const [supplierOptions, setSupplierOptions] = useState([]);
+  const [suppliersLoading, setSuppliersLoading] = useState(false);
+  const [suppliersError, setSuppliersError] = useState("");
+
 
   /* =========================================================
      LOAD PAGE
@@ -91,6 +103,38 @@ const StockTypeProductsPage = () => {
   useEffect(() => {
     loadPage();
   }, [typeId]);
+
+  useEffect(() => {
+    if (!showAddForm || !stockType?.requiresSupplier) {
+      return undefined;
+    }
+
+    const controller = new AbortController();
+    const timer = setTimeout(async () => {
+      try {
+        setSuppliersLoading(true);
+        setSuppliersError("");
+        const response = await api.get("/suppliers", {
+          params: { search: supplierQuery.trim(), page: 1, limit: 20 },
+          signal: controller.signal,
+        });
+        setSupplierOptions(
+          Array.isArray(response.data?.items) ? response.data.items : []
+        );
+      } catch (err) {
+        if (err.code !== "ERR_CANCELED") {
+          setSuppliersError(err.response?.data?.message || "Unable to load suppliers.");
+        }
+      } finally {
+        if (!controller.signal.aborted) setSuppliersLoading(false);
+      }
+    }, 250);
+
+    return () => {
+      controller.abort();
+      clearTimeout(timer);
+    };
+  }, [showAddForm, stockType?._id, stockType?.requiresSupplier, supplierQuery]);
 
 
   const loadPage =
@@ -275,6 +319,9 @@ const StockTypeProductsPage = () => {
         EMPTY_FORM
       );
 
+      setSupplierQuery("");
+      setSupplierOptions([]);
+
       setMessage("");
 
       setShowAddForm(
@@ -309,7 +356,14 @@ const StockTypeProductsPage = () => {
       setForm(
         (previous) => ({
           ...previous,
-          [name]: value,
+          ...(name.startsWith("size.")
+            ? {
+                size: {
+                  ...previous.size,
+                  [name.replace("size.", "")]: value,
+                },
+              }
+            : { [name]: value }),
         })
       );
     };
@@ -339,6 +393,11 @@ const StockTypeProductsPage = () => {
           "Product name is required."
         );
 
+        return;
+      }
+
+      if (stockType.requiresSupplier && !form.supplier) {
+        showError("Select a supplier for this Stock Type.");
         return;
       }
 
@@ -395,6 +454,14 @@ const StockTypeProductsPage = () => {
 
             stockType:
               stockType._id,
+
+            supplier:
+              form.supplier || null,
+
+            size:
+              stockType.requiresSize
+                ? form.size
+                : null,
 
             unit:
               form.unit,
@@ -794,6 +861,18 @@ const StockTypeProductsPage = () => {
                               }
                             </div>
 
+                            {product.supplier && (
+                              <div className="stock-type-product-note">
+                                Supplier: {product.supplier.name}
+                              </div>
+                            )}
+
+                            {product.size?.lengthValue && (
+                              <div className="stock-type-product-note">
+                                Size: {product.size.lengthValue} {product.size.lengthUnit} × {product.size.widthValue} {product.size.widthUnit}
+                              </div>
+                            )}
+
                             {product.notes && (
                               <div className="stock-type-product-note">
                                 {
@@ -980,6 +1059,56 @@ const StockTypeProductsPage = () => {
                 </select>
 
               </div>
+
+
+              {stockType.requiresSupplier && (
+                <div className="stock-type-product-field">
+                  <label>Supplier *</label>
+                  <input
+                    type="search"
+                    value={supplierQuery}
+                    onChange={(event) => setSupplierQuery(event.target.value)}
+                    placeholder="Search suppliers"
+                  />
+                  <select
+                    name="supplier"
+                    value={form.supplier}
+                    onChange={handleFormChange}
+                    disabled={suppliersLoading}
+                  >
+                    <option value="">
+                      {suppliersLoading ? "Loading suppliers..." : "Select supplier"}
+                    </option>
+                    {supplierOptions.map((supplier) => (
+                      <option key={supplier._id} value={supplier._id}>
+                        {supplier.name}
+                      </option>
+                    ))}
+                  </select>
+                  {suppliersError && <small>{suppliersError}</small>}
+                  {!suppliersLoading && !suppliersError && supplierOptions.length === 0 && (
+                    <small>No suppliers found. Add a supplier first.</small>
+                  )}
+                </div>
+              )}
+
+
+              {stockType.requiresSize && (
+                <div className="stock-type-product-field">
+                  <label>Structured Size *</label>
+                  <div className="stock-type-product-form-row">
+                    <input type="number" min="0.01" step="0.01" name="size.lengthValue" value={form.size.lengthValue} onChange={handleFormChange} placeholder="Length" />
+                    <select name="size.lengthUnit" value={form.size.lengthUnit} onChange={handleFormChange}>
+                      <option value="m">m</option><option value="cm">cm</option><option value="inch">inch</option><option value="ft">ft</option>
+                    </select>
+                    <input type="number" min="0.01" step="0.01" name="size.widthValue" value={form.size.widthValue} onChange={handleFormChange} placeholder="Width" />
+                    <select name="size.widthUnit" value={form.size.widthUnit} onChange={handleFormChange}>
+                      <option value="m">m</option><option value="cm">cm</option><option value="inch">inch</option><option value="ft">ft</option>
+                    </select>
+                  </div>
+                  <small>Values and units are stored exactly as entered.</small>
+                </div>
+              )}
 
 
               <div className="stock-type-product-form-row">

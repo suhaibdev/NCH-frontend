@@ -31,6 +31,8 @@ const EMPTY_FORM = {
   name: "",
   category: "raw_material",
   notes: "",
+  requiresSupplier: false,
+  requiresSize: false,
 };
 
 
@@ -217,6 +219,12 @@ const StockTypesPage = () => {
 
       notes:
         type.notes || "",
+
+      requiresSupplier:
+        Boolean(type.requiresSupplier),
+
+      requiresSize:
+        Boolean(type.requiresSize),
     });
 
     setMessage("");
@@ -246,12 +254,20 @@ const StockTypesPage = () => {
     const {
       name,
       value,
+      type,
+      checked,
     } = event.target;
 
     setForm(
       (previous) => ({
         ...previous,
-        [name]: value,
+        ...(name === "category" && value === "finished_goods"
+          ? {
+              requiresSupplier: false,
+              requiresSize: false,
+            }
+          : {}),
+        [name]: type === "checkbox" ? checked : value,
       })
     );
   };
@@ -291,6 +307,16 @@ const StockTypesPage = () => {
 
           notes:
             form.notes.trim(),
+
+          requiresSupplier:
+            form.category === "finished_goods"
+              ? false
+              : form.requiresSupplier,
+
+          requiresSize:
+            form.category === "finished_goods"
+              ? false
+              : form.requiresSize,
         };
 
 
@@ -549,6 +575,10 @@ const StockTypesPage = () => {
                     </th>
 
                     <th>
+                      Identity Rules
+                    </th>
+
+                    <th>
                       Actions
                     </th>
                   </tr>
@@ -561,7 +591,7 @@ const StockTypesPage = () => {
                   0 ? (
                     <tr>
                       <td
-                        colSpan="5"
+                        colSpan="6"
                         className="stock-types-empty"
                       >
                         No Stock Types found.
@@ -611,6 +641,15 @@ const StockTypesPage = () => {
                               {type.notes ||
                                 "-"}
                             </span>
+                          </td>
+
+                          <td>
+                            {type.category === "finished_goods"
+                              ? "-"
+                              : [
+                                  type.requiresSupplier && "Supplier",
+                                  type.requiresSize && "Size",
+                                ].filter(Boolean).join(" + ") || "None"}
                           </td>
 
 
@@ -723,6 +762,37 @@ const StockTypesPage = () => {
                     : "Create a new Stock Type."}
                 </p>
               </div>
+
+
+              {form.category !== "finished_goods" && (
+                <div className="stock-type-field">
+
+                  <label>
+                    Required product identity
+                  </label>
+
+                  <label>
+                    <input
+                      type="checkbox"
+                      name="requiresSupplier"
+                      checked={form.requiresSupplier}
+                      onChange={handleChange}
+                    />
+                    Require Supplier
+                  </label>
+
+                  <label>
+                    <input
+                      type="checkbox"
+                      name="requiresSize"
+                      checked={form.requiresSize}
+                      onChange={handleChange}
+                    />
+                    Require structured size
+                  </label>
+
+                </div>
+              )}
 
 
               <button
