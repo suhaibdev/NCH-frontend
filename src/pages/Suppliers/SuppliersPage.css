@@ -152,6 +152,16 @@
   white-space: nowrap;
 }
 
+.supplier-detail-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.supplier-detail-actions .ep-btn {
+  width: auto;
+  text-decoration: none;
+}
+
 .suppliers-actions .ep-btn,
 .suppliers-pagination .ep-btn {
   width: auto;
@@ -291,6 +301,16 @@
   padding: 22px;
 }
 
+.supplier-receipts-card {
+  margin-top: 22px;
+}
+
+.supplier-receipts-table {
+  width: 100%;
+  min-width: 980px;
+  margin: 0;
+}
+
 .supplier-details-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -334,6 +354,17 @@
   .suppliers-header > .ep-btn,
   .suppliers-form-actions .ep-btn {
     width: 100%;
+  }
+
+  .supplier-detail-actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .supplier-detail-actions .ep-btn {
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
   }
 
   .suppliers-form,
