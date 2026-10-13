@@ -1,0 +1,69 @@
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import api from "../../config/axios";
+import "./ProcessGoodsPage.css";
+
+const WashersListPage = () => {
+  const navigate = useNavigate();
+  const [items, setItems] = useState([]);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    api
+      .get("/washers", { params: { page: 1, limit: 100 } })
+      .then((response) => setItems(response.data.items || []))
+      .catch((requestError) => {
+        setError(
+          requestError.response?.data?.message ||
+            "Unable to load washers."
+        );
+      });
+  }, []);
+
+  return (
+    <main className="process-page">
+      <div className="process-container">
+        <header className="process-header">
+          <div>
+            <p className="process-eyebrow">NCH Factory Management</p>
+            <h1>Washers</h1>
+            <p>Open a washer to configure rates, advances, and payouts.</p>
+          </div>
+        </header>
+
+        {error && <p className="process-error">{error}</p>}
+
+        <section className="process-card">
+          <h2>Washer Directory</h2>
+          {items.length ? (
+            <div className="process-table-scroll">
+              <table className="process-table">
+                <thead>
+                  <tr><th>Name</th><th>Phone</th><th>Status</th><th>Action</th></tr>
+                </thead>
+                <tbody>
+                  {items.map((washer) => (
+                    <tr key={washer._id}>
+                      <td>{washer.name}</td>
+                      <td>{washer.phone || "—"}</td>
+                      <td>{washer.isActive ? "Active" : "Inactive"}</td>
+                      <td>
+                        <button type="button" className="secondary-button compact-button" onClick={() => navigate(`/admin/washers/${washer._id}`)}>
+                          View
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <p className="process-state">No washers found. Add a washer from the existing admin form.</p>
+          )}
+        </section>
+      </div>
+    </main>
+  );
+};
+
+export default WashersListPage;
