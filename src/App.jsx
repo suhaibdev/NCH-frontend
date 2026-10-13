@@ -24,6 +24,7 @@ import StockTypesPage from "./pages/Stock/StockTypesPage";
 import StockTypeProductsPage from "./pages/Stock/StockTypeProductsPage";
 import WashersPage from "./pages/Stock/WashersPage";
 import ProcessGoodsPage from "./pages/Stock/ProcessGoodsPage";
+import WasherDetailPage from "./pages/Stock/WasherDetailPage";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLayout from "./components/AdminLayout";
@@ -208,6 +209,7 @@ const App = () => {
               path="/admin/washers"
               element={<WashersPage />}
             />
+            <Route path="/admin/washers/:washerId" element={<WasherDetailPage />} />
 
             <Route
               path="/admin/stock/process-goods"
