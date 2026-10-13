@@ -29,6 +29,21 @@ const Navbar = () => {
     setStockMenuOpen(false);
   };
 
+  const supportsDesktopHover = () =>
+    window.matchMedia("(min-width: 769px) and (hover: hover) and (pointer: fine)").matches;
+
+  const openStockMenuOnHover = (event) => {
+    if (event.pointerType === "mouse" && supportsDesktopHover()) {
+      setStockMenuOpen(true);
+    }
+  };
+
+  const closeStockMenuOnLeave = (event) => {
+    if (event.pointerType === "mouse" && supportsDesktopHover()) {
+      setStockMenuOpen(false);
+    }
+  };
+
   useEffect(() => {
     closeMenus();
   }, [pathname]);
@@ -142,10 +157,16 @@ const Navbar = () => {
                   STOCK DROPDOWN
               ========================================== */}
 
-              <div ref={stockMenuRef} className={`stock-nav-menu ${stockMenuOpen ? "open" : ""}`}>
+              <div
+                ref={stockMenuRef}
+                className={`stock-nav-menu ${stockMenuOpen ? "open" : ""}`}
+                onPointerEnter={openStockMenuOnHover}
+                onPointerLeave={closeStockMenuOnLeave}
+              >
                 <button
                   type="button"
                   className="stock-menu-trigger"
+                  aria-haspopup="menu"
                   aria-expanded={stockMenuOpen}
                   aria-controls="stock-dropdown"
                   onClick={() => setStockMenuOpen((previous) => !previous)}
