@@ -4,15 +4,12 @@
 
 .navbar {
   background: #ffffff;
-  box-shadow:
-    0 2px 10px
-    rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
 
   position: sticky;
   top: 0;
   z-index: 1000;
 }
-
 
 .nav-container {
   max-width: 1200px;
@@ -25,7 +22,6 @@
 
   gap: 20px;
 }
-
 
 /* ==========================================
    LOGO
@@ -40,11 +36,9 @@
   font-weight: bold;
 }
 
-
 .nav-logo a {
   text-decoration: none;
 }
-
 
 /* ==========================================
    NAVIGATION LINKS
@@ -55,7 +49,6 @@
   align-items: center;
   gap: 24px;
 }
-
 
 .nav-links > a {
   text-decoration: none;
@@ -69,11 +62,9 @@
   white-space: nowrap;
 }
 
-
 .nav-links > a:hover {
   color: #1976d2;
 }
-
 
 /* ==========================================
    LOGOUT
@@ -97,11 +88,9 @@
   font-weight: 600;
 }
 
-
 .nav-logout-btn:hover {
   background: #1253a2;
 }
-
 
 /* ==========================================
    STOCK DROPDOWN
@@ -113,7 +102,6 @@
   display: flex;
   align-items: center;
 }
-
 
 .stock-menu-trigger {
   display: flex;
@@ -140,26 +128,19 @@
   white-space: nowrap;
 }
 
-
 .stock-menu-trigger:hover {
   color: #1976d2;
 }
 
-
 .stock-menu-arrow {
   font-size: 12px;
 
-  transition:
-    transform 0.2s ease;
+  transition: transform 0.2s ease;
 }
 
-
-.stock-nav-menu.open
-.stock-menu-arrow {
-  transform:
-    rotate(180deg);
+.stock-nav-menu.open .stock-menu-arrow {
+  transform: rotate(180deg);
 }
-
 
 .stock-dropdown {
   display: none;
@@ -175,18 +156,14 @@
 
   background: #ffffff;
 
-  border:
-    1px solid #e4e7ec;
+  border: 1px solid #e4e7ec;
 
   border-radius: 10px;
 
-  box-shadow:
-    0 12px 30px
-    rgba(16, 24, 40, 0.15);
+  box-shadow: 0 12px 30px rgba(16, 24, 40, 0.15);
 
   z-index: 1100;
 }
-
 
 .stock-dropdown::before {
   content: "";
@@ -199,7 +176,6 @@
 
   height: 14px;
 }
-
 
 .stock-dropdown a {
   display: block;
@@ -222,33 +198,18 @@
     color 0.2s ease;
 }
 
-
 .stock-dropdown a:hover {
   background: #eff6ff;
 
   color: #1976d2;
 }
 
-
-/*
- * Desktop:
- * dropdown can open by hover,
- * keyboard focus,
- * or click.
- */
+/* Desktop dropdown visibility is controlled by the shared Navbar state. */
 @media (min-width: 769px) {
-
-  .stock-nav-menu:hover
-  .stock-dropdown,
-  .stock-nav-menu:focus-within
-  .stock-dropdown,
-  .stock-nav-menu.open
-  .stock-dropdown {
+  .stock-nav-menu.open .stock-dropdown {
     display: block;
   }
-
 }
-
 
 /* ==========================================
    MOBILE MENU BUTTON
@@ -266,24 +227,20 @@
   font-size: 30px;
 }
 
-
 /* ==========================================
    MOBILE
 ========================================== */
 
 @media (max-width: 768px) {
-
   .nav-container {
     position: relative;
 
     padding: 15px;
   }
 
-
   .mobile-menu-btn {
     display: block;
   }
-
 
   .nav-links {
     display: none;
@@ -303,18 +260,14 @@
 
     gap: 0;
 
-    box-shadow:
-      0 6px 18px
-      rgba(0, 0, 0, 0.12);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
 
     z-index: 999;
   }
 
-
   .nav-links.open {
     display: flex;
   }
-
 
   .nav-links > a,
   .nav-logout-btn {
@@ -332,8 +285,7 @@
 
     text-align: left;
 
-    border-bottom:
-      1px solid #eeeeee;
+    border-bottom: 1px solid #eeeeee;
 
     border-radius: 0;
 
@@ -342,7 +294,6 @@
     text-decoration: none;
   }
 
-
   .nav-logout-btn {
     color: #d32f2f;
 
@@ -350,7 +301,6 @@
 
     cursor: pointer;
   }
-
 
   /* ========================================
      MOBILE STOCK DROPDOWN
@@ -362,7 +312,6 @@
     display: block;
   }
 
-
   .stock-menu-trigger {
     width: 100%;
 
@@ -370,15 +319,13 @@
 
     display: flex;
 
-    justify-content:
-      space-between;
+    justify-content: space-between;
 
     padding: 16px 20px;
 
     border: none;
 
-    border-bottom:
-      1px solid #eeeeee;
+    border-bottom: 1px solid #eeeeee;
 
     border-radius: 0;
 
@@ -392,13 +339,11 @@
     font-weight: 500;
   }
 
-
   .stock-menu-trigger:hover {
     background: #f8fafc;
 
     color: #1976d2;
   }
-
 
   .stock-dropdown {
     display: none;
@@ -420,17 +365,13 @@
     background: #f8fafc;
   }
 
-
-  .stock-nav-menu.open
-  .stock-dropdown {
+  .stock-nav-menu.open .stock-dropdown {
     display: block;
   }
-
 
   .stock-dropdown::before {
     display: none;
   }
-
 
   .stock-dropdown a {
     width: 100%;
@@ -441,8 +382,7 @@
 
     border-radius: 0;
 
-    border-bottom:
-      1px solid #eeeeee;
+    border-bottom: 1px solid #eeeeee;
 
     background: #f8fafc;
 
@@ -451,11 +391,9 @@
     font-size: 15px;
   }
 
-
   .stock-dropdown a:hover {
     background: #eff6ff;
 
     color: #1976d2;
   }
-
 }
