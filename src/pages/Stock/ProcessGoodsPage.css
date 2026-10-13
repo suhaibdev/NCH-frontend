@@ -54,6 +54,82 @@
 .washer-account-card .back-button {
   justify-self: start;
 }
+.washing-rates-card {
+  display: grid;
+  gap: 18px;
+}
+.washing-rates-heading {
+  align-items: flex-start;
+}
+.washing-rates-heading p {
+  margin-top: 6px;
+}
+.washing-output-form {
+  max-width: 480px;
+  margin-top: 0;
+}
+.washing-rates-list {
+  overflow: hidden;
+  border: 1px solid #dce5f2;
+  border-radius: 10px;
+}
+.washing-rates-table-header,
+.washing-rate-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 0.5fr);
+  align-items: center;
+  gap: 20px;
+  padding: 13px 16px;
+}
+.washing-rates-table-header {
+  background: #f2f6fb;
+  color: #526581;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.washing-rate-row + .washing-rate-row {
+  border-top: 1px solid #e2e9f3;
+}
+.washing-rate-name {
+  color: #243a5f;
+  font-weight: 700;
+}
+.washing-rate-control {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: 8px;
+  color: #33435f;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.washing-rate-control input {
+  width: 140px;
+  min-width: 0;
+  box-sizing: border-box;
+  border: 1px solid #b9c7dc;
+  border-radius: 8px;
+  padding: 10px 11px;
+  font: inherit;
+  color: #1a2c48;
+  background: #fff;
+}
+.washing-rate-control input:focus {
+  outline: none;
+  border-color: #174f9e;
+  box-shadow: 0 0 0 3px rgba(23, 79, 158, 0.12);
+}
+.washing-rate-unit {
+  color: #64748b;
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+.washing-rates-actions {
+  display: flex;
+  justify-content: flex-end;
+}
 .process-grid {
   display: grid;
   grid-template-columns: minmax(290px, 0.82fr) minmax(0, 1.4fr);
@@ -331,6 +407,10 @@ button:disabled {
   .inline-filter select {
     width: 65%;
   }
+  .washing-rates-table-header,
+  .washing-rate-row {
+    grid-template-columns: minmax(0, 1fr) minmax(200px, 0.55fr);
+  }
 }
 @media (max-width: 520px) {
   .process-page {
@@ -354,5 +434,29 @@ button:disabled {
   }
   .washer-detail dd {
     margin-bottom: 12px;
+  }
+  .washing-rates-heading {
+    gap: 12px;
+  }
+  .washing-rates-heading button,
+  .washing-rates-actions button {
+    width: 100%;
+  }
+  .washing-rates-table-header {
+    display: none;
+  }
+  .washing-rate-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .washing-rate-control {
+    width: 100%;
+  }
+  .washing-rate-control input {
+    flex: 1;
+    width: auto;
+  }
+  .washing-rates-actions {
+    display: block;
   }
 }

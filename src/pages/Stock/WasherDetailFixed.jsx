@@ -42,6 +42,18 @@ const WasherDetailFixed = () => {
       { stockType: String(stockType), ratePerPiece },
     ]);
   const saveRates = async () => {
+    const hasInvalidRate = rates.some(
+      (rate) =>
+        rate.ratePerPiece === "" ||
+        !Number.isFinite(Number(rate.ratePerPiece)) ||
+        Number(rate.ratePerPiece) < 0
+    );
+
+    if (hasInvalidRate) {
+      setError("Rate per PCS must be a non-negative number.");
+      return;
+    }
+
     try {
       await api.put(`/washers/${washerId}`, {
         washingRates: rates.map((rate) => ({
@@ -92,15 +104,18 @@ const WasherDetailFixed = () => {
           </div>
         </header>
         {error && <p className="process-error">{error}</p>}
-        <section className="process-card">
-          <h2>Washing Rates</h2>
-          <div className="process-actions">
+        <section className="process-card washing-rates-card">
+          <div className="process-card-heading washing-rates-heading">
+            <div>
+              <h2>Washing Rates</h2>
+              <p>Set the washing charge for each eligible Washed Output Type.</p>
+            </div>
             <button type="button" onClick={() => setShowOutputForm((visible) => !visible)}>
               {showOutputForm ? "Cancel" : "+ Add Output Type"}
             </button>
           </div>
           {showOutputForm && (
-            <form className="process-form" onSubmit={addOutputType}>
+            <form className="process-form washing-output-form" onSubmit={addOutputType}>
               <label>
                 Output Type Name *
                 <input
@@ -118,27 +133,39 @@ const WasherDetailFixed = () => {
             </form>
           )}
           {types.length ? (
-            types.map((type) => (
-              <label className="process-form" key={type._id}>
-                {type.name}
-                <span>
-                  ₹{" "}
-                  <input
-                    inputMode="decimal"
-                    value={getRate(type._id)}
-                    onChange={(event) => setRate(type._id, event.target.value)}
-                  />{" "}
-                  / PCS
-                </span>
-              </label>
-            ))
+            <div className="washing-rates-list">
+              <div className="washing-rates-table-header" aria-hidden="true">
+                <span>Output Type</span>
+                <span>Rate / PCS</span>
+              </div>
+              {types.map((type) => (
+                <label className="washing-rate-row" key={type._id}>
+                  <span className="washing-rate-name">{type.name}</span>
+                  <span className="washing-rate-control">
+                    ₹{" "}
+                    <input
+                      className="washing-rate-input"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      inputMode="decimal"
+                      value={getRate(type._id)}
+                      onChange={(event) => setRate(type._id, event.target.value)}
+                    />{" "}
+                    <span className="washing-rate-unit">/ PCS</span>
+                  </span>
+                </label>
+              ))}
+            </div>
           ) : (
             <p className="process-state">No Washed Output Types added yet.</p>
           )}
           {types.length > 0 && (
-            <button type="button" onClick={saveRates}>
-              Save Rates
-            </button>
+            <div className="washing-rates-actions">
+              <button type="button" onClick={saveRates}>
+                Save Rates
+              </button>
+            </div>
           )}
         </section>
         <section className="process-card washer-account-card">

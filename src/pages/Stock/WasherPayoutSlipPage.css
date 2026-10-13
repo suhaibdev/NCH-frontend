@@ -62,18 +62,62 @@
 }
 
 @media print {
+  @page {
+    size: A4 portrait;
+    margin: 12mm;
+  }
+
+  html,
+  body {
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    background: #fff;
+  }
+
   .navbar,
+  .footer,
   .washer-slip-actions {
     display: none !important;
   }
 
+  .app-layout,
+  .app-layout main,
   .washer-slip-page {
+    min-height: 0;
+    height: auto;
     margin: 0;
     padding: 0;
+    overflow: visible;
+    background: #fff;
   }
 
-  .washer-slip {
+  body .washer-slip-print-area,
+  body .washer-slip-print-area * {
+    visibility: visible !important;
+  }
+
+  body .washer-slip-print-area {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    box-sizing: border-box;
     border: 0;
+    border-radius: 0;
     box-shadow: none;
+    color: #000;
+    background: #fff;
+  }
+
+  .washer-slip-print-area th,
+  .washer-slip-print-area td {
+    border-color: #000;
+  }
+
+  .washer-slip-print-area h1,
+  .washer-slip-print-area h2,
+  .washer-slip-print-area p {
+    color: #000;
   }
 }

@@ -38,7 +38,7 @@ export default function WasherPayoutSlipPage() {
       ) : !payout ? (
         <p>Loading payout slip…</p>
       ) : (
-        <article className="washer-slip">
+        <article className="washer-slip washer-slip-print-area">
           <header>
             <strong>NEW CALCUTTA HANDLOOM</strong>
             <h1>WASHER PAYOUT SLIP</h1>
