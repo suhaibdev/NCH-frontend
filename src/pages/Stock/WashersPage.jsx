@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import api from "../../config/axios";
+import { toTitleCaseInput } from "../../utils/text";
 import "./ProcessGoodsPage.css";
 
 const emptyForm = {
@@ -54,12 +56,12 @@ const WashersPage = () => {
       )
       .catch(() => setOutputTypes([]));
   }, []);
-  const updateForm = (event) =>
-    setForm((previous) => ({
-      ...previous,
-      [event.target.name]:
-        event.target.type === "checkbox" ? event.target.checked : event.target.value,
-    }));
+  const updateForm = (event) => {
+    const { name, type, checked, value } = event.target;
+    const nextValue =
+      type === "checkbox" ? checked : name === "name" ? toTitleCaseInput(value) : value;
+    setForm((previous) => ({ ...previous, [name]: nextValue }));
+  };
   const edit = (washer) => {
     setSelected(null);
     setEditingId(washer._id);
@@ -108,6 +110,9 @@ const WashersPage = () => {
   return (
     <main className="process-page">
       <div className="process-container">
+        <Link className="back-button" to="/admin/washers">
+          Back
+        </Link>
         <header className="process-header">
           <div>
             <p className="process-eyebrow">NCH Factory Management</p>
@@ -120,7 +125,7 @@ const WashersPage = () => {
             <h2>{editingId ? "Edit Washer" : "Add Washer"}</h2>
             <form className="process-form" onSubmit={submit}>
               <label>
-                Name *
+                Washer Name *
                 <input
                   name="name"
                   value={form.name}

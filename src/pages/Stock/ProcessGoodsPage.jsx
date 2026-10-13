@@ -252,6 +252,12 @@ const ProcessGoodsPage = () => {
                 : "Add an active washer before sending goods to washing."}
             </p>
           )}
+          {!loading && destinationTypes.length === 0 && (
+            <p className="process-state">
+              No eligible Washed Output Types configured. Add one from Washer Detail before sending
+              goods to washing.
+            </p>
+          )}
         </section>
         <section className="process-card">
           <div className="process-card-heading">

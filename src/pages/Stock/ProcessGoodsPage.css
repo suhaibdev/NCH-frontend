@@ -43,6 +43,17 @@
   padding: 22px;
   box-shadow: 0 3px 14px rgba(18, 45, 90, 0.05);
 }
+.washer-account-card {
+  display: grid;
+  gap: 16px;
+  align-items: start;
+}
+.washer-account-card p {
+  margin: 0;
+}
+.washer-account-card .back-button {
+  justify-self: start;
+}
 .process-grid {
   display: grid;
   grid-template-columns: minmax(290px, 0.82fr) minmax(0, 1.4fr);

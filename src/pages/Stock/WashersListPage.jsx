@@ -13,10 +13,7 @@ const WashersListPage = () => {
       .get("/washers", { params: { page: 1, limit: 100 } })
       .then((response) => setItems(response.data.items || []))
       .catch((requestError) => {
-        setError(
-          requestError.response?.data?.message ||
-            "Unable to load washers."
-        );
+        setError(requestError.response?.data?.message || "Unable to load washers.");
       });
   }, []);
 
@@ -29,6 +26,9 @@ const WashersListPage = () => {
             <h1>Washers</h1>
             <p>Open a washer to configure rates, advances, and payouts.</p>
           </div>
+          <button type="button" onClick={() => navigate("/admin/washers/new")}>
+            Add Washer
+          </button>
         </header>
 
         {error && <p className="process-error">{error}</p>}
@@ -39,7 +39,12 @@ const WashersListPage = () => {
             <div className="process-table-scroll">
               <table className="process-table">
                 <thead>
-                  <tr><th>Name</th><th>Phone</th><th>Status</th><th>Action</th></tr>
+                  <tr>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
                 </thead>
                 <tbody>
                   {items.map((washer) => (
@@ -48,7 +53,11 @@ const WashersListPage = () => {
                       <td>{washer.phone || "—"}</td>
                       <td>{washer.isActive ? "Active" : "Inactive"}</td>
                       <td>
-                        <button type="button" className="secondary-button compact-button" onClick={() => navigate(`/admin/washers/${washer._id}`)}>
+                        <button
+                          type="button"
+                          className="secondary-button compact-button"
+                          onClick={() => navigate(`/admin/washers/${washer._id}`)}
+                        >
                           View
                         </button>
                       </td>
@@ -58,7 +67,9 @@ const WashersListPage = () => {
               </table>
             </div>
           ) : (
-            <p className="process-state">No washers found. Add a washer from the existing admin form.</p>
+            <p className="process-state">
+              No washers found. Add a washer from the existing admin form.
+            </p>
           )}
         </section>
       </div>

@@ -1,10 +1,5 @@
 import React, { useEffect } from "react";
-import {
-  BrowserRouter,
-  Navigate,
-  Routes,
-  Route,
-} from "react-router-dom";
+import { BrowserRouter, Navigate, Routes, Route } from "react-router-dom";
 
 import HomePage from "./pages/HomePage";
 import Login from "./pages/Login";
@@ -32,269 +27,115 @@ import WasherPayoutSlipPage from "./pages/Stock/WasherPayoutSlipPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLayout from "./components/AdminLayout";
 
-
 const App = () => {
-
   /* =========================================================
      GLOBAL NUMBER INPUT SCROLL PROTECTION
   ========================================================= */
 
   useEffect(() => {
     const handleNumberInputWheel = () => {
-      const activeElement =
-        document.activeElement;
+      const activeElement = document.activeElement;
 
-      if (
-        activeElement instanceof HTMLInputElement &&
-        activeElement.type === "number"
-      ) {
+      if (activeElement instanceof HTMLInputElement && activeElement.type === "number") {
         activeElement.blur();
       }
     };
 
-    document.addEventListener(
-      "wheel",
-      handleNumberInputWheel,
-      {
-        capture: true,
-      }
-    );
+    document.addEventListener("wheel", handleNumberInputWheel, {
+      capture: true,
+    });
 
     return () => {
-      document.removeEventListener(
-        "wheel",
-        handleNumberInputWheel,
-        {
-          capture: true,
-        }
-      );
+      document.removeEventListener("wheel", handleNumberInputWheel, {
+        capture: true,
+      });
     };
   }, []);
 
-
   return (
     <BrowserRouter>
-
       <Routes>
-
         {/* ================================
             PUBLIC ROUTES
         ================================= */}
 
-        <Route
-          path="/"
-          element={<HomePage />}
-        />
+        <Route path="/" element={<HomePage />} />
 
-        <Route
-          path="/login"
-          element={<Login />}
-        />
-
+        <Route path="/login" element={<Login />} />
 
         {/* ================================
             ADMIN REDIRECT
         ================================= */}
 
-        <Route
-          path="/admin"
-          element={
-            <Navigate
-              to="/admin/dashboard"
-              replace
-            />
-          }
-        />
-
+        <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
 
         {/* ================================
             PROTECTED ADMIN ROUTES
         ================================= */}
 
-        <Route
-          element={<ProtectedRoute />}
-        >
+        <Route element={<ProtectedRoute />}>
+          <Route element={<AdminLayout />}>
+            <Route path="/admin/dashboard" element={<AdminPortalPage />} />
 
-          <Route
-            element={<AdminLayout />}
-          >
+            <Route path="/admin/employees" element={<EmployeesPage />} />
 
-            <Route
-              path="/admin/dashboard"
-              element={
-                <AdminPortalPage />
-              }
-            />
+            <Route path="/admin/customers" element={<CustomersPage />} />
 
-            <Route
-              path="/admin/employees"
-              element={
-                <EmployeesPage />
-              }
-            />
+            <Route path="/admin/suppliers" element={<SuppliersPage />} />
 
-            <Route
-              path="/admin/customers"
-              element={
-                <CustomersPage />
-              }
-            />
+            <Route path="/admin/suppliers/:supplierId" element={<SupplierDetailPage />} />
 
-            <Route
-              path="/admin/suppliers"
-              element={
-                <SuppliersPage />
-              }
-            />
+            <Route path="/admin/suppliers/:supplierId/receive" element={<ReceiveMaterialPage />} />
 
-            <Route
-              path="/admin/suppliers/:supplierId"
-              element={
-                <SupplierDetailPage />
-              }
-            />
+            <Route path="/admin/attendance" element={<AttendancePage />} />
 
-            <Route
-              path="/admin/suppliers/:supplierId/receive"
-              element={
-                <ReceiveMaterialPage />
-              }
-            />
-
-            <Route
-              path="/admin/attendance"
-              element={
-                <AttendancePage />
-              }
-            />
-
-            <Route
-              path="/admin/payout"
-              element={
-                <PayoutPage />
-              }
-            />
-
+            <Route path="/admin/payout" element={<PayoutPage />} />
 
             {/* ============================
                 STOCK
             ============================= */}
 
-            <Route
-              path="/admin/stock"
-              element={
-                <StockHomePage />
-              }
-            />
+            <Route path="/admin/stock" element={<StockHomePage />} />
 
-            <Route
-              path="/admin/stock/manage"
-              element={
-                <StockPage />
-              }
-            />
+            <Route path="/admin/stock/manage" element={<StockPage />} />
 
-            <Route
-              path="/admin/stock/types"
-              element={
-                <StockTypesPage />
-              }
-            />
+            <Route path="/admin/stock/types" element={<StockTypesPage />} />
 
-            <Route
-              path="/admin/stock/type/:typeId"
-              element={
-                <StockTypeProductsPage />
-              }
-            />
+            <Route path="/admin/stock/type/:typeId" element={<StockTypeProductsPage />} />
 
-            <Route
-              path="/admin/washers"
-              element={<WashersListPage />}
-            />
+            <Route path="/admin/washers" element={<WashersListPage />} />
+            <Route path="/admin/washers/new" element={<WashersPage />} />
             <Route path="/admin/washers/:washerId" element={<WasherDetailFixed />} />
             <Route path="/admin/washers/:washerId/account" element={<WasherDetailPage />} />
-            <Route path="/admin/washers/:washerId/payouts/:payoutId/slip" element={<WasherPayoutSlipPage />} />
-
             <Route
-              path="/admin/stock/process-goods"
-              element={<ProcessGoodsPage />}
+              path="/admin/washers/:washerId/payouts/:payoutId/slip"
+              element={<WasherPayoutSlipPage />}
             />
 
+            <Route path="/admin/stock/process-goods" element={<ProcessGoodsPage />} />
 
-            <Route
-              path="/admin/salary-slip"
-              element={
-                <SalarySlip />
-              }
-            />
-
+            <Route path="/admin/salary-slip" element={<SalarySlip />} />
           </Route>
-
         </Route>
-
 
         {/* ================================
             OLD URL REDIRECTS
         ================================= */}
 
-        <Route
-          path="/employees"
-          element={
-            <Navigate
-              to="/admin/employees"
-              replace
-            />
-          }
-        />
+        <Route path="/employees" element={<Navigate to="/admin/employees" replace />} />
 
-        <Route
-          path="/customers"
-          element={
-            <Navigate
-              to="/admin/customers"
-              replace
-            />
-          }
-        />
+        <Route path="/customers" element={<Navigate to="/admin/customers" replace />} />
 
-        <Route
-          path="/employees/attendance"
-          element={
-            <Navigate
-              to="/admin/attendance"
-              replace
-            />
-          }
-        />
+        <Route path="/employees/attendance" element={<Navigate to="/admin/attendance" replace />} />
 
-        <Route
-          path="/employees/payout"
-          element={
-            <Navigate
-              to="/admin/payout"
-              replace
-            />
-          }
-        />
-
+        <Route path="/employees/payout" element={<Navigate to="/admin/payout" replace />} />
 
         {/* ================================
             UNKNOWN URL
         ================================= */}
 
-        <Route
-          path="*"
-          element={
-            <Navigate
-              to="/"
-              replace
-            />
-          }
-        />
-
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-
     </BrowserRouter>
   );
 };

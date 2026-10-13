@@ -3,6 +3,15 @@ import { Link, useParams } from "react-router-dom";
 import api from "../../config/axios";
 import "./ProcessGoodsPage.css";
 import { getFridayThursdayCycle } from "../../utils/washerPayoutCycle";
+
+const PAYMENT_METHOD_LABELS = {
+  cash: "Cash",
+  bank_transfer: "Bank Transfer",
+  upi: "UPI",
+  cheque: "Cheque",
+  other: "Other",
+};
+
 const date = () => new Date().toISOString().slice(0, 10);
 const WasherDetailPage = () => {
   const { washerId } = useParams();
@@ -73,14 +82,14 @@ const WasherDetailPage = () => {
   return (
     <main className="process-page">
       <div className="process-container">
+        <Link className="back-button" to={`/admin/washers/${washerId}`}>
+          Back
+        </Link>
         <header className="process-header">
           <div>
             <p className="process-eyebrow">Washer Detail</p>
             <h1>{data.washer?.name || "Washer"}</h1>
           </div>
-          <Link className="back-button" to="/admin/washers">
-            Back
-          </Link>
         </header>
         {err && <p className="process-error">{err}</p>}
         <section className="process-grid">
@@ -117,7 +126,9 @@ const WasherDetailPage = () => {
                   onChange={(e) => setAdvance({ ...advance, method: e.target.value })}
                 >
                   {["cash", "bank_transfer", "upi", "cheque", "other"].map((x) => (
-                    <option key={x}>{x}</option>
+                    <option key={x} value={x}>
+                      {PAYMENT_METHOD_LABELS[x]}
+                    </option>
                   ))}
                 </select>
               </label>
@@ -149,6 +160,13 @@ const WasherDetailPage = () => {
               </tbody>
             </table>
           </div>
+        </section>
+        <section className="process-card washer-account-card">
+          <h2>Process History</h2>
+          <p>Review washer processing batches from the Process Goods history.</p>
+          <Link className="back-button" to="/admin/stock/process-goods">
+            Open Process History
+          </Link>
         </section>
         <section className="process-card">
           <h2>Generate Payout</h2>
@@ -184,7 +202,9 @@ const WasherDetailPage = () => {
                 onChange={(e) => setPay({ ...pay, paymentMethod: e.target.value })}
               >
                 {["cash", "bank_transfer", "upi", "cheque", "other"].map((x) => (
-                  <option key={x}>{x}</option>
+                  <option key={x} value={x}>
+                    {PAYMENT_METHOD_LABELS[x]}
+                  </option>
                 ))}
               </select>
             </label>
@@ -219,6 +239,7 @@ const WasherDetailPage = () => {
                   <th>Advance</th>
                   <th>Net Paid</th>
                   <th>Status</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -230,6 +251,14 @@ const WasherDetailPage = () => {
                     <td>₹{x.advanceDeduction}</td>
                     <td>₹{x.netPaid}</td>
                     <td>Paid</td>
+                    <td>
+                      <Link
+                        className="back-button"
+                        to={`/admin/washers/${washerId}/payouts/${x._id}/slip`}
+                      >
+                        View Slip
+                      </Link>
+                    </td>
                   </tr>
                 ))}
               </tbody>

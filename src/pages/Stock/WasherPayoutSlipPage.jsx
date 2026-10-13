@@ -8,6 +8,15 @@ const money = (value) =>
     maximumFractionDigits: 2,
   });
 const date = (value) => new Date(value).toLocaleDateString("en-GB");
+const paymentMethodLabel = (value) =>
+  ({
+    cash: "Cash",
+    bank_transfer: "Bank Transfer",
+    upi: "UPI",
+    cheque: "Cheque",
+    other: "Other",
+  })[value] || value;
+
 export default function WasherPayoutSlipPage() {
   const { washerId, payoutId } = useParams();
   const [payout, setPayout] = useState(null);
@@ -21,7 +30,7 @@ export default function WasherPayoutSlipPage() {
   return (
     <main className="washer-slip-page">
       <div className="washer-slip-actions">
-        <Link to={`/admin/washers/${washerId}`}>Back</Link>
+        <Link to={`/admin/washers/${washerId}/account`}>Back</Link>
         <button onClick={() => window.print()}>Print</button>
       </div>
       {error ? (
@@ -81,7 +90,7 @@ export default function WasherPayoutSlipPage() {
             </h2>
           </div>
           <p>
-            <b>Payment Method</b> {payout.paymentMethod}
+            <b>Payment Method</b> {paymentMethodLabel(payout.paymentMethod)}
           </p>
           <p>
             <b>Reference</b> {payout.paymentReference || "—"}
