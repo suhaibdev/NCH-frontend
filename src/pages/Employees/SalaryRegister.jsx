@@ -66,7 +66,7 @@ const SalaryRegister = () => {
 
           dailySalary: emp.baseDailySalary,
 
-          workingDays: p.totalDaysWorked,
+          workingDays: p.fullWorkingDays ?? p.totalDaysWorked,
 
           workingHours: p.totalHoursWorked,
 
@@ -74,9 +74,9 @@ const SalaryRegister = () => {
 
           overtimeAmount: p.overtimeAmount,
 
-          baseSalary: p.totalAmount,
+          baseSalary: p.baseSalary,
 
-          grossSalary: p.grossAmount,
+          grossSalary: p.grossSalary,
 
           outstandingAdvance: p.remainingAdvance,
           originalAdvance: p.remainingAdvance,
@@ -87,13 +87,13 @@ const SalaryRegister = () => {
 
           otherDeduction: 0,
 
-          netSalary: p.grossAmount,
+          netSalary: p.grossSalary,
 
         });
 
-        totalSalary += p.grossAmount;
+        totalSalary += p.grossSalary;
         totalAdvance += p.remainingAdvance;
-        totalNetSalary += p.grossAmount;
+        totalNetSalary += p.grossSalary;
 
       }
 
@@ -125,7 +125,7 @@ const SalaryRegister = () => {
   };
     const updateAdvanceDeduction = (index, value) => {
 
-    const deduction = Number(value) || 0;
+    const deduction = Math.max(0, Number(value) || 0);
     const updatedRows = [...rows];
     if (deduction > updatedRows[index].originalAdvance)  {
     alert("Advance deduction cannot exceed remaining advance.");
@@ -142,12 +142,9 @@ const SalaryRegister = () => {
         );
 
     updatedRows[index].netSalary =
-        Math.max(
-        0,
         updatedRows[index].grossSalary -
         deduction -
-        updatedRows[index].otherDeduction
-        );
+        updatedRows[index].otherDeduction;
 
     setRows(updatedRows);
 
@@ -157,18 +154,16 @@ const SalaryRegister = () => {
 
   const updateOtherDeduction = (index, value) => {
 
-    const deduction = Number(value) || 0;
+    const deduction = Math.max(0, Number(value) || 0);
 
     const updatedRows = [...rows];
 
     updatedRows[index].otherDeduction = deduction;
 
-        updatedRows[index].netSalary = Math.max(
-        0,
+    updatedRows[index].netSalary =
         updatedRows[index].grossSalary -
         updatedRows[index].advanceDeduct -
-        updatedRows[index].otherDeduction
-    );
+        updatedRows[index].otherDeduction;
 
     setRows(updatedRows);
 

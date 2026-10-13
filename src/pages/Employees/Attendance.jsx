@@ -345,11 +345,11 @@ const AttendancePage = () => {
       );
 
       setPresent(
-        Boolean(record.present)
+        Number(record.workHours || 0) > 0
       );
 
       setWorkHours(
-        record.present
+        Number(record.workHours || 0) > 0
           ? record.workHours ?? 8
           : ""
       );
@@ -594,12 +594,18 @@ const AttendancePage = () => {
                   ? "true"
                   : "false"
               }
-              onChange={(event) =>
-                setPresent(
-                  event.target.value ===
-                    "true"
-                )
-              }
+              onChange={(event) => {
+                const isPresent =
+                  event.target.value === "true";
+
+                setPresent(isPresent);
+
+                if (!isPresent) {
+                  setWorkHours(0);
+                } else if (Number(workHours || 0) === 0) {
+                  setWorkHours("");
+                }
+              }}
               className="ep-input"
               disabled={saving}
             >
@@ -634,11 +640,8 @@ const AttendancePage = () => {
                   hours
                 );
 
-                if (
-                  hours !== "" &&
-                  hours >= 1
-                ) {
-                  setPresent(true);
+                if (hours !== "") {
+                  setPresent(hours > 0);
                 }
               }}
               className="ep-input ep-input-no-spinner"
@@ -936,9 +939,12 @@ const AttendancePage = () => {
                               }`;
                           }
 
-                          if (
-                            record.present
-                          ) {
+                          const recordIsPresent =
+                            Number(
+                              record.workHours || 0
+                            ) > 0;
+
+                          if (recordIsPresent) {
                             presentCount +=
                               1;
 
@@ -1009,6 +1015,11 @@ const AttendancePage = () => {
                                 "Absent. Click to edit."
                               }
                             >
+                              {record.advancePayment > 0 && (
+                                <span className="att-advance-symbol att-indicator">
+                                  ₹
+                                </span>
+                              )}
                               <span className="att-cross">
                                 ✕
                               </span>

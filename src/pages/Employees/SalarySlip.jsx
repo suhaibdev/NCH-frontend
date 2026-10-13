@@ -63,7 +63,7 @@ const SalarySlip = () => {
               )
             }
           >
-            Back to Payouts
+            Back
           </button>
 
         </div>
@@ -87,6 +87,8 @@ const SalarySlip = () => {
 
     totalDaysWorked,
     totalHoursWorked,
+    fullWorkingDays,
+    remainingWorkingHours,
 
     dailySalary,
     hourlyRate,
@@ -188,6 +190,14 @@ const SalarySlip = () => {
             finalOtherDeduction
         );
 
+  // New payouts persist the eight-hour-day breakdown. Older slips keep their
+  // saved hour display instead of being retroactively recalculated.
+  const workingTimeLabel =
+    fullWorkingDays !== undefined ||
+    remainingWorkingHours !== undefined
+      ? `${Number(fullWorkingDays || 0)}D ${Number(remainingWorkingHours || 0)}H`
+      : `${Number(totalHoursWorked || 0)} hrs`;
+
 
   return (
     <div className="salary-slip-page">
@@ -207,7 +217,7 @@ const SalarySlip = () => {
             )
           }
         >
-          Back to Payouts
+          Back
         </button>
 
         <button
@@ -344,13 +354,11 @@ const SalarySlip = () => {
 
             <div>
               <span>
-                Hours Worked
+                Working Time
               </span>
 
               <strong>
-                {totalHoursWorked ||
-                  0}
-                {" hrs"}
+                {workingTimeLabel}
               </strong>
             </div>
 

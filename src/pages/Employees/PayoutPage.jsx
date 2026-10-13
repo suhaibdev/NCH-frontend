@@ -67,6 +67,21 @@ const formatMoney = (value) =>
   );
 
 
+const formatWorkingTime = (record) => {
+  const totalHours = Number(record?.totalHoursWorked || 0);
+  const fullWorkingDays = Number.isFinite(Number(record?.fullWorkingDays))
+    ? Number(record.fullWorkingDays)
+    : Math.floor(totalHours / 8);
+  const remainingWorkingHours = Number.isFinite(
+    Number(record?.remainingWorkingHours)
+  )
+    ? Number(record.remainingWorkingHours)
+    : Number((totalHours - fullWorkingDays * 8).toFixed(10));
+
+  return `${fullWorkingDays}D ${remainingWorkingHours}H`;
+};
+
+
 const getPeriodDates = (type) => {
   const today = new Date();
 
@@ -667,14 +682,6 @@ const PayoutPage = () => {
     advanceValue -
     otherValue;
 
-  const maxOtherDeduction =
-    Math.max(
-      0,
-      grossSalary -
-        advanceValue
-    );
-
-
   /* ========================================================
      SINGLE DEDUCTIONS
   ======================================================== */
@@ -703,30 +710,12 @@ const PayoutPage = () => {
     value =
       Math.min(
         value,
-        remainingAdvance,
-        grossSalary
+        remainingAdvance
       );
 
     setAdvanceDeduction(
       value
     );
-
-    if (
-      Number(
-        otherDeduction ||
-          0
-      ) >
-      grossSalary -
-        value
-    ) {
-      setOtherDeduction(
-        Math.max(
-          0,
-          grossSalary -
-            value
-        )
-      );
-    }
 
     clearMessage();
   };
@@ -752,12 +741,6 @@ const PayoutPage = () => {
     ) {
       value = 0;
     }
-
-    value =
-      Math.min(
-        value,
-        maxOtherDeduction
-      );
 
     setOtherDeduction(
       value
@@ -808,18 +791,6 @@ const PayoutPage = () => {
           `Maximum recoverable advance is ₹${formatMoney(
             remainingAdvance
           )}`
-        );
-
-        return;
-      }
-
-      if (
-        advance +
-          deduction >
-        grossSalary
-      ) {
-        showError(
-          "Total deductions cannot be greater than gross salary."
         );
 
         return;
@@ -1185,12 +1156,6 @@ const PayoutPage = () => {
           return row;
         }
 
-        const gross =
-          Number(
-            row.grossSalary ||
-              0
-          );
-
         const remaining =
           Number(
             row.remainingAdvance ||
@@ -1216,33 +1181,8 @@ const PayoutPage = () => {
           value =
             Math.min(
               value,
-              remaining,
-              gross
+              remaining
             );
-        }
-
-        const advance =
-          Number(value || 0);
-
-        const maxOther =
-          Math.max(
-            0,
-            gross -
-              advance
-          );
-
-        let other =
-          Number(
-            row.otherDeduction ||
-              0
-          );
-
-        if (
-          other >
-          maxOther
-        ) {
-          other =
-            maxOther;
         }
 
         return {
@@ -1250,9 +1190,6 @@ const PayoutPage = () => {
 
           advanceDeducted:
             value,
-
-          otherDeduction:
-            other,
         };
       }
     );
@@ -1269,45 +1206,18 @@ const PayoutPage = () => {
           return row;
         }
 
-        const gross =
-          Number(
-            row.grossSalary ||
-              0
-          );
-
         const remaining =
           Number(
             row.remainingAdvance ||
               0
           );
 
-        const advance =
-          Math.min(
-            remaining,
-            gross
-          );
-
-        const maxOther =
-          Math.max(
-            0,
-            gross -
-              advance
-          );
+        const advance = remaining;
 
         return {
           ...row,
 
-          advanceDeducted:
-            advance,
-
-          otherDeduction:
-            Math.min(
-              Number(
-                row.otherDeduction ||
-                  0
-              ),
-              maxOther
-            ),
+          advanceDeducted: advance,
         };
       }
     );
@@ -1329,25 +1239,6 @@ const PayoutPage = () => {
           return row;
         }
 
-        const gross =
-          Number(
-            row.grossSalary ||
-              0
-          );
-
-        const advance =
-          Number(
-            row.advanceDeducted ||
-              0
-          );
-
-        const maxOther =
-          Math.max(
-            0,
-            gross -
-              advance
-          );
-
         let value =
           raw === ""
             ? ""
@@ -1361,14 +1252,6 @@ const PayoutPage = () => {
           )
         ) {
           value = 0;
-        }
-
-        if (value !== "") {
-          value =
-            Math.min(
-              value,
-              maxOther
-            );
         }
 
         return {
@@ -1453,13 +1336,7 @@ const PayoutPage = () => {
                   0
               );
 
-            const net =
-              Math.max(
-                0,
-                gross -
-                  advance -
-                  other
-              );
+            const net = gross - advance - other;
 
             const advanceLeft =
               Math.max(
@@ -2406,12 +2283,11 @@ const PayoutPage = () => {
 
                   <div className="payout-stat">
                     <span>
-                      Days Present
+                      Working Time
                     </span>
 
                     <strong>
-                      {preview.totalDaysWorked ||
-                        0}
+                      {formatWorkingTime(preview)}
                     </strong>
                   </div>
 
@@ -2563,8 +2439,7 @@ const PayoutPage = () => {
                           onClick={() =>
                             setAdvanceDeduction(
                               Math.min(
-                                remainingAdvance,
-                                grossSalary
+                                remainingAdvance
                               )
                             )
                           }
@@ -2589,9 +2464,6 @@ const PayoutPage = () => {
                           otherDeduction
                         }
                         min={0}
-                        max={
-                          maxOtherDeduction
-                        }
                         onChange={
                           handleOtherDeductionChange
                         }
@@ -2715,11 +2587,7 @@ const PayoutPage = () => {
                     onClick={
                       handleCreatePayout
                     }
-                    disabled={
-                      isCreating ||
-                      netSalary <
-                        0
-                    }
+                    disabled={isCreating}
                   >
                     {isCreating
                       ? "Creating Payout..."
@@ -3028,7 +2896,7 @@ const PayoutPage = () => {
                         </th>
 
                         <th>
-                          Days
+                          Working Time
                         </th>
 
                         <th>
@@ -3081,30 +2949,9 @@ const PayoutPage = () => {
                                 0
                             ) <= 0;
 
-                          const maxAdvance =
-                            Math.min(
-                              Number(
-                                row.remainingAdvance ||
-                                  0
-                              ),
-                              Number(
-                                row.grossSalary ||
-                                  0
-                              )
-                            );
-
-                          const maxOther =
-                            Math.max(
-                              0,
-                              Number(
-                                row.grossSalary ||
-                                  0
-                              ) -
-                                Number(
-                                  row.advanceDeducted ||
-                                    0
-                                )
-                            );
+                          const maxAdvance = Number(
+                            row.remainingAdvance || 0
+                          );
 
                           return (
                             <tr
@@ -3185,8 +3032,7 @@ const PayoutPage = () => {
 
 
                               <td>
-                                {row.totalDaysWorked ||
-                                  0}
+                                {formatWorkingTime(row)}
                               </td>
 
 
@@ -3296,9 +3142,6 @@ const PayoutPage = () => {
                                 <input
                                   type="number"
                                   min={0}
-                                  max={
-                                    maxOther
-                                  }
                                   value={
                                     row.otherDeduction
                                   }
