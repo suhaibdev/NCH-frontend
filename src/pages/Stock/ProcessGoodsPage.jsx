@@ -4,43 +4,406 @@ import api from "../../config/axios";
 import "./ProcessGoodsPage.css";
 
 const today = () => new Date().toISOString().slice(0, 10);
-const emptyForm = () => ({ sourceStockItem: "", washer: "", quantity: "", ratePerPiece: "", sentDate: today(), notes: "" });
+const emptyForm = () => ({
+  sourceStockItem: "",
+  washer: "",
+  quantity: "",
+  ratePerPiece: "",
+  sentDate: today(),
+  notes: "",
+});
 const messageFor = (error, fallback) => error.response?.data?.message || fallback;
-const sizeLabel = (size) => size ? `${size.lengthValue} ${size.lengthUnit} × ${size.widthValue} ${size.widthUnit}` : "—";
+const sizeLabel = (size) =>
+  size ? `${size.lengthValue} ${size.lengthUnit} × ${size.widthValue} ${size.widthUnit}` : "—";
 
 const ProcessGoodsPage = () => {
-  const [sources, setSources] = useState([]); const [washers, setWashers] = useState([]); const [destinationTypes, setDestinationTypes] = useState([]);
-  const [processes, setProcesses] = useState([]); const [pagination, setPagination] = useState(null); const [status, setStatus] = useState("in_process"); const [page, setPage] = useState(1);
-  const [form, setForm] = useState(emptyForm); const [loading, setLoading] = useState(true); const [error, setError] = useState(""); const [formError, setFormError] = useState(""); const [sending, setSending] = useState(false);
-  const [completing, setCompleting] = useState(null); const [completeForm, setCompleteForm] = useState({ completedDate: today() }); const [completeError, setCompleteError] = useState(""); const [savingCompletion, setSavingCompletion] = useState(false);
+  const [sources, setSources] = useState([]);
+  const [washers, setWashers] = useState([]);
+  const [destinationTypes, setDestinationTypes] = useState([]);
+  const [processes, setProcesses] = useState([]);
+  const [pagination, setPagination] = useState(null);
+  const [status, setStatus] = useState("in_process");
+  const [page, setPage] = useState(1);
+  const [form, setForm] = useState(emptyForm);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [formError, setFormError] = useState("");
+  const [sending, setSending] = useState(false);
+  const [completing, setCompleting] = useState(null);
+  const [completeForm, setCompleteForm] = useState({ completedDate: today() });
+  const [completeError, setCompleteError] = useState("");
+  const [savingCompletion, setSavingCompletion] = useState(false);
   const selectedSource = sources.find((source) => source._id === form.sourceStockItem);
 
   const loadSetup = async () => {
-    const [sourceResponse, washerResponse, typeResponse] = await Promise.all([api.get("/washing-processes/source-stock", { params: { page: 1, limit: 100 } }), api.get("/washers", { params: { page: 1, limit: 100, active: true } }), api.get("/stock/types", { params: { category: "washed_raw_material" } })]);
+    const [sourceResponse, washerResponse, typeResponse] = await Promise.all([
+      api.get("/washing-processes/source-stock", { params: { page: 1, limit: 100 } }),
+      api.get("/washers", { params: { page: 1, limit: 100, active: true } }),
+      api.get("/stock/types", { params: { category: "washed_raw_material" } }),
+    ]);
     const activeWashers = washerResponse.data.items || [];
-    setSources(sourceResponse.data.items || []); setWashers(activeWashers); setDestinationTypes((typeResponse.data || []).filter((type) => type.requiresSupplier && type.requiresSize));
-    if (activeWashers.length === 1) setForm((previous) => ({ ...previous, washer: activeWashers[0]._id }));
+    setSources(sourceResponse.data.items || []);
+    setWashers(activeWashers);
+    setDestinationTypes(
+      (typeResponse.data || []).filter((type) => type.requiresSupplier && type.requiresSize)
+    );
+    if (activeWashers.length === 1)
+      setForm((previous) => ({ ...previous, washer: activeWashers[0]._id }));
   };
-  const loadProcesses = async () => { const response = await api.get("/washing-processes", { params: { status, page, limit: 20 } }); setProcesses(response.data.items || []); setPagination(response.data.pagination || null); };
-  const loadAll = async () => { try { setLoading(true); setError(""); await Promise.all([loadSetup(), loadProcesses()]); } catch (requestError) { setError(messageFor(requestError, "Unable to load Process Goods.")); } finally { setLoading(false); } };
-  useEffect(() => { loadAll(); }, []);
-  useEffect(() => { if (!loading) loadProcesses().catch((requestError) => setError(messageFor(requestError, "Unable to load process history."))); }, [status, page]);
-  const changeForm = (event) => { const { name, value } = event.target; setForm((previous) => { const next = { ...previous, [name]: value }; const washer = washers.find((item) => item._id === (name === "washer" ? value : next.washer)); const outputId = name === "destinationStockType" ? value : next.destinationStockType; const configured = washer?.washingRates?.find((rate) => String(rate.stockType) === String(outputId)); if (washer && outputId) next.ratePerPiece = configured?.ratePerPiece ?? washer.defaultRatePerPiece; return next; }); };
-  const sendToWashing = async (event) => { event.preventDefault(); setSending(true); setFormError(""); try { await api.post("/washing-processes", form); setForm(emptyForm()); await loadAll(); } catch (requestError) { setFormError(messageFor(requestError, "Unable to send goods to washing.")); } finally { setSending(false); } };
-  const complete = async (event) => { event.preventDefault(); setSavingCompletion(true); setCompleteError(""); try { await api.post(`/washing-processes/${completing._id}/complete`, completeForm); setCompleting(null); setCompleteForm({ completedDate: today() }); await loadAll(); } catch (requestError) { setCompleteError(messageFor(requestError, "Unable to complete washing.")); } finally { setSavingCompletion(false); } };
-  return <main className="process-page"><div className="process-container"><header className="process-header"><div><p className="process-eyebrow">NCH Factory Management</p><h1>Process Goods</h1><p>Send eligible raw cloth to washing, then complete it into matching supplier-and-size-tracked washed stock.</p></div><Link className="back-button" to="/admin/stock">Back</Link></header>
-    <section className="process-card"><h2>Send to Washing</h2><form className="process-form process-form-wide" onSubmit={sendToWashing}>
-      <label>Source Raw Stock *<select name="sourceStockItem" value={form.sourceStockItem} onChange={changeForm} required><option value="">Select tracked Raw Material</option>{sources.map((source) => <option key={source._id} value={source._id}>{source.productName} — {source.supplier?.name || "Supplier"} — {sizeLabel(source.size)} — {source.currentStock} PCS</option>)}</select></label>
-      <label>Washer *<select name="washer" value={form.washer} onChange={changeForm} required disabled={washers.length === 1}><option value="">Select active washer</option>{washers.map((washer) => <option key={washer._id} value={washer._id}>{washer.name}</option>)}</select>{washers.length === 1 && <small>Automatically selected active washer.</small>}</label>
-      <label>Washed Output Type *<select name="destinationStockType" value={form.destinationStockType || ""} onChange={changeForm} required><option value="">Select Washed Output Type</option>{destinationTypes.map((type) => <option key={type._id} value={type._id}>{type.name}</option>)}</select></label>
-      <label>Quantity (PCS) *<input name="quantity" type="number" min="1" step="1" value={form.quantity} onChange={changeForm} required /></label><label>Rate per PCS (₹) *<input name="ratePerPiece" inputMode="decimal" value={form.ratePerPiece} onChange={changeForm} required /></label><label>Sent Date *<input name="sentDate" type="date" value={form.sentDate} onChange={changeForm} required /></label><label>Notes<textarea name="notes" value={form.notes} onChange={changeForm} maxLength="500" /></label>
-      {selectedSource && <p className="process-hint">Available: {selectedSource.currentStock} PCS · Supplier: {selectedSource.supplier?.name} · Size: {sizeLabel(selectedSource.size)}</p>}{formError && <p className="process-error">{formError}</p>}<div className="process-actions"><button type="submit" disabled={sending || sources.length === 0 || washers.length === 0 || destinationTypes.length === 0}>{sending ? "Sending…" : "Send to Washing"}</button></div>
-    </form>{!loading && (sources.length === 0 || washers.length === 0) && <p className="process-state">{sources.length === 0 ? "No eligible Raw Material stock is available." : "Add an active washer before sending goods to washing."}</p>}</section>
-    <section className="process-card"><div className="process-card-heading"><div><h2>Process History</h2><p>Each batch is permanent and remains visible after completion.</p></div><label className="inline-filter">Status<select value={status} onChange={(event) => { setPage(1); setStatus(event.target.value); }}><option value="in_process">In Process</option><option value="completed">Completed</option><option value="all">All</option></select></label></div>
-      {loading ? <p className="process-state">Loading process goods…</p> : error ? <div className="process-error-block"><p>{error}</p><button type="button" onClick={loadAll}>Retry</button></div> : processes.length === 0 ? <p className="process-state">No {status === "all" ? "" : status.replace("_", " ")} batches found.</p> : <div className="process-table-scroll"><table className="process-table"><thead><tr><th>Sent</th><th>Output / Supplier / Size</th><th>Washer</th><th>Qty</th><th>Rate</th><th>Charge</th><th>Status</th><th>Action</th></tr></thead><tbody>{processes.map((process) => <tr key={process._id}><td>{new Date(process.sentDate).toLocaleDateString()}</td><td>{process.destinationStockTypeName}<small>{process.supplierName} · {sizeLabel(process.size)}</small></td><td>{process.washerName}</td><td>{process.quantity} PCS</td><td>₹{process.ratePerPiece}</td><td>₹{process.estimatedCharge}</td><td><span className={`process-status ${process.status === "completed" ? "completed" : "active"}`}>{process.status === "completed" ? "Completed" : "In Process"}</span></td><td>{process.status === "in_process" ? <button type="button" className="secondary-button compact-button" onClick={() => { setCompleting(process); setCompleteError(""); }}>Complete</button> : <span className="completed-label">₹{process.earnedAmount} earned</span>}</td></tr>)}</tbody></table></div>}
-      {pagination?.totalPages > 1 && <div className="process-pagination"><button disabled={page <= 1} onClick={() => setPage(page - 1)}>Previous</button><span>Page {page} of {pagination.totalPages}</span><button disabled={page >= pagination.totalPages} onClick={() => setPage(page + 1)}>Next</button></div>}
-    </section>
-    {completing && <div className="process-modal-backdrop"><section className="process-modal"><button type="button" className="back-button" onClick={() => setCompleting(null)}>Back</button><h2>Accept Washed Cloth</h2><p><strong>Washed Output Type:</strong> {completing.destinationStockTypeName}<br /><strong>Washer:</strong> {completing.washerName}<br /><strong>Supplier:</strong> {completing.supplierName}<br /><strong>Size:</strong> {sizeLabel(completing.size)}<br /><strong>Rate:</strong> ₹{completing.ratePerPiece}/PCS</p><form className="process-form" onSubmit={complete}><label>Completed Date *<input type="date" value={completeForm.completedDate} onChange={(event) => setCompleteForm((previous) => ({ ...previous, completedDate: event.target.value }))} required /></label>{completeError && <p className="process-error">{completeError}</p>}<div className="process-actions"><button type="submit" disabled={savingCompletion}>{savingCompletion ? "Accepting…" : "Accept Washed Cloth"}</button></div></form></section></div>}
-  </div></main>;
+  const loadProcesses = async () => {
+    const response = await api.get("/washing-processes", { params: { status, page, limit: 20 } });
+    setProcesses(response.data.items || []);
+    setPagination(response.data.pagination || null);
+  };
+  const loadAll = async () => {
+    try {
+      setLoading(true);
+      setError("");
+      await Promise.all([loadSetup(), loadProcesses()]);
+    } catch (requestError) {
+      setError(messageFor(requestError, "Unable to load Process Goods."));
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    loadAll();
+  }, []);
+  useEffect(() => {
+    if (!loading)
+      loadProcesses().catch((requestError) =>
+        setError(messageFor(requestError, "Unable to load process history."))
+      );
+  }, [status, page]);
+  const changeForm = (event) => {
+    const { name, value } = event.target;
+    setForm((previous) => {
+      const next = { ...previous, [name]: value };
+      const washer = washers.find((item) => item._id === (name === "washer" ? value : next.washer));
+      const outputId = name === "destinationStockType" ? value : next.destinationStockType;
+      const configured = washer?.washingRates?.find(
+        (rate) => String(rate.stockType) === String(outputId)
+      );
+      if (washer && outputId)
+        next.ratePerPiece = configured?.ratePerPiece ?? washer.defaultRatePerPiece;
+      return next;
+    });
+  };
+  const sendToWashing = async (event) => {
+    event.preventDefault();
+    setSending(true);
+    setFormError("");
+    try {
+      await api.post("/washing-processes", form);
+      setForm(emptyForm());
+      await loadAll();
+    } catch (requestError) {
+      setFormError(messageFor(requestError, "Unable to send goods to washing."));
+    } finally {
+      setSending(false);
+    }
+  };
+  const complete = async (event) => {
+    event.preventDefault();
+    setSavingCompletion(true);
+    setCompleteError("");
+    try {
+      await api.post(`/washing-processes/${completing._id}/complete`, completeForm);
+      setCompleting(null);
+      setCompleteForm({ completedDate: today() });
+      await loadAll();
+    } catch (requestError) {
+      setCompleteError(messageFor(requestError, "Unable to complete washing."));
+    } finally {
+      setSavingCompletion(false);
+    }
+  };
+  return (
+    <main className="process-page">
+      <div className="process-container">
+        <header className="process-header">
+          <div>
+            <p className="process-eyebrow">NCH Factory Management</p>
+            <h1>Process Goods</h1>
+            <p>
+              Send eligible raw cloth to washing, then complete it into matching
+              supplier-and-size-tracked washed stock.
+            </p>
+          </div>
+          <Link className="back-button" to="/admin/stock">
+            Back
+          </Link>
+        </header>
+        <section className="process-card">
+          <h2>Send to Washing</h2>
+          <form className="process-form process-form-wide" onSubmit={sendToWashing}>
+            <label>
+              Source Raw Stock *
+              <select
+                name="sourceStockItem"
+                value={form.sourceStockItem}
+                onChange={changeForm}
+                required
+              >
+                <option value="">Select tracked Raw Material</option>
+                {sources.map((source) => (
+                  <option key={source._id} value={source._id}>
+                    {source.productName} — {source.supplier?.name || "Supplier"} —{" "}
+                    {sizeLabel(source.size)} — {source.currentStock} PCS
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Washer *
+              <select
+                name="washer"
+                value={form.washer}
+                onChange={changeForm}
+                required
+                disabled={washers.length === 1}
+              >
+                <option value="">Select active washer</option>
+                {washers.map((washer) => (
+                  <option key={washer._id} value={washer._id}>
+                    {washer.name}
+                  </option>
+                ))}
+              </select>
+              {washers.length === 1 && <small>Automatically selected active washer.</small>}
+            </label>
+            <label>
+              Washed Output Type *
+              <select
+                name="destinationStockType"
+                value={form.destinationStockType || ""}
+                onChange={changeForm}
+                required
+              >
+                <option value="">Select Washed Output Type</option>
+                {destinationTypes.map((type) => (
+                  <option key={type._id} value={type._id}>
+                    {type.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Quantity (PCS) *
+              <input
+                name="quantity"
+                type="number"
+                min="1"
+                step="1"
+                value={form.quantity}
+                onChange={changeForm}
+                required
+              />
+            </label>
+            <label>
+              Rate per PCS (₹) *
+              <input
+                name="ratePerPiece"
+                inputMode="decimal"
+                value={form.ratePerPiece}
+                onChange={changeForm}
+                required
+              />
+            </label>
+            <label>
+              Sent Date *
+              <input
+                name="sentDate"
+                type="date"
+                value={form.sentDate}
+                onChange={changeForm}
+                required
+              />
+            </label>
+            <label>
+              Notes
+              <textarea name="notes" value={form.notes} onChange={changeForm} maxLength="500" />
+            </label>
+            {selectedSource && (
+              <p className="process-hint">
+                Available: {selectedSource.currentStock} PCS · Supplier:{" "}
+                {selectedSource.supplier?.name} · Size: {sizeLabel(selectedSource.size)}
+              </p>
+            )}
+            {formError && <p className="process-error">{formError}</p>}
+            <div className="process-actions">
+              <button
+                type="submit"
+                disabled={
+                  sending ||
+                  sources.length === 0 ||
+                  washers.length === 0 ||
+                  destinationTypes.length === 0
+                }
+              >
+                {sending ? "Sending…" : "Send to Washing"}
+              </button>
+            </div>
+          </form>
+          {!loading && (sources.length === 0 || washers.length === 0) && (
+            <p className="process-state">
+              {sources.length === 0
+                ? "No eligible Raw Material stock is available."
+                : "Add an active washer before sending goods to washing."}
+            </p>
+          )}
+        </section>
+        <section className="process-card">
+          <div className="process-card-heading">
+            <div>
+              <h2>Process History</h2>
+              <p>Each batch is permanent and remains visible after completion.</p>
+            </div>
+            <label className="inline-filter">
+              Status
+              <select
+                value={status}
+                onChange={(event) => {
+                  setPage(1);
+                  setStatus(event.target.value);
+                }}
+              >
+                <option value="in_process">In Process</option>
+                <option value="completed">Completed</option>
+                <option value="all">All</option>
+              </select>
+            </label>
+          </div>
+          {loading ? (
+            <p className="process-state">Loading process goods…</p>
+          ) : error ? (
+            <div className="process-error-block">
+              <p>{error}</p>
+              <button type="button" onClick={loadAll}>
+                Retry
+              </button>
+            </div>
+          ) : processes.length === 0 ? (
+            <p className="process-state">
+              No {status === "all" ? "" : status.replace("_", " ")} batches found.
+            </p>
+          ) : (
+            <div className="process-table-scroll">
+              <table className="process-table">
+                <thead>
+                  <tr>
+                    <th>Sent</th>
+                    <th>Output / Supplier / Size</th>
+                    <th>Washer</th>
+                    <th>Qty</th>
+                    <th>Rate</th>
+                    <th>Charge</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {processes.map((process) => (
+                    <tr key={process._id}>
+                      <td>{new Date(process.sentDate).toLocaleDateString()}</td>
+                      <td>
+                        {process.destinationStockTypeName}
+                        <small>
+                          {process.supplierName} · {sizeLabel(process.size)}
+                        </small>
+                      </td>
+                      <td>{process.washerName}</td>
+                      <td>{process.quantity} PCS</td>
+                      <td>₹{process.ratePerPiece}</td>
+                      <td>₹{process.estimatedCharge}</td>
+                      <td>
+                        <span
+                          className={`process-status ${process.status === "completed" ? "completed" : "active"}`}
+                        >
+                          {process.status === "completed" ? "Completed" : "In Process"}
+                        </span>
+                      </td>
+                      <td>
+                        {process.status === "in_process" ? (
+                          <button
+                            type="button"
+                            className="secondary-button compact-button"
+                            onClick={() => {
+                              setCompleting(process);
+                              setCompleteError("");
+                            }}
+                          >
+                            Complete
+                          </button>
+                        ) : (
+                          <span className="completed-label">₹{process.earnedAmount} earned</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          {pagination?.totalPages > 1 && (
+            <div className="process-pagination">
+              <button disabled={page <= 1} onClick={() => setPage(page - 1)}>
+                Previous
+              </button>
+              <span>
+                Page {page} of {pagination.totalPages}
+              </span>
+              <button disabled={page >= pagination.totalPages} onClick={() => setPage(page + 1)}>
+                Next
+              </button>
+            </div>
+          )}
+        </section>
+        {completing && (
+          <div className="process-modal-backdrop">
+            <section className="process-modal">
+              <button type="button" className="back-button" onClick={() => setCompleting(null)}>
+                Back
+              </button>
+              <h2>Accept Washed Cloth</h2>
+              <p>
+                <strong>Washed Output Type:</strong> {completing.destinationStockTypeName}
+                <br />
+                <strong>Washer:</strong> {completing.washerName}
+                <br />
+                <strong>Supplier:</strong> {completing.supplierName}
+                <br />
+                <strong>Size:</strong> {sizeLabel(completing.size)}
+                <br />
+                <strong>Rate:</strong> ₹{completing.ratePerPiece}/PCS
+              </p>
+              <form className="process-form" onSubmit={complete}>
+                <label>
+                  Completed Date *
+                  <input
+                    type="date"
+                    value={completeForm.completedDate}
+                    onChange={(event) =>
+                      setCompleteForm((previous) => ({
+                        ...previous,
+                        completedDate: event.target.value,
+                      }))
+                    }
+                    required
+                  />
+                </label>
+                {completeError && <p className="process-error">{completeError}</p>}
+                <div className="process-actions">
+                  <button type="submit" disabled={savingCompletion}>
+                    {savingCompletion ? "Accepting…" : "Accept Washed Cloth"}
+                  </button>
+                </div>
+              </form>
+            </section>
+          </div>
+        )}
+      </div>
+    </main>
+  );
 };
 export default ProcessGoodsPage;

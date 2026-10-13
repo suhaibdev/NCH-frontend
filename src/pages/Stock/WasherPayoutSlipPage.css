@@ -1,1 +1,79 @@
-.washer-slip-page{max-width:900px;margin:30px auto;padding:20px;color:#17233b}.washer-slip-actions{display:flex;justify-content:space-between;margin-bottom:18px}.washer-slip-actions a,.washer-slip-actions button{padding:10px 16px;border:1px solid #174f9e;border-radius:7px;background:#174f9e;color:#fff;text-decoration:none;font:inherit}.washer-slip{background:#fff;border:1px solid #cad7e9;padding:34px;box-shadow:0 2px 12px #0001}.washer-slip header{text-align:center;border-bottom:2px solid #174f9e;padding-bottom:16px}.washer-slip h1{margin:8px 0}.washer-slip table{width:100%;border-collapse:collapse}.washer-slip th,.washer-slip td{padding:10px;border-bottom:1px solid #d9e2ef;text-align:left}.washer-slip-totals{margin-top:22px;text-align:right}.washer-slip-totals h2{background:#edf4ff;padding:12px}@media print{.navbar,.washer-slip-actions{display:none!important}.washer-slip-page{margin:0;padding:0}.washer-slip{border:0;box-shadow:none}}
+.washer-slip-page {
+  max-width: 900px;
+  margin: 30px auto;
+  padding: 20px;
+  color: #17233b;
+}
+
+.washer-slip-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.washer-slip-actions a,
+.washer-slip-actions button {
+  padding: 10px 16px;
+  border: 1px solid #174f9e;
+  border-radius: 7px;
+  background: #174f9e;
+  color: #fff;
+  text-decoration: none;
+  font: inherit;
+}
+
+.washer-slip {
+  background: #fff;
+  border: 1px solid #cad7e9;
+  padding: 34px;
+  box-shadow: 0 2px 12px #0001;
+}
+
+.washer-slip header {
+  text-align: center;
+  border-bottom: 2px solid #174f9e;
+  padding-bottom: 16px;
+}
+
+.washer-slip h1 {
+  margin: 8px 0;
+}
+
+.washer-slip table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.washer-slip th,
+.washer-slip td {
+  padding: 10px;
+  border-bottom: 1px solid #d9e2ef;
+  text-align: left;
+}
+
+.washer-slip-totals {
+  margin-top: 22px;
+  text-align: right;
+}
+
+.washer-slip-totals h2 {
+  background: #edf4ff;
+  padding: 12px;
+}
+
+@media print {
+  .navbar,
+  .washer-slip-actions {
+    display: none !important;
+  }
+
+  .washer-slip-page {
+    margin: 0;
+    padding: 0;
+  }
+
+  .washer-slip {
+    border: 0;
+    box-shadow: none;
+  }
+}

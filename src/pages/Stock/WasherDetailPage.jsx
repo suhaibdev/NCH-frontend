@@ -5,11 +5,239 @@ import "./ProcessGoodsPage.css";
 import { getFridayThursdayCycle } from "../../utils/washerPayoutCycle";
 const date = () => new Date().toISOString().slice(0, 10);
 const WasherDetailPage = () => {
-  const { washerId } = useParams(); const cycle = getFridayThursdayCycle(); const [data, setData] = useState({}), [advances, setAdvances] = useState([]), [payouts, setPayouts] = useState([]), [err, setErr] = useState(""), [advance, setAdvance] = useState({ amount:"", advanceDate:date(), method:"cash", reference:"" }), [pay, setPay] = useState({ periodStart:cycle.periodStart, periodEnd:cycle.periodEnd, payoutDate:date(), paymentMethod:"cash", paymentReference:"" }), [preview, setPreview] = useState(null);
-  const load = async () => { try { const [s,a,p] = await Promise.all([api.get(`/washer-accounting/${washerId}/account-summary`),api.get(`/washer-accounting/${washerId}/advances`,{params:{page:1,limit:20}}),api.get(`/washer-accounting/${washerId}/payouts`,{params:{page:1,limit:20}})]); setData(s.data);setAdvances(a.data.items||[]);setPayouts(p.data.items||[]); } catch(e){setErr(e.response?.data?.message||"Unable to load washer account.");} };
-  useEffect(()=>{load();},[washerId]);
-  const give=async(e)=>{e.preventDefault();try{await api.post("/washer-accounting/advances",{washer:washerId,...advance});setAdvance({...advance,amount:""});load();}catch(e){setErr(e.response?.data?.message||"Unable to record advance.");}};
-  const show=async()=>{try{setPreview((await api.get(`/washer-accounting/${washerId}/payout-preview`,{params:pay})).data);}catch(e){setErr(e.response?.data?.message||"Unable to preview payout.");}};
-  const generate=async()=>{try{await api.post("/washer-accounting/payouts",{washer:washerId,...pay});setPreview(null);load();}catch(e){setErr(e.response?.data?.message||"Unable to generate payout.");}};
-  return <main className="process-page"><div className="process-container"><header className="process-header"><div><p className="process-eyebrow">Washer Detail</p><h1>{data.washer?.name||"Washer"}</h1></div><Link className="back-button" to="/admin/washers">Back</Link></header>{err&&<p className="process-error">{err}</p>}<section className="process-grid"><article className="process-card"><h2>Overview</h2><p>Unpaid Earnings: ₹{data.unpaidEarnings||"0.00"}</p><p>Outstanding Advance: ₹{data.outstandingAdvance||"0.00"}</p><p>Estimated Net Payable: ₹{data.estimatedNetPayable||"0.00"}</p></article><article className="process-card"><h2>Give Advance</h2><form className="process-form" onSubmit={give}><label>Amount ₹<input required inputMode="decimal" value={advance.amount} onChange={e=>setAdvance({...advance,amount:e.target.value})}/></label><label>Date<input type="date" value={advance.advanceDate} onChange={e=>setAdvance({...advance,advanceDate:e.target.value})}/></label><label>Method<select value={advance.method} onChange={e=>setAdvance({...advance,method:e.target.value})}>{["cash","bank_transfer","upi","cheque","other"].map(x=><option key={x}>{x}</option>)}</select></label><button>Give Advance</button></form></article></section><section className="process-card"><h2>Advance</h2><div className="process-table-scroll"><table className="process-table"><thead><tr><th>Date</th><th>Amount</th><th>Recovered</th><th>Remaining</th></tr></thead><tbody>{advances.map(x=><tr key={x._id}><td>{new Date(x.advanceDate).toLocaleDateString()}</td><td>₹{x.amount}</td><td>₹{x.recovered}</td><td>₹{x.remaining}</td></tr>)}</tbody></table></div></section><section className="process-card"><h2>Generate Payout</h2><div className="process-form process-form-wide"><label>Period Start<input type="date" value={pay.periodStart} onChange={e=>setPay({...pay,periodStart:e.target.value})}/></label><label>Period End<input type="date" value={pay.periodEnd} onChange={e=>setPay({...pay,periodEnd:e.target.value})}/></label><label>Payout Date<input type="date" value={pay.payoutDate} onChange={e=>setPay({...pay,payoutDate:e.target.value})}/></label><label>Method<select value={pay.paymentMethod} onChange={e=>setPay({...pay,paymentMethod:e.target.value})}>{["cash","bank_transfer","upi","cheque","other"].map(x=><option key={x}>{x}</option>)}</select></label><button type="button" onClick={show}>Preview Payout</button></div>{preview&&<div className="process-hint"><p>Gross ₹{preview.grossEarnings} · Advance ₹{preview.advanceDeduction} · Net ₹{preview.netPaid}</p>{preview.processes.map(x=><p key={x._id}>{x.destinationStockTypeName}: {x.quantity} PCS × ₹{x.ratePerPiece} = ₹{x.amount}</p>)}<button onClick={generate}>Generate Payout (Paid)</button></div>}</section><section className="process-card"><h2>Payout History</h2><div className="process-table-scroll"><table className="process-table"><thead><tr><th>Date</th><th>Payout No.</th><th>Gross</th><th>Advance</th><th>Net Paid</th><th>Status</th></tr></thead><tbody>{payouts.map(x=><tr key={x._id}><td>{new Date(x.payoutDate).toLocaleDateString()}</td><td>{x.payoutNumber}</td><td>₹{x.grossEarnings}</td><td>₹{x.advanceDeduction}</td><td>₹{x.netPaid}</td><td>Paid</td></tr>)}</tbody></table></div></section></div></main>;
-}; export default WasherDetailPage;
+  const { washerId } = useParams();
+  const cycle = getFridayThursdayCycle();
+  const [data, setData] = useState({}),
+    [advances, setAdvances] = useState([]),
+    [payouts, setPayouts] = useState([]),
+    [err, setErr] = useState(""),
+    [advance, setAdvance] = useState({
+      amount: "",
+      advanceDate: date(),
+      method: "cash",
+      reference: "",
+    }),
+    [pay, setPay] = useState({
+      periodStart: cycle.periodStart,
+      periodEnd: cycle.periodEnd,
+      payoutDate: date(),
+      paymentMethod: "cash",
+      paymentReference: "",
+    }),
+    [preview, setPreview] = useState(null);
+  const load = async () => {
+    try {
+      const [s, a, p] = await Promise.all([
+        api.get(`/washer-accounting/${washerId}/account-summary`),
+        api.get(`/washer-accounting/${washerId}/advances`, { params: { page: 1, limit: 20 } }),
+        api.get(`/washer-accounting/${washerId}/payouts`, { params: { page: 1, limit: 20 } }),
+      ]);
+      setData(s.data);
+      setAdvances(a.data.items || []);
+      setPayouts(p.data.items || []);
+    } catch (e) {
+      setErr(e.response?.data?.message || "Unable to load washer account.");
+    }
+  };
+  useEffect(() => {
+    load();
+  }, [washerId]);
+  const give = async (e) => {
+    e.preventDefault();
+    try {
+      await api.post("/washer-accounting/advances", { washer: washerId, ...advance });
+      setAdvance({ ...advance, amount: "" });
+      load();
+    } catch (e) {
+      setErr(e.response?.data?.message || "Unable to record advance.");
+    }
+  };
+  const show = async () => {
+    try {
+      setPreview(
+        (await api.get(`/washer-accounting/${washerId}/payout-preview`, { params: pay })).data
+      );
+    } catch (e) {
+      setErr(e.response?.data?.message || "Unable to preview payout.");
+    }
+  };
+  const generate = async () => {
+    try {
+      await api.post("/washer-accounting/payouts", { washer: washerId, ...pay });
+      setPreview(null);
+      load();
+    } catch (e) {
+      setErr(e.response?.data?.message || "Unable to generate payout.");
+    }
+  };
+  return (
+    <main className="process-page">
+      <div className="process-container">
+        <header className="process-header">
+          <div>
+            <p className="process-eyebrow">Washer Detail</p>
+            <h1>{data.washer?.name || "Washer"}</h1>
+          </div>
+          <Link className="back-button" to="/admin/washers">
+            Back
+          </Link>
+        </header>
+        {err && <p className="process-error">{err}</p>}
+        <section className="process-grid">
+          <article className="process-card">
+            <h2>Overview</h2>
+            <p>Unpaid Earnings: ₹{data.unpaidEarnings || "0.00"}</p>
+            <p>Outstanding Advance: ₹{data.outstandingAdvance || "0.00"}</p>
+            <p>Estimated Net Payable: ₹{data.estimatedNetPayable || "0.00"}</p>
+          </article>
+          <article className="process-card">
+            <h2>Give Advance</h2>
+            <form className="process-form" onSubmit={give}>
+              <label>
+                Amount ₹
+                <input
+                  required
+                  inputMode="decimal"
+                  value={advance.amount}
+                  onChange={(e) => setAdvance({ ...advance, amount: e.target.value })}
+                />
+              </label>
+              <label>
+                Date
+                <input
+                  type="date"
+                  value={advance.advanceDate}
+                  onChange={(e) => setAdvance({ ...advance, advanceDate: e.target.value })}
+                />
+              </label>
+              <label>
+                Method
+                <select
+                  value={advance.method}
+                  onChange={(e) => setAdvance({ ...advance, method: e.target.value })}
+                >
+                  {["cash", "bank_transfer", "upi", "cheque", "other"].map((x) => (
+                    <option key={x}>{x}</option>
+                  ))}
+                </select>
+              </label>
+              <button>Give Advance</button>
+            </form>
+          </article>
+        </section>
+        <section className="process-card">
+          <h2>Advance</h2>
+          <div className="process-table-scroll">
+            <table className="process-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Amount</th>
+                  <th>Recovered</th>
+                  <th>Remaining</th>
+                </tr>
+              </thead>
+              <tbody>
+                {advances.map((x) => (
+                  <tr key={x._id}>
+                    <td>{new Date(x.advanceDate).toLocaleDateString()}</td>
+                    <td>₹{x.amount}</td>
+                    <td>₹{x.recovered}</td>
+                    <td>₹{x.remaining}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+        <section className="process-card">
+          <h2>Generate Payout</h2>
+          <div className="process-form process-form-wide">
+            <label>
+              Period Start
+              <input
+                type="date"
+                value={pay.periodStart}
+                onChange={(e) => setPay({ ...pay, periodStart: e.target.value })}
+              />
+            </label>
+            <label>
+              Period End
+              <input
+                type="date"
+                value={pay.periodEnd}
+                onChange={(e) => setPay({ ...pay, periodEnd: e.target.value })}
+              />
+            </label>
+            <label>
+              Payout Date
+              <input
+                type="date"
+                value={pay.payoutDate}
+                onChange={(e) => setPay({ ...pay, payoutDate: e.target.value })}
+              />
+            </label>
+            <label>
+              Method
+              <select
+                value={pay.paymentMethod}
+                onChange={(e) => setPay({ ...pay, paymentMethod: e.target.value })}
+              >
+                {["cash", "bank_transfer", "upi", "cheque", "other"].map((x) => (
+                  <option key={x}>{x}</option>
+                ))}
+              </select>
+            </label>
+            <button type="button" onClick={show}>
+              Preview Payout
+            </button>
+          </div>
+          {preview && (
+            <div className="process-hint">
+              <p>
+                Gross ₹{preview.grossEarnings} · Advance ₹{preview.advanceDeduction} · Net ₹
+                {preview.netPaid}
+              </p>
+              {preview.processes.map((x) => (
+                <p key={x._id}>
+                  {x.destinationStockTypeName}: {x.quantity} PCS × ₹{x.ratePerPiece} = ₹{x.amount}
+                </p>
+              ))}
+              <button onClick={generate}>Generate Payout (Paid)</button>
+            </div>
+          )}
+        </section>
+        <section className="process-card">
+          <h2>Payout History</h2>
+          <div className="process-table-scroll">
+            <table className="process-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Payout No.</th>
+                  <th>Gross</th>
+                  <th>Advance</th>
+                  <th>Net Paid</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {payouts.map((x) => (
+                  <tr key={x._id}>
+                    <td>{new Date(x.payoutDate).toLocaleDateString()}</td>
+                    <td>{x.payoutNumber}</td>
+                    <td>₹{x.grossEarnings}</td>
+                    <td>₹{x.advanceDeduction}</td>
+                    <td>₹{x.netPaid}</td>
+                    <td>Paid</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </main>
+  );
+};
+export default WasherDetailPage;
