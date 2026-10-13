@@ -1,0 +1,2 @@
+const iso = (date) => new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())).toISOString().slice(0, 10);
+export const getFridayThursdayCycle = (value = new Date()) => { const date = new Date(value); const daysSinceFriday = (date.getDay() + 2) % 7; const start = new Date(date); start.setDate(date.getDate() - daysSinceFriday); const end = new Date(start); end.setDate(start.getDate() + 6); return { periodStart: iso(start), periodEnd: iso(end) }; };

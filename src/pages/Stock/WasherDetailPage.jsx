@@ -2,9 +2,10 @@ import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import api from "../../config/axios";
 import "./ProcessGoodsPage.css";
+import { getFridayThursdayCycle } from "../../utils/washerPayoutCycle";
 const date = () => new Date().toISOString().slice(0, 10);
 const WasherDetailPage = () => {
-  const { washerId } = useParams(); const [data, setData] = useState({}), [advances, setAdvances] = useState([]), [payouts, setPayouts] = useState([]), [err, setErr] = useState(""), [advance, setAdvance] = useState({ amount:"", advanceDate:date(), method:"cash", reference:"" }), [pay, setPay] = useState({ periodStart:date(), periodEnd:date(), payoutDate:date(), paymentMethod:"cash", paymentReference:"" }), [preview, setPreview] = useState(null);
+  const { washerId } = useParams(); const cycle = getFridayThursdayCycle(); const [data, setData] = useState({}), [advances, setAdvances] = useState([]), [payouts, setPayouts] = useState([]), [err, setErr] = useState(""), [advance, setAdvance] = useState({ amount:"", advanceDate:date(), method:"cash", reference:"" }), [pay, setPay] = useState({ periodStart:cycle.periodStart, periodEnd:cycle.periodEnd, payoutDate:date(), paymentMethod:"cash", paymentReference:"" }), [preview, setPreview] = useState(null);
   const load = async () => { try { const [s,a,p] = await Promise.all([api.get(`/washer-accounting/${washerId}/account-summary`),api.get(`/washer-accounting/${washerId}/advances`,{params:{page:1,limit:20}}),api.get(`/washer-accounting/${washerId}/payouts`,{params:{page:1,limit:20}})]); setData(s.data);setAdvances(a.data.items||[]);setPayouts(p.data.items||[]); } catch(e){setErr(e.response?.data?.message||"Unable to load washer account.");} };
   useEffect(()=>{load();},[washerId]);
   const give=async(e)=>{e.preventDefault();try{await api.post("/washer-accounting/advances",{washer:washerId,...advance});setAdvance({...advance,amount:""});load();}catch(e){setErr(e.response?.data?.message||"Unable to record advance.");}};

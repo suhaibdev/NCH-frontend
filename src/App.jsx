@@ -25,6 +25,7 @@ import StockTypeProductsPage from "./pages/Stock/StockTypeProductsPage";
 import WashersPage from "./pages/Stock/WashersPage";
 import ProcessGoodsPage from "./pages/Stock/ProcessGoodsPage";
 import WasherDetailPage from "./pages/Stock/WasherDetailPage";
+import WasherPayoutSlipPage from "./pages/Stock/WasherPayoutSlipPage";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLayout from "./components/AdminLayout";
@@ -210,6 +211,7 @@ const App = () => {
               element={<WashersPage />}
             />
             <Route path="/admin/washers/:washerId" element={<WasherDetailPage />} />
+            <Route path="/admin/washers/:washerId/payouts/:payoutId/slip" element={<WasherPayoutSlipPage />} />
 
             <Route
               path="/admin/stock/process-goods"
