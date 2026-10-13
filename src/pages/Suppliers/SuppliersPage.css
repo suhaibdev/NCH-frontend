@@ -305,6 +305,51 @@
   margin-top: 22px;
 }
 
+.supplier-account-card,
+.supplier-ledger-card {
+  margin-top: 22px;
+}
+
+.supplier-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  padding: 22px;
+}
+
+.supplier-summary-grid > div {
+  padding: 16px;
+  border-radius: 10px;
+  background: #fafbfd;
+}
+
+.supplier-summary-grid span,
+.supplier-summary-grid small {
+  display: block;
+  color: #667085;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.supplier-summary-grid strong {
+  display: block;
+  margin: 7px 0;
+  color: #24324a;
+  font-size: 21px;
+}
+
+.supplier-no-outstanding {
+  margin: 0 22px 22px;
+  color: #176b2c;
+  font-weight: 700;
+}
+
+.supplier-ledger-table {
+  width: 100%;
+  min-width: 820px;
+  margin: 0;
+}
+
 .supplier-receipts-table {
   width: 100%;
   min-width: 980px;
@@ -368,7 +413,8 @@
   }
 
   .suppliers-form,
-  .supplier-details-grid {
+  .supplier-details-grid,
+  .supplier-summary-grid {
     grid-template-columns: 1fr;
   }
 
