@@ -1,0 +1,416 @@
+.manufacturing-page {
+  min-height: 100%;
+  padding: 32px 18px 52px;
+  background: #f4f7fb;
+  color: #17233b;
+}
+
+.manufacturing-container {
+  display: grid;
+  max-width: 1280px;
+  margin: 0 auto;
+  gap: 22px;
+}
+
+.manufacturing-back,
+.manufacturing-page button {
+  border: 0;
+  border-radius: 8px;
+  padding: 10px 14px;
+  background: #174f9e;
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.manufacturing-back {
+  justify-self: start;
+  border: 1px solid #b9cce5;
+  background: #eaf0f9;
+  color: #174f9e;
+}
+
+.manufacturing-page button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.manufacturing-header p,
+.manufacturing-header span,
+.manufacturing-card p {
+  color: #5d6b82;
+}
+
+.manufacturing-header p {
+  margin: 0 0 6px;
+  color: #2b65b0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.manufacturing-header h1,
+.manufacturing-card h2,
+.manufacturing-card h3 {
+  margin: 0;
+  color: #102a56;
+}
+
+.manufacturing-header span {
+  display: block;
+  margin-top: 7px;
+}
+
+.manufacturing-form,
+.manufacturing-input-list,
+.manufacturing-detail-inputs,
+.manufacturing-reverse-form {
+  display: grid;
+  gap: 18px;
+}
+
+.manufacturing-card,
+.manufacturing-input-row {
+  border: 1px solid #dce5f2;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 3px 14px rgba(18, 45, 90, 0.05);
+}
+
+.manufacturing-card {
+  padding: 22px;
+}
+
+.manufacturing-details,
+.manufacturing-output-grid,
+.manufacturing-input-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.manufacturing-details h2,
+.manufacturing-details label:last-child {
+  grid-column: 1 / -1;
+}
+
+.manufacturing-page label {
+  display: grid;
+  gap: 6px;
+  color: #33435f;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.manufacturing-page input,
+.manufacturing-page select,
+.manufacturing-page textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #b9c7dc;
+  border-radius: 8px;
+  padding: 10px 11px;
+  color: #1a2c48;
+  background: #fff;
+  font: inherit;
+}
+
+.manufacturing-page textarea {
+  min-height: 76px;
+  resize: vertical;
+}
+
+.manufacturing-section-heading,
+.manufacturing-input-heading,
+.manufacturing-actions,
+.manufacturing-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.manufacturing-section-heading {
+  margin-bottom: 18px;
+}
+
+.manufacturing-section-heading p {
+  margin: 6px 0 0;
+}
+
+.manufacturing-input-row {
+  padding: 18px;
+}
+
+.manufacturing-input-heading {
+  margin-bottom: 14px;
+}
+
+.manufacturing-input-heading h3 {
+  font-size: 1rem;
+}
+
+.text-button,
+.manufacturing-page .secondary-button {
+  border: 1px solid #b9cce5;
+  background: #eaf0f9;
+  color: #174f9e;
+}
+
+.text-button {
+  padding: 7px 10px !important;
+  font-size: 0.85rem !important;
+}
+
+.manufacturing-item-context {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 15px 0 0;
+  padding: 12px;
+  border-radius: 8px;
+  background: #f2f6fb;
+}
+
+.manufacturing-item-context div {
+  min-width: 0;
+}
+
+.manufacturing-item-context dt {
+  color: #64748b;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.manufacturing-item-context dd {
+  margin: 4px 0 0;
+  color: #243a5f;
+  overflow-wrap: anywhere;
+}
+
+.manufacturing-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-top: 16px;
+}
+
+.manufacturing-summary > div {
+  padding: 15px;
+  border-radius: 9px;
+  background: #f2f6fb;
+}
+
+.manufacturing-summary h3 {
+  font-size: 0.94rem;
+}
+
+.manufacturing-summary p {
+  margin: 9px 0 0;
+}
+
+.manufacturing-actions {
+  justify-content: flex-end;
+  margin-top: 18px;
+}
+
+.manufacturing-state,
+.manufacturing-error,
+.manufacturing-error-text,
+.manufacturing-success,
+.manufacturing-reversed {
+  padding: 13px;
+  border-radius: 8px;
+}
+
+.manufacturing-state {
+  margin: 16px 0 0 !important;
+  background: #f2f6fb;
+}
+
+.manufacturing-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  border: 1px solid #f2c1c1;
+  background: #fff0f0;
+}
+
+.manufacturing-error p,
+.manufacturing-error-text {
+  margin: 0;
+  color: #a82929 !important;
+}
+
+.manufacturing-error-text {
+  margin-top: 16px;
+  background: #fff0f0;
+  font-weight: 700;
+}
+
+.manufacturing-success {
+  margin: 16px 0 0 !important;
+  background: #e8f7ee;
+  color: #17633e !important;
+  font-weight: 700;
+}
+
+.manufacturing-table-scroll {
+  margin-top: 18px;
+  overflow-x: auto;
+}
+
+.manufacturing-table {
+  width: 100%;
+  min-width: 900px;
+  border-collapse: collapse;
+}
+
+.manufacturing-table th,
+.manufacturing-table td {
+  padding: 12px 10px;
+  border-bottom: 1px solid #e2e9f3;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.manufacturing-table th {
+  color: #526581;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.manufacturing-status {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #d9f3e4;
+  color: #17633e;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.manufacturing-status.reversed {
+  background: #f7e2e2;
+  color: #9d3131;
+}
+
+.manufacturing-pagination {
+  margin-top: 16px;
+}
+
+.manufacturing-modal-backdrop {
+  position: fixed;
+  z-index: 30;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(10, 28, 57, 0.48);
+}
+
+.manufacturing-modal {
+  width: min(100%, 760px);
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+  padding: 24px;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.28);
+}
+
+.manufacturing-modal h2 {
+  margin: 18px 0 0;
+  color: #102a56;
+}
+
+.manufacturing-modal h3 {
+  margin: 22px 0 10px;
+  color: #102a56;
+}
+
+.manufacturing-modal-meta {
+  color: #64748b;
+}
+
+.manufacturing-detail-inputs {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.manufacturing-detail-inputs article {
+  display: grid;
+  gap: 5px;
+  padding: 13px;
+  border-radius: 8px;
+  background: #f2f6fb;
+  color: #53647c;
+}
+
+.manufacturing-detail-inputs strong {
+  color: #243a5f;
+}
+
+.manufacturing-reversed {
+  background: #f7e2e2;
+  color: #9d3131 !important;
+}
+
+.danger-button {
+  background: #b42318 !important;
+}
+
+@media (max-width: 850px) {
+  .manufacturing-details,
+  .manufacturing-output-grid,
+  .manufacturing-input-grid,
+  .manufacturing-summary,
+  .manufacturing-detail-inputs {
+    grid-template-columns: 1fr;
+  }
+
+  .manufacturing-item-context {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .manufacturing-page {
+    padding: 20px 10px 36px;
+  }
+
+  .manufacturing-card,
+  .manufacturing-modal,
+  .manufacturing-input-row {
+    padding: 16px;
+  }
+
+  .manufacturing-header h1 {
+    font-size: 1.8rem;
+  }
+
+  .manufacturing-section-heading,
+  .manufacturing-input-heading,
+  .manufacturing-error,
+  .manufacturing-actions,
+  .manufacturing-pagination {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .manufacturing-section-heading button,
+  .manufacturing-actions button,
+  .manufacturing-error button,
+  .manufacturing-pagination button {
+    width: 100%;
+  }
+
+  .manufacturing-item-context {
+    grid-template-columns: 1fr;
+  }
+}

@@ -169,11 +169,12 @@ const StockHomePage = () => {
               <p>Send tracked Raw Material to washing and complete matching Washed stock.</p>
               <span className="stock-home-card-link">Open Process Goods →</span>
             </Link>
-            <article className="stock-home-card stock-home-card-future">
-              <span className="stock-home-card-kicker">Coming later</span>
-              <h3>More Operations</h3>
-              <p>Manufacturing, stock history and labels will be added here.</p>
-            </article>
+            <Link to="/admin/stock/manufacturing" className="stock-home-card">
+              <span className="stock-home-card-kicker">Production</span>
+              <h3>Manufacturing</h3>
+              <p>Convert multiple Raw or Washed inputs into one Finished Goods output.</p>
+              <span className="stock-home-card-link">Open Manufacturing →</span>
+            </Link>
           </div>
         </section>
       </div>

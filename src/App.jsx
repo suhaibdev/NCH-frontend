@@ -26,6 +26,7 @@ import StockTypesPage from "./pages/Stock/StockTypesPage";
 import StockTypeProductsPage from "./pages/Stock/StockTypeProductsPage";
 import WashersPage from "./pages/Stock/WashersPage";
 import ProcessGoodsPage from "./pages/Stock/ProcessGoodsPage";
+import ManufacturingPage from "./pages/Stock/ManufacturingPage";
 import WasherDetailPage from "./pages/Stock/WasherDetailPage";
 import WashersListPage from "./pages/Stock/WashersListPage";
 import WasherDetailFixed from "./pages/Stock/WasherDetailFixed";
@@ -134,6 +135,8 @@ const App = () => {
             />
 
             <Route path="/admin/stock/process-goods" element={<ProcessGoodsPage />} />
+
+            <Route path="/admin/stock/manufacturing" element={<ManufacturingPage />} />
 
             <Route path="/admin/salary-slip" element={<SalarySlip />} />
           </Route>
