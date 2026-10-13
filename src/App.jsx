@@ -22,6 +22,8 @@ import StockPage from "./pages/Stock/StockPage";
 import StockHomePage from "./pages/Stock/StockHomePage";
 import StockTypesPage from "./pages/Stock/StockTypesPage";
 import StockTypeProductsPage from "./pages/Stock/StockTypeProductsPage";
+import WashersPage from "./pages/Stock/WashersPage";
+import ProcessGoodsPage from "./pages/Stock/ProcessGoodsPage";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLayout from "./components/AdminLayout";
@@ -200,6 +202,16 @@ const App = () => {
               element={
                 <StockTypeProductsPage />
               }
+            />
+
+            <Route
+              path="/admin/washers"
+              element={<WashersPage />}
+            />
+
+            <Route
+              path="/admin/stock/process-goods"
+              element={<ProcessGoodsPage />}
             />
 
 

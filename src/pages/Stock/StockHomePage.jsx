@@ -104,7 +104,8 @@ const StockHomePage = () => {
           <div className="stock-home-cards">
             <Link to="/admin/stock/manage" className="stock-home-card"><span className="stock-home-card-kicker">Inventory</span><h3>Stock Management</h3><p>Manage Raw Material, Washed Raw Material and Finished Goods.</p><span className="stock-home-card-link">Open Stock Management →</span></Link>
             <Link to="/admin/stock/types" className="stock-home-card"><span className="stock-home-card-kicker">Organisation</span><h3>Stock Types</h3><p>Manage custom Stock Types such as Label, Cotton, Wrapper and Box.</p><span className="stock-home-card-link">Open Stock Types →</span></Link>
-            <article className="stock-home-card stock-home-card-future"><span className="stock-home-card-kicker">Coming next</span><h3>Operational Workflows</h3><p>Washing, manufacturing, stock history and labels will be added here.</p></article>
+            <Link to="/admin/stock/process-goods" className="stock-home-card"><span className="stock-home-card-kicker">Workflow</span><h3>Process Goods</h3><p>Send tracked Raw Material to washing and complete matching Washed stock.</p><span className="stock-home-card-link">Open Process Goods →</span></Link>
+            <article className="stock-home-card stock-home-card-future"><span className="stock-home-card-kicker">Coming later</span><h3>More Operations</h3><p>Manufacturing, stock history and labels will be added here.</p></article>
           </div>
         </section>
       </div>

@@ -259,9 +259,27 @@ const Navbar = () => {
                     Stock Types
                   </Link>
 
+                  <Link
+                    to="/admin/stock/process-goods"
+                    onClick={
+                      closeMenus
+                    }
+                  >
+                    Process Goods
+                  </Link>
+
                 </div>
 
               </div>
+
+              <Link
+                to="/admin/washers"
+                onClick={
+                  closeMenus
+                }
+              >
+                Washers
+              </Link>
 
 
               <button
