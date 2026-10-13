@@ -6,15 +6,29 @@ import "./ProcessGoodsPage.css";
 const WashersListPage = () => {
   const navigate = useNavigate();
   const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
+    let mounted = true;
+
     api
       .get("/washers", { params: { page: 1, limit: 100 } })
-      .then((response) => setItems(response.data.items || []))
+      .then((response) => {
+        if (mounted) setItems(response.data.items || []);
+      })
       .catch((requestError) => {
-        setError(requestError.response?.data?.message || "Unable to load washers.");
+        if (mounted) {
+          setError(requestError.response?.data?.message || "Unable to load washers.");
+        }
+      })
+      .finally(() => {
+        if (mounted) setLoading(false);
       });
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   return (
@@ -35,7 +49,9 @@ const WashersListPage = () => {
 
         <section className="process-card">
           <h2>Washer Directory</h2>
-          {items.length ? (
+          {loading ? (
+            <p className="process-state">Loading washers…</p>
+          ) : items.length ? (
             <div className="process-table-scroll">
               <table className="process-table">
                 <thead>

@@ -34,6 +34,7 @@ const ProcessGoodsPage = () => {
   const [completeError, setCompleteError] = useState("");
   const [savingCompletion, setSavingCompletion] = useState(false);
   const selectedSource = sources.find((source) => source._id === form.sourceStockItem);
+  const estimatedCharge = Number(form.quantity) * Number(form.ratePerPiece);
 
   const loadSetup = async () => {
     const [sourceResponse, washerResponse, typeResponse] = await Promise.all([
@@ -121,6 +122,9 @@ const ProcessGoodsPage = () => {
   return (
     <main className="process-page">
       <div className="process-container">
+        <Link className="back-button" to="/admin/stock">
+          Back
+        </Link>
         <header className="process-header">
           <div>
             <p className="process-eyebrow">NCH Factory Management</p>
@@ -130,9 +134,6 @@ const ProcessGoodsPage = () => {
               supplier-and-size-tracked washed stock.
             </p>
           </div>
-          <Link className="back-button" to="/admin/stock">
-            Back
-          </Link>
         </header>
         <section className="process-card">
           <h2>Send to Washing</h2>
@@ -229,6 +230,9 @@ const ProcessGoodsPage = () => {
                 Available: {selectedSource.currentStock} PCS · Supplier:{" "}
                 {selectedSource.supplier?.name} · Size: {sizeLabel(selectedSource.size)}
               </p>
+            )}
+            {Number.isFinite(estimatedCharge) && estimatedCharge > 0 && (
+              <p className="process-hint">Estimated washing charge: ₹{estimatedCharge}</p>
             )}
             {formError && <p className="process-error">{formError}</p>}
             <div className="process-actions">

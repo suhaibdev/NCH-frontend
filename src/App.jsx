@@ -1,5 +1,12 @@
 import React, { useEffect } from "react";
-import { BrowserRouter, Navigate, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter,
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+  useNavigationType,
+} from "react-router-dom";
 
 import HomePage from "./pages/HomePage";
 import Login from "./pages/Login";
@@ -26,6 +33,19 @@ import WasherPayoutSlipPage from "./pages/Stock/WasherPayoutSlipPage";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLayout from "./components/AdminLayout";
+
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+  const navigationType = useNavigationType();
+
+  useEffect(() => {
+    if (navigationType !== "POP") {
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    }
+  }, [navigationType, pathname]);
+
+  return null;
+};
 
 const App = () => {
   /* =========================================================
@@ -54,6 +74,7 @@ const App = () => {
 
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
         {/* ================================
             PUBLIC ROUTES

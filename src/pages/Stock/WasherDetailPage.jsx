@@ -19,12 +19,17 @@ const WasherDetailPage = () => {
   const [data, setData] = useState({}),
     [advances, setAdvances] = useState([]),
     [payouts, setPayouts] = useState([]),
+    [loading, setLoading] = useState(true),
+    [savingAdvance, setSavingAdvance] = useState(false),
+    [previewing, setPreviewing] = useState(false),
+    [generating, setGenerating] = useState(false),
     [err, setErr] = useState(""),
     [advance, setAdvance] = useState({
       amount: "",
       advanceDate: date(),
       method: "cash",
       reference: "",
+      notes: "",
     }),
     [pay, setPay] = useState({
       periodStart: cycle.periodStart,
@@ -36,6 +41,7 @@ const WasherDetailPage = () => {
     [preview, setPreview] = useState(null);
   const load = async () => {
     try {
+      setLoading(true);
       const [s, a, p] = await Promise.all([
         api.get(`/washer-accounting/${washerId}/account-summary`),
         api.get(`/washer-accounting/${washerId}/advances`, { params: { page: 1, limit: 20 } }),
@@ -46,6 +52,8 @@ const WasherDetailPage = () => {
       setPayouts(p.data.items || []);
     } catch (e) {
       setErr(e.response?.data?.message || "Unable to load washer account.");
+    } finally {
+      setLoading(false);
     }
   };
   useEffect(() => {
@@ -53,30 +61,47 @@ const WasherDetailPage = () => {
   }, [washerId]);
   const give = async (e) => {
     e.preventDefault();
+    const amount = Number(advance.amount);
+    if (!Number.isFinite(amount) || amount <= 0) {
+      setErr("Advance amount must be greater than zero.");
+      return;
+    }
     try {
+      setSavingAdvance(true);
+      setErr("");
       await api.post("/washer-accounting/advances", { washer: washerId, ...advance });
-      setAdvance({ ...advance, amount: "" });
+      setAdvance({ ...advance, amount: "", reference: "", notes: "" });
       load();
     } catch (e) {
       setErr(e.response?.data?.message || "Unable to record advance.");
+    } finally {
+      setSavingAdvance(false);
     }
   };
   const show = async () => {
     try {
+      setPreviewing(true);
+      setErr("");
       setPreview(
         (await api.get(`/washer-accounting/${washerId}/payout-preview`, { params: pay })).data
       );
     } catch (e) {
       setErr(e.response?.data?.message || "Unable to preview payout.");
+    } finally {
+      setPreviewing(false);
     }
   };
   const generate = async () => {
     try {
+      setGenerating(true);
+      setErr("");
       await api.post("/washer-accounting/payouts", { washer: washerId, ...pay });
       setPreview(null);
       load();
     } catch (e) {
       setErr(e.response?.data?.message || "Unable to generate payout.");
+    } finally {
+      setGenerating(false);
     }
   };
   return (
@@ -106,6 +131,9 @@ const WasherDetailPage = () => {
                 Amount ₹
                 <input
                   required
+                  type="number"
+                  min="0.01"
+                  step="0.01"
                   inputMode="decimal"
                   value={advance.amount}
                   onChange={(e) => setAdvance({ ...advance, amount: e.target.value })}
@@ -132,7 +160,25 @@ const WasherDetailPage = () => {
                   ))}
                 </select>
               </label>
-              <button>Give Advance</button>
+              <label>
+                Reference
+                <input
+                  maxLength="150"
+                  value={advance.reference}
+                  onChange={(e) => setAdvance({ ...advance, reference: e.target.value })}
+                />
+              </label>
+              <label>
+                Notes
+                <textarea
+                  maxLength="500"
+                  value={advance.notes}
+                  onChange={(e) => setAdvance({ ...advance, notes: e.target.value })}
+                />
+              </label>
+              <button disabled={savingAdvance}>
+                {savingAdvance ? "Recording…" : "Give Advance"}
+              </button>
             </form>
           </article>
         </section>
@@ -149,14 +195,24 @@ const WasherDetailPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {advances.map((x) => (
-                  <tr key={x._id}>
-                    <td>{new Date(x.advanceDate).toLocaleDateString()}</td>
-                    <td>₹{x.amount}</td>
-                    <td>₹{x.recovered}</td>
-                    <td>₹{x.remaining}</td>
+                {loading ? (
+                  <tr>
+                    <td colSpan="4">Loading advances…</td>
                   </tr>
-                ))}
+                ) : advances.length ? (
+                  advances.map((x) => (
+                    <tr key={x._id}>
+                      <td>{new Date(x.advanceDate).toLocaleDateString()}</td>
+                      <td>₹{x.amount}</td>
+                      <td>₹{x.recovered}</td>
+                      <td>₹{x.remaining}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="4">No advances recorded.</td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -170,6 +226,9 @@ const WasherDetailPage = () => {
         </section>
         <section className="process-card">
           <h2>Generate Payout</h2>
+          <p className="process-hint">
+            Regular payout day: Thursday. Current default period: Friday to Thursday.
+          </p>
           <div className="process-form process-form-wide">
             <label>
               Period Start
@@ -196,7 +255,7 @@ const WasherDetailPage = () => {
               />
             </label>
             <label>
-              Method
+              Payment Method
               <select
                 value={pay.paymentMethod}
                 onChange={(e) => setPay({ ...pay, paymentMethod: e.target.value })}
@@ -208,22 +267,40 @@ const WasherDetailPage = () => {
                 ))}
               </select>
             </label>
-            <button type="button" onClick={show}>
-              Preview Payout
+            <label>
+              Payment Reference
+              <input
+                maxLength="150"
+                value={pay.paymentReference}
+                onChange={(e) => setPay({ ...pay, paymentReference: e.target.value })}
+              />
+            </label>
+            <button type="button" onClick={show} disabled={previewing || generating}>
+              {previewing ? "Loading Preview…" : "Preview Payout"}
+            </button>
+            <button
+              type="button"
+              onClick={generate}
+              disabled={!preview || preview.processes.length === 0 || generating}
+            >
+              {generating ? "Generating Payout…" : "Generate Payout"}
             </button>
           </div>
           {preview && (
             <div className="process-hint">
               <p>
-                Gross ₹{preview.grossEarnings} · Advance ₹{preview.advanceDeduction} · Net ₹
-                {preview.netPaid}
+                Gross ₹{preview.grossEarnings} · Outstanding Advance ₹{preview.outstandingAdvance} ·
+                Advance Deduction ₹{preview.advanceDeduction} · Net ₹{preview.netPaid}
               </p>
-              {preview.processes.map((x) => (
-                <p key={x._id}>
-                  {x.destinationStockTypeName}: {x.quantity} PCS × ₹{x.ratePerPiece} = ₹{x.amount}
-                </p>
-              ))}
-              <button onClick={generate}>Generate Payout (Paid)</button>
+              {preview.processes.length ? (
+                preview.processes.map((x) => (
+                  <p key={x._id}>
+                    {x.destinationStockTypeName}: {x.quantity} PCS × ₹{x.ratePerPiece} = ₹{x.amount}
+                  </p>
+                ))
+              ) : (
+                <p>No completed unpaid washing batches are eligible for this period.</p>
+              )}
             </div>
           )}
         </section>
@@ -243,24 +320,34 @@ const WasherDetailPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {payouts.map((x) => (
-                  <tr key={x._id}>
-                    <td>{new Date(x.payoutDate).toLocaleDateString()}</td>
-                    <td>{x.payoutNumber}</td>
-                    <td>₹{x.grossEarnings}</td>
-                    <td>₹{x.advanceDeduction}</td>
-                    <td>₹{x.netPaid}</td>
-                    <td>Paid</td>
-                    <td>
-                      <Link
-                        className="back-button"
-                        to={`/admin/washers/${washerId}/payouts/${x._id}/slip`}
-                      >
-                        View Slip
-                      </Link>
-                    </td>
+                {loading ? (
+                  <tr>
+                    <td colSpan="7">Loading payouts…</td>
                   </tr>
-                ))}
+                ) : payouts.length ? (
+                  payouts.map((x) => (
+                    <tr key={x._id}>
+                      <td>{new Date(x.payoutDate).toLocaleDateString()}</td>
+                      <td>{x.payoutNumber}</td>
+                      <td>₹{x.grossEarnings}</td>
+                      <td>₹{x.advanceDeduction}</td>
+                      <td>₹{x.netPaid}</td>
+                      <td>Paid</td>
+                      <td>
+                        <Link
+                          className="back-button"
+                          to={`/admin/washers/${washerId}/payouts/${x._id}/slip`}
+                        >
+                          View Slip
+                        </Link>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="7">No payouts generated yet.</td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
