@@ -10,11 +10,32 @@ const CATEGORY_LABELS = {
 };
 
 const today = () => new Date().toISOString().slice(0, 10);
-const emptyInput = () => ({ category: "", stockItem: "", quantityUsed: "", wastage: "0" });
+const washedMaterialInput = () => ({
+  kind: "washed",
+  category: "washed_raw_material",
+  stockItem: "",
+  quantityUsed: "",
+  wastage: "0",
+});
+const labelInput = () => ({
+  kind: "label",
+  category: "raw_material",
+  stockItem: "",
+  quantityUsed: "",
+  wastage: "0",
+});
+const additionalInput = () => ({
+  kind: "additional",
+  category: "raw_material",
+  stockItem: "",
+  quantityUsed: "",
+  wastage: "0",
+});
 const emptyForm = () => ({
   manufacturingDate: today(),
+  batchNumber: "",
   notes: "",
-  inputs: [emptyInput()],
+  inputs: [washedMaterialInput(), labelInput()],
   output: { finishedStockItem: "", quantityProduced: "" },
 });
 
@@ -25,14 +46,44 @@ const sizeLabel = (size) =>
     : "Not applicable";
 
 const itemLabel = (item) => {
-  const context = [item.supplier?.name, item.size?.lengthValue ? sizeLabel(item.size) : null]
+  const context = [
+    item.stockType?.name,
+    item.supplier?.name,
+    item.size?.lengthValue ? sizeLabel(item.size) : null,
+  ]
     .filter(Boolean)
     .join(" · ");
   return `${item.productName}${context ? ` — ${context}` : ""} — ${item.currentStock} ${item.unit.toUpperCase()} available`;
 };
 
+const ItemContext = ({ item }) => (
+  <dl className="manufacturing-item-context">
+    <div>
+      <dt>Available</dt>
+      <dd>
+        {item.currentStock} {item.unit.toUpperCase()}
+      </dd>
+    </div>
+    <div>
+      <dt>Supplier</dt>
+      <dd>{item.supplier?.name || "Not applicable"}</dd>
+    </div>
+    <div>
+      <dt>Size</dt>
+      <dd>{sizeLabel(item.size)}</dd>
+    </div>
+    <div>
+      <dt>Unit</dt>
+      <dd>{item.unit.toUpperCase()}</dd>
+    </div>
+  </dl>
+);
+
 const ManufacturingPage = () => {
   const [inputItems, setInputItems] = useState([]);
+  const [washedItems, setWashedItems] = useState([]);
+  const [labelItems, setLabelItems] = useState([]);
+  const [labelStockType, setLabelStockType] = useState(null);
   const [finishedItems, setFinishedItems] = useState([]);
   const [history, setHistory] = useState([]);
   const [pagination, setPagination] = useState(null);
@@ -49,21 +100,33 @@ const ManufacturingPage = () => {
   const [reverseReason, setReverseReason] = useState("");
   const [reversing, setReversing] = useState(false);
 
+  const allInputItems = useMemo(() => {
+    const byId = new Map();
+    [...inputItems, ...washedItems, ...labelItems].forEach((item) => byId.set(item._id, item));
+    return [...byId.values()];
+  }, [inputItems, labelItems, washedItems]);
   const selectedInputs = useMemo(
     () =>
-      form.inputs.map((input) => inputItems.find((item) => item._id === input.stockItem) || null),
-    [form.inputs, inputItems]
+      form.inputs.map(
+        (input) => allInputItems.find((item) => item._id === input.stockItem) || null
+      ),
+    [allInputItems, form.inputs]
   );
   const selectedOutput = finishedItems.find((item) => item._id === form.output.finishedStockItem);
 
   const loadSetup = async () => {
     try {
       setLoadingSetup(true);
-      const [inputResponse, outputResponse] = await Promise.all([
+      const [inputResponse, washedResponse, labelResponse, outputResponse] = await Promise.all([
         api.get("/manufacturing/stock-items", { params: { kind: "input", page: 1, limit: 100 } }),
+        api.get("/manufacturing/stock-items", { params: { kind: "washed", page: 1, limit: 100 } }),
+        api.get("/manufacturing/stock-items", { params: { kind: "label", page: 1, limit: 100 } }),
         api.get("/manufacturing/stock-items", { params: { kind: "output", page: 1, limit: 100 } }),
       ]);
       setInputItems(inputResponse.data.items || []);
+      setWashedItems(washedResponse.data.items || []);
+      setLabelItems(labelResponse.data.items || []);
+      setLabelStockType(labelResponse.data.labelStockType || null);
       setFinishedItems(outputResponse.data.items || []);
     } catch (requestError) {
       setError(messageFor(requestError, "Unable to load manufacturing stock items."));
@@ -107,15 +170,22 @@ const ManufacturingPage = () => {
   };
 
   const addInput = () =>
-    setForm((previous) => ({ ...previous, inputs: [...previous.inputs, emptyInput()] }));
+    setForm((previous) => ({ ...previous, inputs: [...previous.inputs, additionalInput()] }));
 
   const removeInput = (index) => {
     setForm((previous) => ({
       ...previous,
-      inputs:
-        previous.inputs.length === 1
-          ? previous.inputs
-          : previous.inputs.filter((_, item) => item !== index),
+      inputs: index < 2 ? previous.inputs : previous.inputs.filter((_, item) => item !== index),
+    }));
+  };
+
+  const updateOutputQuantity = (quantityProduced) => {
+    setForm((previous) => ({
+      ...previous,
+      output: { ...previous.output, quantityProduced },
+      inputs: previous.inputs.map((input) =>
+        input.kind === "label" ? { ...input, quantityUsed: quantityProduced, wastage: "0" } : input
+      ),
     }));
   };
 
@@ -169,11 +239,19 @@ const ManufacturingPage = () => {
   };
 
   const selectedInputIds = new Set(form.inputs.map((input) => input.stockItem).filter(Boolean));
+  const additionalInputItems = inputItems.filter(
+    (item) => item.stockType?._id !== labelStockType?._id
+  );
   const formReady =
     form.inputs.length > 0 &&
     form.inputs.every(
-      (input) => input.category && input.stockItem && Number(input.quantityUsed) > 0
+      (input) =>
+        input.category &&
+        input.stockItem &&
+        Number(input.quantityUsed) > 0 &&
+        Number(input.wastage) >= 0
     ) &&
+    form.batchNumber.trim() &&
     form.output.finishedStockItem &&
     Number(form.output.quantityProduced) > 0;
 
@@ -221,141 +299,17 @@ const ManufacturingPage = () => {
               />
             </label>
             <label>
-              Notes
-              <textarea
-                maxLength="500"
-                value={form.notes}
+              Batch No. *
+              <input
+                type="text"
+                maxLength="100"
+                value={form.batchNumber}
                 onChange={(event) =>
-                  setForm((previous) => ({ ...previous, notes: event.target.value }))
+                  setForm((previous) => ({ ...previous, batchNumber: event.target.value }))
                 }
+                required
               />
             </label>
-          </section>
-
-          <section className="manufacturing-card">
-            <div className="manufacturing-section-heading">
-              <div>
-                <h2>Inputs</h2>
-                <p>
-                  Wastage is included in Quantity Used. Stock is deducted by Quantity Used only.
-                </p>
-              </div>
-              <button type="button" className="secondary-button" onClick={addInput}>
-                + Add Input
-              </button>
-            </div>
-
-            {loadingSetup ? (
-              <p className="manufacturing-state">Loading available input stock…</p>
-            ) : inputItems.length === 0 ? (
-              <p className="manufacturing-state">
-                No Raw or Washed stock with an available balance was found.
-              </p>
-            ) : (
-              <div className="manufacturing-input-list">
-                {form.inputs.map((input, index) => {
-                  const selectedItem = selectedInputs[index];
-                  const options = inputItems.filter(
-                    (item) =>
-                      item.category === input.category &&
-                      (!selectedInputIds.has(item._id) || item._id === input.stockItem)
-                  );
-                  return (
-                    <article className="manufacturing-input-row" key={index}>
-                      <div className="manufacturing-input-heading">
-                        <h3>Input {index + 1}</h3>
-                        <button
-                          type="button"
-                          className="text-button"
-                          disabled={form.inputs.length === 1}
-                          onClick={() => removeInput(index)}
-                        >
-                          Remove
-                        </button>
-                      </div>
-                      <div className="manufacturing-input-grid">
-                        <label>
-                          Category *
-                          <select
-                            value={input.category}
-                            onChange={(event) => updateInput(index, "category", event.target.value)}
-                            required
-                          >
-                            <option value="">Select category</option>
-                            <option value="raw_material">Raw Material</option>
-                            <option value="washed_raw_material">Washed Raw Material</option>
-                          </select>
-                        </label>
-                        <label>
-                          Product / Stock Item *
-                          <select
-                            value={input.stockItem}
-                            disabled={!input.category}
-                            onChange={(event) =>
-                              updateInput(index, "stockItem", event.target.value)
-                            }
-                            required
-                          >
-                            <option value="">Select available stock</option>
-                            {options.map((item) => (
-                              <option key={item._id} value={item._id}>
-                                {itemLabel(item)}
-                              </option>
-                            ))}
-                          </select>
-                        </label>
-                        <label>
-                          Quantity Used *
-                          <input
-                            type="number"
-                            min="1"
-                            step="1"
-                            value={input.quantityUsed}
-                            onChange={(event) =>
-                              updateInput(index, "quantityUsed", event.target.value)
-                            }
-                            required
-                          />
-                        </label>
-                        <label>
-                          Wastage Included
-                          <input
-                            type="number"
-                            min="0"
-                            step="1"
-                            value={input.wastage}
-                            onChange={(event) => updateInput(index, "wastage", event.target.value)}
-                            required
-                          />
-                        </label>
-                      </div>
-                      {selectedItem && (
-                        <dl className="manufacturing-item-context">
-                          <div>
-                            <dt>Available</dt>
-                            <dd>
-                              {selectedItem.currentStock} {selectedItem.unit.toUpperCase()}
-                            </dd>
-                          </div>
-                          <div>
-                            <dt>Supplier</dt>
-                            <dd>{selectedItem.supplier?.name || "Not applicable"}</dd>
-                          </div>
-                          <div>
-                            <dt>Size</dt>
-                            <dd>{sizeLabel(selectedItem.size)}</dd>
-                          </div>
-                          <div>
-                            <dt>Unit</dt>
-                            <dd>{selectedItem.unit.toUpperCase()}</dd>
-                          </div>
-                        </dl>
-                      )}
-                    </article>
-                  );
-                })}
-              </div>
-            )}
           </section>
 
           <section className="manufacturing-card">
@@ -390,18 +344,13 @@ const ManufacturingPage = () => {
                   </select>
                 </label>
                 <label>
-                  Quantity Produced *
+                  Finished Quantity *
                   <input
                     type="number"
                     min="1"
                     step="1"
                     value={form.output.quantityProduced}
-                    onChange={(event) =>
-                      setForm((previous) => ({
-                        ...previous,
-                        output: { ...previous.output, quantityProduced: event.target.value },
-                      }))
-                    }
+                    onChange={(event) => updateOutputQuantity(event.target.value)}
                     required
                   />
                 </label>
@@ -418,6 +367,173 @@ const ManufacturingPage = () => {
                 </label>
               </div>
             )}
+            <p className="manufacturing-label-requirement">
+              Label Required: {form.output.quantityProduced || 0} PCS
+            </p>
+          </section>
+
+          <section className="manufacturing-card">
+            <div className="manufacturing-section-heading">
+              <div>
+                <h2>Materials Used</h2>
+                <p>
+                  Wastage is included in Quantity Used. Stock is deducted by Quantity Used only.
+                </p>
+              </div>
+            </div>
+
+            {loadingSetup ? (
+              <p className="manufacturing-state">Loading available input stock…</p>
+            ) : (
+              <div className="manufacturing-input-list">
+                {form.inputs.map((input, index) => {
+                  const selectedItem = selectedInputs[index];
+                  const isWashedInput = input.kind === "washed";
+                  const isLabelInput = input.kind === "label";
+                  const isAdditionalInput = input.kind === "additional";
+                  const sourceItems = isWashedInput
+                    ? washedItems
+                    : isLabelInput
+                      ? labelItems
+                      : additionalInputItems;
+                  const options = sourceItems.filter(
+                    (item) =>
+                      item.category === input.category &&
+                      (!selectedInputIds.has(item._id) || item._id === input.stockItem)
+                  );
+                  return (
+                    <React.Fragment key={`${input.kind}-${index}`}>
+                      <article className="manufacturing-input-row">
+                        <div className="manufacturing-input-heading">
+                          <h3>
+                            {isWashedInput
+                              ? "Washed Raw Material"
+                              : isLabelInput
+                                ? "Label"
+                                : `Additional Material ${index - 1}`}
+                          </h3>
+                          {isAdditionalInput && (
+                            <button
+                              type="button"
+                              className="text-button"
+                              onClick={() => removeInput(index)}
+                            >
+                              Remove
+                            </button>
+                          )}
+                        </div>
+                        {isLabelInput && !labelStockType ? (
+                          <p className="manufacturing-state">No Label Stock Type is configured.</p>
+                        ) : isLabelInput && labelItems.length === 0 ? (
+                          <p className="manufacturing-state">No Label stock item is configured.</p>
+                        ) : isWashedInput && washedItems.length === 0 ? (
+                          <p className="manufacturing-state">
+                            No Washed Raw Material stock is available.
+                          </p>
+                        ) : (
+                          <div className="manufacturing-input-grid">
+                            {isAdditionalInput && (
+                              <label>
+                                Material Type *
+                                <select
+                                  value={input.category}
+                                  onChange={(event) =>
+                                    updateInput(index, "category", event.target.value)
+                                  }
+                                  required
+                                >
+                                  <option value="raw_material">Raw Material</option>
+                                  <option value="washed_raw_material">Washed Raw Material</option>
+                                </select>
+                              </label>
+                            )}
+                            <label>
+                              {isLabelInput ? "Label Item *" : "Product / Item *"}
+                              <select
+                                value={input.stockItem}
+                                onChange={(event) =>
+                                  updateInput(index, "stockItem", event.target.value)
+                                }
+                                required
+                              >
+                                <option value="">
+                                  {isLabelInput
+                                    ? "Select Label"
+                                    : isWashedInput
+                                      ? "Select Washed Raw Material"
+                                      : "Select available stock"}
+                                </option>
+                                {options.map((item) => (
+                                  <option key={item._id} value={item._id}>
+                                    {itemLabel(item)}
+                                  </option>
+                                ))}
+                              </select>
+                            </label>
+                            {isLabelInput ? (
+                              <>
+                                <label>
+                                  Label Quantity Used
+                                  <input value={`${input.quantityUsed || 0} PCS`} readOnly />
+                                  <span className="manufacturing-field-note">
+                                    Automatically matches Finished Quantity.
+                                  </span>
+                                </label>
+                                <label>
+                                  Label Wastage
+                                  <input value="0 PCS" readOnly />
+                                </label>
+                              </>
+                            ) : (
+                              <>
+                                <label>
+                                  Quantity Used *
+                                  <input
+                                    type="number"
+                                    min="1"
+                                    step="1"
+                                    value={input.quantityUsed}
+                                    onChange={(event) =>
+                                      updateInput(index, "quantityUsed", event.target.value)
+                                    }
+                                    required
+                                  />
+                                </label>
+                                <label>
+                                  Wastage Included
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    step="1"
+                                    value={input.wastage}
+                                    onChange={(event) =>
+                                      updateInput(index, "wastage", event.target.value)
+                                    }
+                                    required
+                                  />
+                                </label>
+                              </>
+                            )}
+                          </div>
+                        )}
+                        {selectedItem && <ItemContext item={selectedItem} />}
+                      </article>
+                      {index === 1 && (
+                        <div className="manufacturing-additional-heading">
+                          <div>
+                            <h3>Additional Materials</h3>
+                            <p>Add Raw Material or Washed Raw Material when needed.</p>
+                          </div>
+                          <button type="button" className="secondary-button" onClick={addInput}>
+                            + Add Input
+                          </button>
+                        </div>
+                      )}
+                    </React.Fragment>
+                  );
+                })}
+              </div>
+            )}
           </section>
 
           <section className="manufacturing-card">
@@ -425,7 +541,7 @@ const ManufacturingPage = () => {
             {selectedInputs.every(Boolean) && selectedOutput && form.output.quantityProduced ? (
               <div className="manufacturing-summary">
                 <div>
-                  <h3>Inputs</h3>
+                  <h3>Materials Used</h3>
                   {selectedInputs.map((item, index) => (
                     <p key={item._id}>
                       <strong>{item.productName}</strong>: {form.inputs[index].quantityUsed}{" "}
@@ -448,6 +564,17 @@ const ManufacturingPage = () => {
                 Select all inputs and one Finished Goods output to review the manufacturing summary.
               </p>
             )}
+            <label className="manufacturing-notes-field">
+              Notes
+              <textarea
+                rows="3"
+                maxLength="500"
+                value={form.notes}
+                onChange={(event) =>
+                  setForm((previous) => ({ ...previous, notes: event.target.value }))
+                }
+              />
+            </label>
             {formError && <p className="manufacturing-error-text">{formError}</p>}
             {success && <p className="manufacturing-success">{success}</p>}
             <div className="manufacturing-actions">
@@ -474,8 +601,9 @@ const ManufacturingPage = () => {
               <table className="manufacturing-table">
                 <thead>
                   <tr>
+                    <th>Batch No.</th>
                     <th>Manufacturing No.</th>
-                    <th>Date</th>
+                    <th>Manufacturing Date</th>
                     <th>Finished Product</th>
                     <th>Produced</th>
                     <th>Inputs</th>
@@ -486,6 +614,7 @@ const ManufacturingPage = () => {
                 <tbody>
                   {history.map((entry) => (
                     <tr key={entry._id}>
+                      <td>{entry.batchNumber || "Legacy record"}</td>
                       <td>{entry.manufacturingNumber}</td>
                       <td>{new Date(entry.manufacturingDate).toLocaleDateString()}</td>
                       <td>{entry.output?.finishedStockItemName || entry.finishedProductName}</td>
@@ -548,16 +677,29 @@ const ManufacturingPage = () => {
               <button type="button" className="manufacturing-back" onClick={() => setDetail(null)}>
                 Back
               </button>
-              <h2 id="manufacturing-detail-title">{detail.manufacturingNumber}</h2>
+              <h2 id="manufacturing-detail-title">
+                {detail.batchNumber || detail.manufacturingNumber}
+              </h2>
+              <p className="manufacturing-modal-meta">
+                <strong>Batch No.:</strong>{" "}
+                {detail.batchNumber || "Not recorded for this legacy entry"}
+              </p>
               <p className="manufacturing-modal-meta">
                 {new Date(detail.manufacturingDate).toLocaleDateString()} · Created by{" "}
                 {detail.createdBy || "Admin"}
               </p>
-              <h3>Inputs</h3>
+              <h3>Materials Used</h3>
               <div className="manufacturing-detail-inputs">
                 {detail.materials.map((input) => (
                   <article key={input.item}>
-                    <strong>{input.productName}</strong>
+                    <strong>
+                      {input.stockTypeName?.toLowerCase() === "label"
+                        ? "Label Used"
+                        : input.category === "washed_raw_material"
+                          ? "Washed Raw Material Used"
+                          : "Additional Material"}
+                    </strong>
+                    <span>{input.productName}</span>
                     <span>{CATEGORY_LABELS[input.category]}</span>
                     <span>Supplier: {input.supplierName || "Not applicable"}</span>
                     <span>Size: {sizeLabel(input.size)}</span>
