@@ -6,6 +6,7 @@ import React, {
 } from "react";
 
 import api from "../../config/axios";
+import { formatBusinessDate } from "../../utils/businessDate";
 
 import "./StockPage.css";
 
@@ -1004,10 +1005,17 @@ const StockPage = () => {
 
 
   const formatDate = (
-    value
+    value,
+    dateOnly = false
   ) => {
     if (!value) {
       return "-";
+    }
+
+    if (dateOnly) {
+      return formatBusinessDate(
+        value
+      );
     }
 
     return new Date(
@@ -2143,7 +2151,13 @@ const StockPage = () => {
                           >
                             <td>
                               {formatDate(
-                                movement.movementDate
+                                movement.movementDate,
+                                [
+                                  "manufacturing_use",
+                                  "manufacturing_output",
+                                ].includes(
+                                  movement.movementType
+                                )
                               )}
                             </td>
 

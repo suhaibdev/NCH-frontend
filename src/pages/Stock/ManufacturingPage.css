@@ -97,6 +97,25 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.manufacturing-output-grid {
+  grid-template-columns: minmax(0, 2fr) minmax(140px, 0.55fr) minmax(160px, 0.65fr);
+}
+
+.manufacturing-washed-grid {
+  grid-template-columns: minmax(0, 2fr) minmax(140px, 0.7fr) repeat(2, minmax(120px, 0.55fr));
+}
+
+.manufacturing-label-grid {
+  grid-template-columns: minmax(0, 2fr) repeat(2, minmax(150px, 0.7fr));
+}
+
+.manufacturing-additional-grid {
+  grid-template-columns: minmax(150px, 0.8fr) minmax(0, 1.7fr) minmax(130px, 0.65fr) repeat(
+      2,
+      minmax(110px, 0.5fr)
+    );
+}
+
 .manufacturing-details h2 {
   grid-column: 1 / -1;
 }
@@ -125,6 +144,11 @@
 .manufacturing-page textarea {
   min-height: 64px;
   resize: vertical;
+}
+
+.manufacturing-page input,
+.manufacturing-page select {
+  min-height: 48px;
 }
 
 .manufacturing-section-heading,
@@ -215,6 +239,15 @@
   padding: 12px;
   border-radius: 8px;
   background: #f2f6fb;
+}
+
+.manufacturing-item-metadata {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  margin-top: 10px;
+  color: #526581;
+  font-size: 0.86rem;
 }
 
 .manufacturing-item-context div {
@@ -309,7 +342,7 @@
 
 .manufacturing-table {
   width: 100%;
-  min-width: 900px;
+  min-width: 720px;
   border-collapse: collapse;
 }
 
@@ -326,6 +359,120 @@
   font-size: 0.78rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+}
+
+.manufacturing-history-row {
+  cursor: pointer;
+}
+
+.manufacturing-history-row:hover,
+.manufacturing-history-row:focus-visible,
+.manufacturing-history-row.is-expanded {
+  background: #f2f6fb;
+  outline: none;
+}
+
+.manufacturing-history-row:focus-visible {
+  box-shadow: inset 0 0 0 2px #174f9e;
+}
+
+.manufacturing-history-expanded-row td {
+  padding: 0;
+  background: #f8faff;
+}
+
+.manufacturing-history-detail {
+  padding: 18px;
+}
+
+.manufacturing-history-meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+
+.manufacturing-history-meta div,
+.manufacturing-history-materials article {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.manufacturing-history-meta dt {
+  color: #64748b;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.manufacturing-history-meta dd {
+  margin: 0;
+  color: #243a5f;
+}
+
+.manufacturing-history-materials {
+  margin-top: 18px;
+}
+
+.manufacturing-history-materials h3 {
+  margin: 0 0 10px;
+  font-size: 0.94rem;
+}
+
+.manufacturing-history-materials > div {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.manufacturing-history-materials article {
+  color: #526581;
+}
+
+.manufacturing-history-materials strong {
+  color: #243a5f;
+}
+
+.manufacturing-history-notes {
+  margin: 18px 0 0;
+  color: #526581;
+}
+
+.manufacturing-history-link {
+  border: 1px solid #b9cce5;
+  border-radius: 8px;
+  padding: 10px 14px;
+  text-decoration: none;
+}
+
+.manufacturing-history-filters {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.manufacturing-filter-row {
+  display: grid;
+  align-items: end;
+  gap: 14px;
+}
+
+.manufacturing-filter-row-primary {
+  grid-template-columns:
+    minmax(130px, 0.7fr) minmax(145px, 0.8fr) minmax(145px, 0.8fr) minmax(0, 1.6fr)
+    minmax(150px, 0.85fr);
+}
+
+.manufacturing-filter-row-actions {
+  grid-template-columns: minmax(0, 300px) max-content max-content;
+  justify-content: start;
+}
+
+.manufacturing-filter-batch {
+  width: 100%;
 }
 
 .manufacturing-status {
@@ -412,8 +559,14 @@
   .manufacturing-output-grid,
   .manufacturing-input-grid,
   .manufacturing-summary,
+  .manufacturing-history-meta,
+  .manufacturing-history-materials > div,
   .manufacturing-detail-inputs {
     grid-template-columns: 1fr;
+  }
+
+  .manufacturing-filter-row-primary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .manufacturing-item-context {
@@ -444,6 +597,16 @@
   .manufacturing-pagination {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .manufacturing-filter-row,
+  .manufacturing-filter-row-primary,
+  .manufacturing-filter-row-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .manufacturing-filter-row-actions button {
+    width: 100%;
   }
 
   .manufacturing-section-heading button,
