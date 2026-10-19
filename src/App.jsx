@@ -10,6 +10,7 @@ import {
 
 import HomePage from "./pages/HomePage";
 import Login from "./pages/Login";
+import FactoryFlowPage from "./pages/FactoryFlowPage";
 import SalarySlip from "./pages/Employees/SalarySlip";
 import AdminPortalPage from "./pages/AdminPortalPage";
 import EmployeesPage from "./pages/Employees/EmployeesPage";
@@ -119,6 +120,8 @@ const App = () => {
             ============================= */}
 
             <Route path="/admin/stock" element={<StockHomePage />} />
+
+            <Route path="/admin/factory-flow" element={<FactoryFlowPage />} />
 
             <Route path="/admin/stock/manage" element={<StockPage />} />
 

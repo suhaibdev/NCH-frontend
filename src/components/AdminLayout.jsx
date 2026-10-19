@@ -1,25 +1,12 @@
-import React from 'react';
-import { Outlet } from 'react-router-dom';
-import Navbar from './Navbar';
+import React from "react";
+import { Outlet } from "react-router-dom";
+import AdminShell from "./AdminShell";
 
 const AdminLayout = () => {
   return (
-    <div className="app-layout">
-
-      <Navbar />
-
-      <main>
-        <Outlet />
-      </main>
-
-      <footer className="footer">
-        <p>
-          © {new Date().getFullYear()} New Calcutta Handloom.
-          All rights reserved.
-        </p>
-      </footer>
-
-    </div>
+    <AdminShell>
+      <Outlet />
+    </AdminShell>
   );
 };
 

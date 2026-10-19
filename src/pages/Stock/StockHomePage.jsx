@@ -66,10 +66,13 @@ const StockHomePage = () => {
   return (
     <main className="stock-home-page">
       <div className="stock-home-container">
+        <Link className="stock-home-back" to="/admin/dashboard">
+          Back
+        </Link>
+
         <header className="stock-home-header">
-          <p className="stock-home-eyebrow">NCH Factory Management</p>
-          <h1>Stock</h1>
-          <p>Search inventory across every category or open a stock area to manage it.</p>
+          <h1>STOCK</h1>
+          <p>Search inventory across every category or manage stock setup.</p>
         </header>
 
         <section className="stock-home-search-panel" aria-labelledby="stock-search-heading">
@@ -148,32 +151,18 @@ const StockHomePage = () => {
         <section className="stock-home-navigation" aria-labelledby="stock-navigation-heading">
           <div className="stock-home-section-heading">
             <h2 id="stock-navigation-heading">Stock Areas</h2>
-            <p>Open an area to continue managing NCH inventory.</p>
+            <p>Manage inventory records and stock classifications.</p>
           </div>
           <div className="stock-home-cards">
             <Link to="/admin/stock/manage" className="stock-home-card">
               <span className="stock-home-card-kicker">Inventory</span>
               <h3>Stock Management</h3>
               <p>Manage Raw Material, Washed Raw Material and Finished Goods.</p>
-              <span className="stock-home-card-link">Open Stock Management →</span>
             </Link>
             <Link to="/admin/stock/types" className="stock-home-card">
               <span className="stock-home-card-kicker">Organisation</span>
               <h3>Stock Types</h3>
-              <p>Manage custom Stock Types such as Label, Cotton, Wrapper and Box.</p>
-              <span className="stock-home-card-link">Open Stock Types →</span>
-            </Link>
-            <Link to="/admin/stock/process-goods" className="stock-home-card">
-              <span className="stock-home-card-kicker">Workflow</span>
-              <h3>Process Goods</h3>
-              <p>Send tracked Raw Material to washing and complete matching Washed stock.</p>
-              <span className="stock-home-card-link">Open Process Goods →</span>
-            </Link>
-            <Link to="/admin/stock/manufacturing" className="stock-home-card">
-              <span className="stock-home-card-kicker">Production</span>
-              <h3>Manufacturing</h3>
-              <p>Convert multiple Raw or Washed inputs into one Finished Goods output.</p>
-              <span className="stock-home-card-link">Open Manufacturing →</span>
+              <p>Manage stock classifications and their tracking rules.</p>
             </Link>
           </div>
         </section>

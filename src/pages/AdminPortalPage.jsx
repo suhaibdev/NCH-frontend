@@ -73,7 +73,7 @@ const AdminPortalPage = () => {
 
           <div className="dashboard-header">
             <div>
-              <h1>Employee Management Dashboard</h1>
+              <h1>Dashboard</h1>
 
               <p>
                 Manage employees, attendance, customers and salary

@@ -1,16 +1,27 @@
 .stock-home-page {
-  min-height: calc(100vh - 120px);
-  padding: 32px 18px 48px;
-  background: #f5f7fb;
+  min-height: calc(100vh - 112px);
+}
+.stock-home-back {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  color: #155fa0;
+  font-size: 14px;
+  font-weight: 750;
+  text-decoration: none;
+}
+.stock-home-back:hover,
+.stock-home-back:focus-visible {
+  color: #0d4678;
+  text-decoration: underline;
 }
 .stock-home-container {
   width: min(1200px, 100%);
   margin: 0 auto;
 }
 .stock-home-header {
-  margin-bottom: 24px;
+  margin: 12px 0 24px;
 }
-.stock-home-eyebrow,
 .stock-home-card-kicker {
   margin: 0 0 7px;
   color: #1976d2;
@@ -27,6 +38,7 @@
 }
 .stock-home-header h1 {
   font-size: 32px;
+  letter-spacing: 0.04em;
 }
 .stock-home-header > p:last-child,
 .stock-home-search-panel > div > p,
@@ -166,7 +178,7 @@
 }
 .stock-home-cards {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
 }
 .stock-home-card {
@@ -198,15 +210,6 @@
   margin: 9px 0 18px;
   color: #667085;
   line-height: 1.5;
-}
-.stock-home-card-link {
-  margin-top: auto;
-  color: #1976d2;
-  font-size: 14px;
-  font-weight: 800;
-}
-.stock-home-card-future {
-  background: #f8fafc;
 }
 @media (max-width: 900px) {
   .stock-home-cards {
