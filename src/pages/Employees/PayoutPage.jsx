@@ -201,7 +201,7 @@ const PayoutPage = () => {
   const [
     payoutMode,
     setPayoutMode,
-  ] = useState("single");
+  ] = useState("bulk");
 
 
   /* ========================================================
@@ -1430,6 +1430,10 @@ const PayoutPage = () => {
 
   const handleBulkCreate =
     async () => {
+      if (bulkCreating) {
+        return;
+      }
+
       if (
         selectedBulkRows.length ===
         0
@@ -1494,6 +1498,14 @@ const PayoutPage = () => {
               endDate:
                 bulkEndDate,
 
+              payrollPeriod: {
+                code: bulkPeriodType,
+                name:
+                  bulkPeriodType === "custom"
+                    ? "Custom"
+                    : bulkPeriodType,
+              },
+
               payouts:
                 payload,
             }
@@ -1504,9 +1516,9 @@ const PayoutPage = () => {
 
         const created =
           Array.isArray(
-            result.created
+            result.payout?.employees
           )
-            ? result.created
+            ? result.payout.employees
             : [];
 
         const failed =
@@ -1519,7 +1531,7 @@ const PayoutPage = () => {
         setBulkResult({
           ...result,
           created,
-          failed,
+          failed: [],
         });
 
         setBulkCreatedAt(
@@ -1580,17 +1592,9 @@ const PayoutPage = () => {
             )
         );
 
-        if (
-          failed.length > 0
-        ) {
-          showWarning(
-            `${created.length} payout(s) created successfully. ${failed.length} payout(s) failed.`
-          );
-        } else {
-          showSuccess(
-            `${created.length} payout(s) created successfully.`
-          );
-        }
+        showSuccess(
+          `${created.length} employee payout(s) were saved in one bulk payout record.`
+        );
 
         await fetchPayouts();
       } catch (err) {
@@ -2715,10 +2719,6 @@ const PayoutPage = () => {
                           .value
                       );
 
-                      setBulkPeriodType(
-                        "custom"
-                      );
-
                       invalidateBulkPreview();
                     }}
                     className="ep-input"
@@ -2745,10 +2745,6 @@ const PayoutPage = () => {
                       setBulkEndDate(
                         event.target
                           .value
-                      );
-
-                      setBulkPeriodType(
-                        "custom"
                       );
 
                       invalidateBulkPreview();
