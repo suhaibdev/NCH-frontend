@@ -1739,7 +1739,11 @@ const PayoutPage = () => {
                               <strong>{row.employeeName}</strong>
 
                               {row.alreadyCreated && (
-                                <span className="bulk-status-badge locked">Already Created</span>
+                                <span className="bulk-status-badge locked">
+                                  {row.existingPayout?.sourceType
+                                    ? "Already Paid"
+                                    : "Already Created"}
+                                </span>
                               )}
 
                               {!row.alreadyCreated && zeroSalary && (
@@ -1748,7 +1752,8 @@ const PayoutPage = () => {
 
                               {row.alreadyCreated && row.existingPayout && (
                                 <small>
-                                  Existing: {formatDisplayDate(row.existingPayout.startDate)}
+                                  {row.existingPayout.sourceLabel || "Existing"}:{" "}
+                                  {formatDisplayDate(row.existingPayout.startDate)}
                                   {" - "}
                                   {formatDisplayDate(row.existingPayout.endDate)}
                                 </small>
@@ -1873,7 +1878,20 @@ const PayoutPage = () => {
 
                             <div className="bulk-mobile-statuses">
                               {row.alreadyCreated && (
-                                <span className="bulk-status-badge locked">Already Created</span>
+                                <span className="bulk-status-badge locked">
+                                  {row.existingPayout?.sourceType
+                                    ? "Already Paid"
+                                    : "Already Created"}
+                                </span>
+                              )}
+
+                              {row.alreadyCreated && row.existingPayout && (
+                                <small>
+                                  {row.existingPayout.sourceLabel || "Existing"}:{" "}
+                                  {formatDisplayDate(row.existingPayout.startDate)}
+                                  {" - "}
+                                  {formatDisplayDate(row.existingPayout.endDate)}
+                                </small>
                               )}
 
                               {!row.alreadyCreated && zeroSalary && (
