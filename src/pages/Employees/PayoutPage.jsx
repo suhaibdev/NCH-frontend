@@ -37,6 +37,30 @@ const formatInputDisplayDate = (date) => {
   return `${parts[2]}/${parts[1]}/${parts[0]}`;
 };
 
+const formatBusinessDate = (date) => {
+  if (!date) return "-";
+
+  return new Intl.DateTimeFormat("en-GB", {
+    timeZone: "UTC",
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(new Date(date));
+};
+
+const formatPaymentMethod = (method) => {
+  const labels = {
+    cash: "Cash",
+    upi: "UPI",
+    bank: "Bank Transfer",
+    bank_transfer: "Bank Transfer",
+    cheque: "Cheque",
+    mixed: "Mixed Methods",
+  };
+
+  return labels[method] || (method ? String(method) : "-");
+};
+
 const formatMoney = (value) =>
   Number(value || 0).toLocaleString("en-IN", {
     minimumFractionDigits: 2,
@@ -201,6 +225,14 @@ const PayoutPage = () => {
   const [bulkHistory, setBulkHistory] = useState([]);
   const [bulkHistoryLoading, setBulkHistoryLoading] = useState(true);
   const [expandedBulkHistoryId, setExpandedBulkHistoryId] = useState(null);
+  const [bulkHistoryPage, setBulkHistoryPage] = useState(1);
+  const [bulkHistoryMeta, setBulkHistoryMeta] = useState({ page: 1, totalPages: 1 });
+  const [singleHistory, setSingleHistory] = useState([]);
+  const [singleHistoryLoading, setSingleHistoryLoading] = useState(true);
+  const [expandedSingleHistoryId, setExpandedSingleHistoryId] = useState(null);
+  const [singleHistoryPage, setSingleHistoryPage] = useState(1);
+  const [singleHistoryMeta, setSingleHistoryMeta] = useState({ page: 1, totalPages: 1 });
+  const [historyTab, setHistoryTab] = useState("bulk");
 
   /* ========================================================
      INITIAL LOAD
@@ -210,6 +242,7 @@ const PayoutPage = () => {
     fetchEmployees();
     fetchPayouts();
     fetchBulkHistory();
+    fetchSingleHistory();
   }, []);
 
   useEffect(() => {
@@ -292,16 +325,39 @@ const PayoutPage = () => {
     }
   };
 
-  const fetchBulkHistory = async () => {
+  const fetchBulkHistory = async (page = 1) => {
     try {
       setBulkHistoryLoading(true);
-      const response = await api.get("/payout/bulk-history", { params: { limit: 10 } });
+      const response = await api.get("/payout/bulk-history", { params: { page, limit: 20 } });
       setBulkHistory(Array.isArray(response.data?.items) ? response.data.items : []);
+      setBulkHistoryPage(response.data?.page || page);
+      setBulkHistoryMeta({
+        page: response.data?.page || page,
+        totalPages: response.data?.totalPages || 1,
+      });
     } catch (err) {
       console.error("Failed to fetch bulk payout history:", err);
       showError(err.response?.data?.message || "Unable to load bulk payout history.");
     } finally {
       setBulkHistoryLoading(false);
+    }
+  };
+
+  const fetchSingleHistory = async (page = 1) => {
+    try {
+      setSingleHistoryLoading(true);
+      const response = await api.get("/payout/single-history", { params: { page, limit: 20 } });
+      setSingleHistory(Array.isArray(response.data?.items) ? response.data.items : []);
+      setSingleHistoryPage(response.data?.page || page);
+      setSingleHistoryMeta({
+        page: response.data?.page || page,
+        totalPages: response.data?.totalPages || 1,
+      });
+    } catch (err) {
+      console.error("Failed to fetch single payout history:", err);
+      showError(err.response?.data?.message || "Unable to load single payout history.");
+    } finally {
+      setSingleHistoryLoading(false);
     }
   };
 
@@ -1226,6 +1282,329 @@ const PayoutPage = () => {
               })}
             </div>
           )}
+        </section>
+
+        <section className="payout-card payout-history-card">
+          <div className="payout-card-header">
+            <h2>Payout History</h2>
+          </div>
+          <div className="payout-history-tabs" role="tablist" aria-label="Payout history">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={historyTab === "bulk"}
+              className={historyTab === "bulk" ? "active" : ""}
+              onClick={() => setHistoryTab("bulk")}
+            >
+              Bulk Payout
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={historyTab === "single"}
+              className={historyTab === "single" ? "active" : ""}
+              onClick={() => setHistoryTab("single")}
+            >
+              Single Payout
+            </button>
+          </div>
+
+          {historyTab === "bulk" &&
+            (bulkHistoryLoading ? (
+              <p className="payout-empty-state">Loading bulk payout history...</p>
+            ) : bulkHistory.length === 0 ? (
+              <p className="payout-empty-state">No bulk payouts found.</p>
+            ) : (
+              <>
+                <div className="payout-history-table-wrap">
+                  <table className="payout-history-table">
+                    <thead>
+                      <tr>
+                        <th>S.No.</th>
+                        <th>Period</th>
+                        <th>Employees</th>
+                        <th>Total Paid</th>
+                        <th>Advance Cut</th>
+                        <th>Advance Left</th>
+                        <th>Paid On</th>
+                        <th>Method</th>
+                        <th>Print</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {bulkHistory.map((payout, index) => {
+                        const expanded = expandedBulkHistoryId === payout._id;
+                        return (
+                          <React.Fragment key={payout._id}>
+                            <tr
+                              className="payout-history-summary-row"
+                              onClick={() => setExpandedBulkHistoryId(expanded ? null : payout._id)}
+                            >
+                              <td>{(bulkHistoryPage - 1) * 20 + index + 1}</td>
+                              <td>
+                                {formatBusinessDate(payout.startDate)} –{" "}
+                                {formatBusinessDate(payout.endDate)}
+                              </td>
+                              <td>{payout.employeeCount}</td>
+                              <td>₹{formatMoney(payout.totalNetPaid)}</td>
+                              <td>₹{formatMoney(payout.totalAdvanceCut)}</td>
+                              <td>₹{formatMoney(payout.totalAdvanceLeft)}</td>
+                              <td>{formatBusinessDate(payout.paidOn)}</td>
+                              <td>{formatPaymentMethod(payout.paymentMethod)}</td>
+                              <td>
+                                <button
+                                  type="button"
+                                  className="ep-btn ep-btn-secondary history-print-btn"
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    window.print();
+                                  }}
+                                >
+                                  Print
+                                </button>
+                              </td>
+                            </tr>
+                            {expanded && (
+                              <tr className="payout-history-expanded-row">
+                                <td colSpan="9">
+                                  <div className="payout-history-details">
+                                    {payout.employees?.map((line) => (
+                                      <div key={line.employee} className="payout-history-line">
+                                        <strong>{line.employeeName}</strong>
+                                        <span>Working Time: {formatWorkingTime(line)}</span>
+                                        <span>Gross: ₹{formatMoney(line.grossSalary)}</span>
+                                        <span>
+                                          Advance Left: ₹{formatMoney(line.outstandingAdvanceAfter)}
+                                        </span>
+                                        <span>
+                                          Advance Cut: ₹{formatMoney(line.advanceDeducted)}
+                                        </span>
+                                        {Number(line.deductions || 0) > 0 && (
+                                          <span>
+                                            Other Deduction: ₹{formatMoney(line.deductions)}
+                                          </span>
+                                        )}
+                                        <strong>Net Paid: ₹{formatMoney(line.netSalary)}</strong>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </td>
+                              </tr>
+                            )}
+                          </React.Fragment>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="payout-history-mobile-list">
+                  {bulkHistory.map((payout, index) => {
+                    const expanded = expandedBulkHistoryId === payout._id;
+                    return (
+                      <article
+                        key={payout._id}
+                        className="payout-history-mobile-card"
+                        onClick={() => setExpandedBulkHistoryId(expanded ? null : payout._id)}
+                      >
+                        <strong>#{(bulkHistoryPage - 1) * 20 + index + 1}</strong>
+                        <span>
+                          {formatBusinessDate(payout.startDate)} –{" "}
+                          {formatBusinessDate(payout.endDate)}
+                        </span>
+                        <span>{payout.employeeCount} Employees</span>
+                        <div>
+                          <strong>Total Paid</strong>
+                          <span>₹{formatMoney(payout.totalNetPaid)}</span>
+                        </div>
+                        <div>
+                          <strong>Paid On</strong>
+                          <span>{formatBusinessDate(payout.paidOn)}</span>
+                        </div>
+                        <button
+                          type="button"
+                          className="ep-btn ep-btn-secondary history-print-btn"
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            window.print();
+                          }}
+                        >
+                          Print
+                        </button>
+                        {expanded && (
+                          <div className="payout-history-mobile-expanded">
+                            <span>Advance Cut: ₹{formatMoney(payout.totalAdvanceCut)}</span>
+                            <span>Advance Left: ₹{formatMoney(payout.totalAdvanceLeft)}</span>
+                            <span>Method: {formatPaymentMethod(payout.paymentMethod)}</span>
+                            {payout.employees?.map((line) => (
+                              <div key={line.employee} className="payout-history-line">
+                                <strong>{line.employeeName}</strong>
+                                <span>Working Time: {formatWorkingTime(line)}</span>
+                                <span>Gross: ₹{formatMoney(line.grossSalary)}</span>
+                                <span>
+                                  Advance Left: ₹{formatMoney(line.outstandingAdvanceAfter)}
+                                </span>
+                                <span>Advance Cut: ₹{formatMoney(line.advanceDeducted)}</span>
+                                {Number(line.deductions || 0) > 0 && (
+                                  <span>Other Deduction: ₹{formatMoney(line.deductions)}</span>
+                                )}
+                                <strong>Net Paid: ₹{formatMoney(line.netSalary)}</strong>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </article>
+                    );
+                  })}
+                </div>
+                <div className="payout-history-pagination">
+                  <button
+                    type="button"
+                    disabled={bulkHistoryPage <= 1}
+                    onClick={() => fetchBulkHistory(bulkHistoryPage - 1)}
+                  >
+                    Previous
+                  </button>
+                  <span>
+                    Page {bulkHistoryMeta.page} of {bulkHistoryMeta.totalPages}
+                  </span>
+                  <button
+                    type="button"
+                    disabled={bulkHistoryPage >= bulkHistoryMeta.totalPages}
+                    onClick={() => fetchBulkHistory(bulkHistoryPage + 1)}
+                  >
+                    Next
+                  </button>
+                </div>
+              </>
+            ))}
+
+          {historyTab === "single" &&
+            (singleHistoryLoading ? (
+              <p className="payout-empty-state">Loading single payout history...</p>
+            ) : singleHistory.length === 0 ? (
+              <p className="payout-empty-state">No single payouts found.</p>
+            ) : (
+              <>
+                <div className="payout-history-table-wrap">
+                  <table className="payout-history-table">
+                    <thead>
+                      <tr>
+                        <th>S.No.</th>
+                        <th>Employee</th>
+                        <th>Period</th>
+                        <th>Net Paid</th>
+                        <th>Paid On</th>
+                        <th>Method</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {singleHistory.map((payout, index) => {
+                        const expanded = expandedSingleHistoryId === payout._id;
+                        return (
+                          <React.Fragment key={payout._id}>
+                            <tr
+                              className="payout-history-summary-row"
+                              onClick={() =>
+                                setExpandedSingleHistoryId(expanded ? null : payout._id)
+                              }
+                            >
+                              <td>{(singleHistoryPage - 1) * 20 + index + 1}</td>
+                              <td>{payout.employee?.name || "Employee"}</td>
+                              <td>
+                                {formatBusinessDate(payout.startDate)} –{" "}
+                                {formatBusinessDate(payout.endDate)}
+                              </td>
+                              <td>₹{formatMoney(payout.netSalary)}</td>
+                              <td>{formatBusinessDate(payout.paidOn)}</td>
+                              <td>{formatPaymentMethod(payout.paymentMethod)}</td>
+                            </tr>
+                            {expanded && (
+                              <tr className="payout-history-expanded-row">
+                                <td colSpan="6">
+                                  <div className="payout-history-line">
+                                    <span>Working Time: {formatWorkingTime(payout)}</span>
+                                    <span>Gross: ₹{formatMoney(payout.grossSalary)}</span>
+                                    <span>
+                                      Advance Left: ₹{formatMoney(payout.outstandingAdvanceAfter)}
+                                    </span>
+                                    <span>Advance Cut: ₹{formatMoney(payout.advanceDeducted)}</span>
+                                    {Number(payout.deductions || 0) > 0 && (
+                                      <span>
+                                        Other Deduction: ₹{formatMoney(payout.deductions)}
+                                      </span>
+                                    )}
+                                  </div>
+                                </td>
+                              </tr>
+                            )}
+                          </React.Fragment>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="payout-history-mobile-list">
+                  {singleHistory.map((payout, index) => {
+                    const expanded = expandedSingleHistoryId === payout._id;
+                    return (
+                      <article
+                        key={payout._id}
+                        className="payout-history-mobile-card"
+                        onClick={() => setExpandedSingleHistoryId(expanded ? null : payout._id)}
+                      >
+                        <strong>#{(singleHistoryPage - 1) * 20 + index + 1}</strong>
+                        <span>{payout.employee?.name || "Employee"}</span>
+                        <span>
+                          {formatBusinessDate(payout.startDate)} –{" "}
+                          {formatBusinessDate(payout.endDate)}
+                        </span>
+                        <div>
+                          <strong>Net Paid</strong>
+                          <span>₹{formatMoney(payout.netSalary)}</span>
+                        </div>
+                        <div>
+                          <strong>Paid On</strong>
+                          <span>{formatBusinessDate(payout.paidOn)}</span>
+                        </div>
+                        {expanded && (
+                          <div className="payout-history-mobile-expanded">
+                            <span>Method: {formatPaymentMethod(payout.paymentMethod)}</span>
+                            <span>Working Time: {formatWorkingTime(payout)}</span>
+                            <span>Gross: ₹{formatMoney(payout.grossSalary)}</span>
+                            <span>
+                              Advance Left: ₹{formatMoney(payout.outstandingAdvanceAfter)}
+                            </span>
+                            <span>Advance Cut: ₹{formatMoney(payout.advanceDeducted)}</span>
+                            {Number(payout.deductions || 0) > 0 && (
+                              <span>Other Deduction: ₹{formatMoney(payout.deductions)}</span>
+                            )}
+                          </div>
+                        )}
+                      </article>
+                    );
+                  })}
+                </div>
+                <div className="payout-history-pagination">
+                  <button
+                    type="button"
+                    disabled={singleHistoryPage <= 1}
+                    onClick={() => fetchSingleHistory(singleHistoryPage - 1)}
+                  >
+                    Previous
+                  </button>
+                  <span>
+                    Page {singleHistoryMeta.page} of {singleHistoryMeta.totalPages}
+                  </span>
+                  <button
+                    type="button"
+                    disabled={singleHistoryPage >= singleHistoryMeta.totalPages}
+                    onClick={() => fetchSingleHistory(singleHistoryPage + 1)}
+                  >
+                    Next
+                  </button>
+                </div>
+              </>
+            ))}
         </section>
 
         {/* =====================================
