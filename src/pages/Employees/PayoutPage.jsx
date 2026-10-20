@@ -2050,23 +2050,6 @@ const PayoutPage = () => {
             type="button"
             className={
               payoutMode ===
-              "single"
-                ? "payout-mode-btn active"
-                : "payout-mode-btn"
-            }
-            onClick={() =>
-              changePayoutMode(
-                "single"
-              )
-            }
-          >
-            Single Payout
-          </button>
-
-          <button
-            type="button"
-            className={
-              payoutMode ===
               "bulk"
                 ? "payout-mode-btn active"
                 : "payout-mode-btn"
@@ -2078,6 +2061,23 @@ const PayoutPage = () => {
             }
           >
             Bulk Payout
+          </button>
+
+          <button
+            type="button"
+            className={
+              payoutMode ===
+              "single"
+                ? "payout-mode-btn active"
+                : "payout-mode-btn"
+            }
+            onClick={() =>
+              changePayoutMode(
+                "single"
+              )
+            }
+          >
+            Single Payout
           </button>
 
         </div>
