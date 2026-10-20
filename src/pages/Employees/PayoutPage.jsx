@@ -1966,7 +1966,7 @@ const PayoutPage = () => {
 
           <div>
             <h1>
-              Employee Payouts
+              Payout
             </h1>
 
             <p>
@@ -1974,18 +1974,6 @@ const PayoutPage = () => {
               recover advances and manage
               employee payouts.
             </p>
-          </div>
-
-          <div className="payout-count">
-
-            <span>
-              Payout Records
-            </span>
-
-            <strong>
-              {payouts.length}
-            </strong>
-
           </div>
 
         </div>
@@ -2051,6 +2039,10 @@ const PayoutPage = () => {
         {/* =====================================
             SINGLE / BULK SWITCH
         ====================================== */}
+
+        <div className="payout-create-heading">
+          <h2>Create Payout</h2>
+        </div>
 
         <div className="payout-mode-switch">
 
