@@ -233,6 +233,8 @@ const PayoutPage = () => {
   const [singleHistoryPage, setSingleHistoryPage] = useState(1);
   const [singleHistoryMeta, setSingleHistoryMeta] = useState({ page: 1, totalPages: 1 });
   const [historyTab, setHistoryTab] = useState("bulk");
+  const [deletingBulkHistoryId, setDeletingBulkHistoryId] = useState(null);
+  const [deletingSingleHistoryId, setDeletingSingleHistoryId] = useState(null);
 
   /* ========================================================
      INITIAL LOAD
@@ -329,6 +331,8 @@ const PayoutPage = () => {
     try {
       setBulkHistoryLoading(true);
       const response = await api.get("/payout/bulk-history", { params: { page, limit: 20 } });
+      if (page > 1 && response.data?.total > 0 && response.data?.items?.length === 0)
+        return fetchBulkHistory(page - 1);
       setBulkHistory(Array.isArray(response.data?.items) ? response.data.items : []);
       setBulkHistoryPage(response.data?.page || page);
       setBulkHistoryMeta({
@@ -347,6 +351,8 @@ const PayoutPage = () => {
     try {
       setSingleHistoryLoading(true);
       const response = await api.get("/payout/single-history", { params: { page, limit: 20 } });
+      if (page > 1 && response.data?.total > 0 && response.data?.items?.length === 0)
+        return fetchSingleHistory(page - 1);
       setSingleHistory(Array.isArray(response.data?.items) ? response.data.items : []);
       setSingleHistoryPage(response.data?.page || page);
       setSingleHistoryMeta({
@@ -358,6 +364,48 @@ const PayoutPage = () => {
       showError(err.response?.data?.message || "Unable to load single payout history.");
     } finally {
       setSingleHistoryLoading(false);
+    }
+  };
+
+  const handleDeleteBulkHistory = async (payout) => {
+    const period = `${formatBusinessDate(payout.startDate)} – ${formatBusinessDate(payout.endDate)}`;
+    if (
+      !window.confirm(
+        `Delete Bulk Payout?\n\nDelete the bulk payout for ${period} covering ${payout.employeeCount} employees?\n\nThis permanently removes the payout and makes the affected period eligible for payout again.`
+      )
+    )
+      return;
+    try {
+      setDeletingBulkHistoryId(payout._id);
+      await api.delete(`/payout/bulk/${payout._id}`);
+      setExpandedBulkHistoryId(null);
+      await fetchBulkHistory(bulkHistoryPage);
+      showSuccess("Bulk payout permanently deleted.");
+    } catch (err) {
+      showError(err.response?.data?.message || "Unable to delete bulk payout.");
+    } finally {
+      setDeletingBulkHistoryId(null);
+    }
+  };
+
+  const handleDeleteSingleHistory = async (payout) => {
+    const period = `${formatBusinessDate(payout.startDate)} – ${formatBusinessDate(payout.endDate)}`;
+    if (
+      !window.confirm(
+        `Delete payout for ${payout.employee?.name || "this employee"} for ${period}?\n\nThis permanently removes the payout and makes that period eligible for payout again.`
+      )
+    )
+      return;
+    try {
+      setDeletingSingleHistoryId(payout._id);
+      await api.delete(`/payout/${payout._id}`);
+      setExpandedSingleHistoryId(null);
+      await fetchSingleHistory(singleHistoryPage);
+      showSuccess("Payout permanently deleted.");
+    } catch (err) {
+      showError(err.response?.data?.message || "Unable to delete payout.");
+    } finally {
+      setDeletingSingleHistoryId(null);
     }
   };
 
@@ -1329,6 +1377,7 @@ const PayoutPage = () => {
                         <th>Paid On</th>
                         <th>Method</th>
                         <th>Print</th>
+                        <th>Delete</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -1363,10 +1412,23 @@ const PayoutPage = () => {
                                   Print
                                 </button>
                               </td>
+                              <td>
+                                <button
+                                  type="button"
+                                  className="ep-btn ep-btn-delete history-delete-btn"
+                                  disabled={deletingBulkHistoryId === payout._id}
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    handleDeleteBulkHistory(payout);
+                                  }}
+                                >
+                                  {deletingBulkHistoryId === payout._id ? "Deleting..." : "Delete"}
+                                </button>
+                              </td>
                             </tr>
                             {expanded && (
                               <tr className="payout-history-expanded-row">
-                                <td colSpan="9">
+                                <td colSpan="10">
                                   <div className="payout-history-details">
                                     {payout.employees?.map((line) => (
                                       <div key={line.employee} className="payout-history-line">
@@ -1429,6 +1491,17 @@ const PayoutPage = () => {
                           }}
                         >
                           Print
+                        </button>
+                        <button
+                          type="button"
+                          className="ep-btn ep-btn-delete history-delete-btn"
+                          disabled={deletingBulkHistoryId === payout._id}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            handleDeleteBulkHistory(payout);
+                          }}
+                        >
+                          {deletingBulkHistoryId === payout._id ? "Deleting..." : "Delete"}
                         </button>
                         {expanded && (
                           <div className="payout-history-mobile-expanded">
@@ -1495,6 +1568,7 @@ const PayoutPage = () => {
                         <th>Net Paid</th>
                         <th>Paid On</th>
                         <th>Method</th>
+                        <th>Delete</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -1517,10 +1591,25 @@ const PayoutPage = () => {
                               <td>₹{formatMoney(payout.netSalary)}</td>
                               <td>{formatBusinessDate(payout.paidOn)}</td>
                               <td>{formatPaymentMethod(payout.paymentMethod)}</td>
+                              <td>
+                                <button
+                                  type="button"
+                                  className="ep-btn ep-btn-delete history-delete-btn"
+                                  disabled={deletingSingleHistoryId === payout._id}
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    handleDeleteSingleHistory(payout);
+                                  }}
+                                >
+                                  {deletingSingleHistoryId === payout._id
+                                    ? "Deleting..."
+                                    : "Delete"}
+                                </button>
+                              </td>
                             </tr>
                             {expanded && (
                               <tr className="payout-history-expanded-row">
-                                <td colSpan="6">
+                                <td colSpan="7">
                                   <div className="payout-history-line">
                                     <span>Working Time: {formatWorkingTime(payout)}</span>
                                     <span>Gross: ₹{formatMoney(payout.grossSalary)}</span>
@@ -1566,6 +1655,17 @@ const PayoutPage = () => {
                           <strong>Paid On</strong>
                           <span>{formatBusinessDate(payout.paidOn)}</span>
                         </div>
+                        <button
+                          type="button"
+                          className="ep-btn ep-btn-delete history-delete-btn"
+                          disabled={deletingSingleHistoryId === payout._id}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            handleDeleteSingleHistory(payout);
+                          }}
+                        >
+                          {deletingSingleHistoryId === payout._id ? "Deleting..." : "Delete"}
+                        </button>
                         {expanded && (
                           <div className="payout-history-mobile-expanded">
                             <span>Method: {formatPaymentMethod(payout.paymentMethod)}</span>

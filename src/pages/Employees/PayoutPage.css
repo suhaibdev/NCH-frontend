@@ -1889,6 +1889,11 @@
   min-height: auto;
 }
 
+.history-delete-btn {
+  margin: 0 !important;
+  min-height: auto;
+}
+
 .payout-history-mobile-list {
   display: none;
 }
@@ -1960,7 +1965,11 @@
   }
 
   .history-print-btn {
-    width: 100%;
+    width: calc(50% - 4px);
+  }
+
+  .history-delete-btn {
+    width: calc(50% - 4px);
   }
 
   .payout-history-pagination {
