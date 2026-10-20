@@ -1894,6 +1894,22 @@
   min-height: auto;
 }
 
+.history-edit-btn,
+.history-print-btn,
+.history-delete-btn {
+  min-height: 32px !important;
+  height: 32px;
+  padding: 5px 9px !important;
+  border-radius: 6px !important;
+  font-size: 11px !important;
+  line-height: 1;
+}
+
+.history-edit-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
 .payout-history-mobile-list {
   display: none;
 }
