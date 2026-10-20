@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
+import { createPortal } from "react-dom";
+
 import { useNavigate } from "react-router-dom";
 
 import api from "../../config/axios";
@@ -61,6 +63,26 @@ const formatPaymentMethod = (method) => {
   return labels[method] || (method ? String(method) : "-");
 };
 
+const formatBulkPaymentMethod = (payout) => {
+  if (payout?.paymentMethod) {
+    return formatPaymentMethod(payout.paymentMethod);
+  }
+
+  const methods = [
+    ...new Set(
+      (payout?.employees || [])
+        .map((employee) => String(employee.paymentMethod || "").trim())
+        .filter(Boolean)
+    ),
+  ];
+
+  if (methods.length === 0) {
+    return "-";
+  }
+
+  return formatPaymentMethod(methods.length === 1 ? methods[0] : "mixed");
+};
+
 const formatMoney = (value) =>
   Number(value || 0).toLocaleString("en-IN", {
     minimumFractionDigits: 2,
@@ -118,16 +140,6 @@ const getPeriodDates = (type) => {
   };
 };
 
-const splitIntoPages = (items, size) => {
-  const pages = [];
-
-  for (let index = 0; index < items.length; index += size) {
-    pages.push(items.slice(index, index + size));
-  }
-
-  return pages;
-};
-
 /* ==========================================================
    COMPONENT
 ========================================================== */
@@ -173,6 +185,8 @@ const PayoutPage = () => {
   const [singlePeriodType, setSinglePeriodType] = useState("custom");
 
   const [preview, setPreview] = useState(null);
+
+  const [singleResult, setSingleResult] = useState(null);
 
   const [advanceDeduction, setAdvanceDeduction] = useState("");
 
@@ -222,6 +236,10 @@ const PayoutPage = () => {
 
   const [bulkCreatedAt, setBulkCreatedAt] = useState(null);
 
+  const [printPayout, setPrintPayout] = useState(null);
+
+  const [printRequested, setPrintRequested] = useState(false);
+
   const [bulkHistory, setBulkHistory] = useState([]);
   const [bulkHistoryLoading, setBulkHistoryLoading] = useState(true);
   const [expandedBulkHistoryId, setExpandedBulkHistoryId] = useState(null);
@@ -250,6 +268,19 @@ const PayoutPage = () => {
   useEffect(() => {
     setSelectedPayouts([]);
   }, [searchName, searchDate]);
+
+  useEffect(() => {
+    if (!printRequested || !printPayout) {
+      return undefined;
+    }
+
+    const frame = window.requestAnimationFrame(() => {
+      window.print();
+      setPrintRequested(false);
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [printPayout, printRequested]);
 
   /* ========================================================
      MESSAGE HELPERS
@@ -596,7 +627,7 @@ const PayoutPage = () => {
 
       clearMessage();
 
-      await api.post("/payout", {
+      const res = await api.post("/payout", {
         employeeId,
         startDate,
         endDate,
@@ -607,6 +638,8 @@ const PayoutPage = () => {
 
         paymentMethod,
       });
+
+      setSingleResult(res.data);
 
       showSuccess("Salary payout created successfully.");
 
@@ -626,6 +659,7 @@ const PayoutPage = () => {
 
       await fetchPayouts();
       await fetchBulkHistory();
+      await fetchSingleHistory();
     } catch (err) {
       console.error("Create payout error:", err);
 
@@ -635,6 +669,16 @@ const PayoutPage = () => {
 
       setIsCreating(false);
     }
+  };
+
+  const handleCreateAnotherSinglePayout = () => {
+    clearMessage();
+
+    setSingleResult(null);
+
+    setPreview(null);
+
+    setPayoutMode("single");
   };
 
   /* ========================================================
@@ -647,6 +691,22 @@ const PayoutPage = () => {
     setBulkResult(null);
 
     setBulkCreatedAt(null);
+  };
+
+  const handleCreateAnotherBulkPayout = () => {
+    clearMessage();
+
+    setBulkResult(null);
+
+    setBulkCreatedAt(null);
+
+    setBulkRows([]);
+
+    setBulkPreviewing(false);
+
+    setBulkCreating(false);
+
+    setPayoutMode("bulk");
   };
 
   const setBulkPayrollPeriod = (type) => {
@@ -1069,6 +1129,7 @@ const PayoutPage = () => {
       showSuccess(`${created.length} employee payout(s) were saved in one bulk payout record.`);
 
       await fetchPayouts();
+      await fetchBulkHistory();
     } catch (err) {
       console.error("Bulk payout creation error:", err);
 
@@ -1082,17 +1143,16 @@ const PayoutPage = () => {
      PRINT SUCCESSFUL BULK PAYOUTS
   ======================================================== */
 
-  const handlePrintBulk = () => {
-    if (!bulkResult?.created?.length) {
-      showError("There are no successfully created bulk payouts to print.");
+  const handlePrintBulk = (savedPayout) => {
+    if (!savedPayout || !Array.isArray(savedPayout.employees)) {
+      showError("The saved bulk payout is unavailable for printing.");
 
       return;
     }
 
-    window.print();
+    setPrintPayout(savedPayout);
+    setPrintRequested(true);
   };
-
-  const bulkPrintPages = useMemo(() => splitIntoPages(bulkResult?.created || [], 12), [bulkResult]);
 
   /* ========================================================
      DELETE SINGLE PAYOUT
@@ -1306,7 +1366,7 @@ const PayoutPage = () => {
                       className="ep-btn ep-btn-secondary bulk-history-print"
                       onClick={(event) => {
                         event.stopPropagation();
-                        window.print();
+                        handlePrintBulk(payout);
                       }}
                     >
                       Print
@@ -1403,10 +1463,18 @@ const PayoutPage = () => {
                               <td>
                                 <button
                                   type="button"
+                                  className="ep-btn ep-btn-secondary history-edit-btn"
+                                  disabled
+                                  title="Edit payout — coming in next phase"
+                                >
+                                  Edit
+                                </button>
+                                <button
+                                  type="button"
                                   className="ep-btn ep-btn-secondary history-print-btn"
                                   onClick={(event) => {
                                     event.stopPropagation();
-                                    window.print();
+                                    handlePrintBulk(payout);
                                   }}
                                 >
                                   Print
@@ -1484,10 +1552,18 @@ const PayoutPage = () => {
                         </div>
                         <button
                           type="button"
+                          className="ep-btn ep-btn-secondary history-edit-btn"
+                          disabled
+                          title="Edit payout — coming in next phase"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          type="button"
                           className="ep-btn ep-btn-secondary history-print-btn"
                           onClick={(event) => {
                             event.stopPropagation();
-                            window.print();
+                            handlePrintBulk(payout);
                           }}
                         >
                           Print
@@ -1568,6 +1644,7 @@ const PayoutPage = () => {
                         <th>Net Paid</th>
                         <th>Paid On</th>
                         <th>Method</th>
+                        <th>Print</th>
                         <th>Delete</th>
                       </tr>
                     </thead>
@@ -1594,6 +1671,24 @@ const PayoutPage = () => {
                               <td>
                                 <button
                                   type="button"
+                                  className="ep-btn ep-btn-secondary history-edit-btn"
+                                  disabled
+                                  title="Edit payout — coming in next phase"
+                                >
+                                  Edit
+                                </button>
+                                <button
+                                  type="button"
+                                  className="ep-btn ep-btn-secondary history-print-btn"
+                                  disabled
+                                  title="Single payout printing will be enabled in the print-repair phase"
+                                >
+                                  Print
+                                </button>
+                              </td>
+                              <td>
+                                <button
+                                  type="button"
                                   className="ep-btn ep-btn-delete history-delete-btn"
                                   disabled={deletingSingleHistoryId === payout._id}
                                   onClick={(event) => {
@@ -1609,7 +1704,7 @@ const PayoutPage = () => {
                             </tr>
                             {expanded && (
                               <tr className="payout-history-expanded-row">
-                                <td colSpan="7">
+                                <td colSpan="8">
                                   <div className="payout-history-line">
                                     <span>Working Time: {formatWorkingTime(payout)}</span>
                                     <span>Gross: ₹{formatMoney(payout.grossSalary)}</span>
@@ -1655,6 +1750,22 @@ const PayoutPage = () => {
                           <strong>Paid On</strong>
                           <span>{formatBusinessDate(payout.paidOn)}</span>
                         </div>
+                        <button
+                          type="button"
+                          className="ep-btn ep-btn-secondary history-edit-btn"
+                          disabled
+                          title="Edit payout — coming in next phase"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          className="ep-btn ep-btn-secondary history-print-btn"
+                          disabled
+                          title="Single payout printing will be enabled in the print-repair phase"
+                        >
+                          Print
+                        </button>
                         <button
                           type="button"
                           className="ep-btn ep-btn-delete history-delete-btn"
@@ -1737,7 +1848,7 @@ const PayoutPage = () => {
             SINGLE PAYOUT
         ====================================== */}
 
-        {payoutMode === "single" && (
+        {payoutMode === "single" && !singleResult && (
           <>
             <div className="payout-card">
               <div className="payout-card-header">
@@ -2021,11 +2132,58 @@ const PayoutPage = () => {
           </>
         )}
 
+        {payoutMode === "single" && singleResult && (
+          <div className="payout-card bulk-success-card">
+            <div className="bulk-success-header">
+              <h2>Payout Created Successfully</h2>
+            </div>
+
+            <div className="bulk-success-details">
+              <div className="bulk-success-detail">
+                <span>Employee</span>
+                <strong>{singleResult.employee?.name || "Employee"}</strong>
+              </div>
+
+              <div className="bulk-success-detail">
+                <span>Period</span>
+                <strong>
+                  {formatBusinessDate(singleResult.startDate)} –{" "}
+                  {formatBusinessDate(singleResult.endDate)}
+                </strong>
+              </div>
+
+              <div className="bulk-success-detail bulk-success-total">
+                <span>Total Paid</span>
+                <strong>₹{formatMoney(singleResult.netSalary)}</strong>
+              </div>
+            </div>
+
+            <div className="bulk-success-actions">
+              <button
+                type="button"
+                className="ep-btn ep-btn-primary"
+                disabled
+                title="Single payout printing will be enabled in the print-repair phase"
+              >
+                Print
+              </button>
+
+              <button
+                type="button"
+                className="ep-btn ep-btn-secondary"
+                onClick={handleCreateAnotherSinglePayout}
+              >
+                Create Another Payout
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* =====================================
             BULK PAYOUT
         ====================================== */}
 
-        {payoutMode === "bulk" && (
+        {payoutMode === "bulk" && !bulkResult?.payout && (
           <>
             <div className="payout-card">
               <div className="payout-card-header">
@@ -2514,77 +2672,53 @@ const PayoutPage = () => {
                 </div>
               </div>
             )}
-
-            {/* ===================================
-                BULK RESULT
-            ==================================== */}
-
-            {bulkResult && (
-              <div className="payout-card bulk-result-card">
-                <div className="payout-card-header">
-                  <div>
-                    <h2>Bulk Payout Result</h2>
-
-                    <p>Creation results for the latest bulk payout.</p>
-                  </div>
-                </div>
-
-                <div className="bulk-result-summary">
-                  <div className="bulk-result-success">
-                    <strong>✓ {bulkResult.created?.length || 0}</strong>
-
-                    <span>Created Successfully</span>
-                  </div>
-
-                  <div className="bulk-result-failed">
-                    <strong>✕ {bulkResult.failed?.length || 0}</strong>
-
-                    <span>Failed</span>
-                  </div>
-                </div>
-
-                {bulkResult.created?.length > 0 && (
-                  <div className="bulk-result-list">
-                    <h3>Successfully Created</h3>
-
-                    {bulkResult.created.map((item, index) => (
-                      <div key={item._id || index} className="bulk-result-item success">
-                        <span>✓ {item.employeeName || "Employee"}</span>
-
-                        <strong>₹{formatMoney(item.netSalary)}</strong>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {bulkResult.failed?.length > 0 && (
-                  <div className="bulk-result-list">
-                    <h3>Failed</h3>
-
-                    {bulkResult.failed.map((item, index) => (
-                      <div key={`${item.employeeId}-${index}`} className="bulk-result-item failed">
-                        <span>✕ {item.employeeName || "Employee"}</span>
-
-                        <small>{item.message}</small>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {bulkResult.created?.length > 0 && (
-                  <div className="bulk-print-action">
-                    <button
-                      type="button"
-                      className="ep-btn ep-btn-primary"
-                      onClick={handlePrintBulk}
-                    >
-                      Print Successfully Created Payouts
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
           </>
+        )}
+
+        {payoutMode === "bulk" && bulkResult?.payout && (
+          <div className="payout-card bulk-success-card">
+            <div className="bulk-success-header">
+              <h2>Payout Created Successfully</h2>
+            </div>
+
+            <div className="bulk-success-details">
+              <div className="bulk-success-detail">
+                <span>Period</span>
+                <strong>
+                  {formatBusinessDate(bulkResult.payout.startDate)} –{" "}
+                  {formatBusinessDate(bulkResult.payout.endDate)}
+                </strong>
+              </div>
+
+              <div className="bulk-success-detail">
+                <span>Employees</span>
+                <strong>{bulkResult.payout.employeeCount}</strong>
+              </div>
+
+              <div className="bulk-success-detail bulk-success-total">
+                <span>Total Paid</span>
+                <strong>₹{formatMoney(bulkResult.payout.totalNetPaid)}</strong>
+              </div>
+            </div>
+
+            <div className="bulk-success-actions">
+              <button
+                type="button"
+                className="ep-btn ep-btn-primary"
+                onClick={() => handlePrintBulk(bulkResult.payout)}
+              >
+                Print
+              </button>
+
+              <button
+                type="button"
+                className="ep-btn ep-btn-secondary"
+                onClick={handleCreateAnotherBulkPayout}
+              >
+                Create Another Payout
+              </button>
+            </div>
+          </div>
         )}
 
         {/* =====================================
@@ -2780,105 +2914,82 @@ const PayoutPage = () => {
         </div>
       </div>
 
-      {/* ====================================================
-          PRINT-ONLY BULK PAYOUT SHEET
-      ==================================================== */}
+      {printPayout &&
+        createPortal(
+          <div id="payout-print-root">
+            <section className="payout-print-report">
+              <header className="payout-print-header">
+                <strong>NCH</strong>
+                <span>NEW CALCUTTA HANDLOOM</span>
+              </header>
 
-      {bulkPrintPages.length > 0 && (
-        <div className="bulk-print-root">
-          {bulkPrintPages.map((pageRows, pageIndex) => (
-            <section className="bulk-print-page" key={pageIndex}>
-              <div className="bulk-print-company">NEW CALCUTTA HANDLOOM</div>
-
-              <div className="bulk-print-info">
-                <div>
-                  <strong>Payout Duration:</strong> {formatInputDisplayDate(bulkStartDate)} -{" "}
-                  {formatInputDisplayDate(bulkEndDate)}
-                </div>
-
-                <div>
-                  <strong>Payout Created:</strong>{" "}
-                  {bulkCreatedAt ? bulkCreatedAt.toLocaleDateString("en-IN") : "-"}
-                </div>
+              <div className="payout-print-info">
+                <span>
+                  <strong>Period:</strong> {formatBusinessDate(printPayout.startDate)} –{" "}
+                  {formatBusinessDate(printPayout.endDate)}
+                </span>
+                <span>
+                  <strong>Paid On:</strong> {formatBusinessDate(printPayout.paidOn)}
+                </span>
               </div>
 
-              <table className="bulk-print-table">
+              <table className="payout-print-table">
                 <thead>
                   <tr>
-                    <th>S.No</th>
-
-                    <th>Employee Name</th>
-
-                    <th>Days</th>
-
-                    <th>Hours</th>
-
+                    <th>Employee</th>
+                    <th>Working Time</th>
+                    <th>Gross</th>
                     <th>Advance Left</th>
-
                     <th>Advance Cut</th>
-
-                    <th>Other Ded.</th>
-
-                    <th>Net Salary</th>
-
-                    <th>Signature</th>
+                    <th>Net Paid</th>
+                    <th>Sign</th>
                   </tr>
                 </thead>
-
                 <tbody>
-                  {pageRows.map((payout, rowIndex) => (
-                    <tr key={payout._id || rowIndex}>
-                      <td>{pageIndex * 12 + rowIndex + 1}</td>
-
-                      <td className="bulk-print-name">{payout.employeeName || "-"}</td>
-
-                      <td>{payout.totalDaysWorked || 0}</td>
-
-                      <td>{payout.totalHoursWorked || 0}</td>
-
-                      <td>₹{formatMoney(payout.outstandingAdvanceAfter)}</td>
-
-                      <td>₹{formatMoney(payout.advanceDeducted)}</td>
-
-                      <td>₹{formatMoney(payout.deductions)}</td>
-
-                      <td className="bulk-print-net">₹{formatMoney(payout.netSalary)}</td>
-
-                      <td className="bulk-print-signature">&nbsp;</td>
+                  {printPayout.employees.map((employee, index) => (
+                    <tr key={employee.employee || employee._id || index}>
+                      <td>{employee.employeeName || "-"}</td>
+                      <td>{formatWorkingTime(employee)}</td>
+                      <td>₹{formatMoney(employee.grossSalary)}</td>
+                      <td>₹{formatMoney(employee.outstandingAdvanceAfter)}</td>
+                      <td>₹{formatMoney(employee.advanceDeducted)}</td>
+                      <td>₹{formatMoney(employee.netSalary)}</td>
+                      <td className="payout-print-signature">&nbsp;</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
 
-              {pageIndex === bulkPrintPages.length - 1 && (
-                <div className="bulk-print-summary">
-                  <span>
-                    Employees Paid: <strong>{bulkResult?.created?.length || 0}</strong>
-                  </span>
-
-                  <span>
-                    Advance Cut:{" "}
-                    <strong>₹{formatMoney(bulkResult?.summary?.totalAdvanceDeducted)}</strong>
-                  </span>
-
-                  <span>
-                    Other Deduction:{" "}
-                    <strong>₹{formatMoney(bulkResult?.summary?.totalOtherDeduction)}</strong>
-                  </span>
-
-                  <span>
-                    Net Payout: <strong>₹{formatMoney(bulkResult?.summary?.totalNetSalary)}</strong>
-                  </span>
+              <section className="payout-print-summary" aria-label="Payout summary">
+                <div>
+                  <span>Total Gross</span>
+                  <strong>₹{formatMoney(printPayout.totalGross)}</strong>
                 </div>
-              )}
-
-              <div className="bulk-print-page-number">
-                Page {pageIndex + 1} of {bulkPrintPages.length}
-              </div>
+                <div>
+                  <span>Total Advance Cut</span>
+                  <strong>₹{formatMoney(printPayout.totalAdvanceCut)}</strong>
+                </div>
+                <div>
+                  <span>Total Advance Left</span>
+                  <strong>₹{formatMoney(printPayout.totalAdvanceLeft)}</strong>
+                </div>
+                <div>
+                  <span>Total Other Deduction</span>
+                  <strong>₹{formatMoney(printPayout.totalOtherDeduction)}</strong>
+                </div>
+                <div>
+                  <span>Total Paid</span>
+                  <strong>₹{formatMoney(printPayout.totalNetPaid)}</strong>
+                </div>
+                <div>
+                  <span>Payment Method</span>
+                  <strong>{formatBulkPaymentMethod(printPayout)}</strong>
+                </div>
+              </section>
             </section>
-          ))}
-        </div>
-      )}
+          </div>,
+          document.body
+        )}
     </>
   );
 };
