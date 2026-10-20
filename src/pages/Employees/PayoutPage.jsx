@@ -376,6 +376,10 @@ const PayoutPage = () => {
     setBulkCreatedAt,
   ] = useState(null);
 
+  const [bulkHistory, setBulkHistory] = useState([]);
+  const [bulkHistoryLoading, setBulkHistoryLoading] = useState(true);
+  const [expandedBulkHistoryId, setExpandedBulkHistoryId] = useState(null);
+
 
   /* ========================================================
      INITIAL LOAD
@@ -384,6 +388,7 @@ const PayoutPage = () => {
   useEffect(() => {
     fetchEmployees();
     fetchPayouts();
+    fetchBulkHistory();
   }, []);
 
 
@@ -505,6 +510,19 @@ const PayoutPage = () => {
       );
     } finally {
       setLoadingPayouts(false);
+    }
+  };
+
+  const fetchBulkHistory = async () => {
+    try {
+      setBulkHistoryLoading(true);
+      const response = await api.get("/payout/bulk-history", { params: { limit: 10 } });
+      setBulkHistory(Array.isArray(response.data?.items) ? response.data.items : []);
+    } catch (err) {
+      console.error("Failed to fetch bulk payout history:", err);
+      showError(err.response?.data?.message || "Unable to load bulk payout history.");
+    } finally {
+      setBulkHistoryLoading(false);
     }
   };
 
@@ -844,6 +862,7 @@ const PayoutPage = () => {
         );
 
         await fetchPayouts();
+        await fetchBulkHistory();
       } catch (err) {
         console.error(
           "Create payout error:",
@@ -1983,6 +2002,50 @@ const PayoutPage = () => {
             {message.text}
           </div>
         )}
+
+
+        <section className="payout-card bulk-history-card">
+          <div className="payout-card-header">
+            <div>
+              <h2>Bulk Payout History</h2>
+              <p>Saved bulk payroll operations.</p>
+            </div>
+          </div>
+          {bulkHistoryLoading ? (
+            <p className="payout-empty-state">Loading payout history...</p>
+          ) : bulkHistory.length === 0 ? (
+            <p className="payout-empty-state">No bulk payouts have been created yet.</p>
+          ) : (
+            <div className="bulk-history-list">
+              {bulkHistory.map((payout) => {
+                const expanded = expandedBulkHistoryId === payout._id;
+                return (
+                  <article key={payout._id} className="bulk-history-entry">
+                    <button
+                      type="button"
+                      className="bulk-history-row"
+                      aria-expanded={expanded}
+                      onClick={() => setExpandedBulkHistoryId(expanded ? null : payout._id)}
+                    >
+                      <strong>{formatInputDisplayDate(payout.startDate)} - {formatInputDisplayDate(payout.endDate)}</strong>
+                      <span>Employees: {payout.employeeCount}</span>
+                      <span>Total Paid: ₹{formatMoney(payout.totalNetPaid)}</span>
+                      <span>Advance Cut: ₹{formatMoney(payout.totalAdvanceCut)}</span>
+                      <span>Advance Left: ₹{formatMoney(payout.totalAdvanceLeft)}</span>
+                      <span>Paid On: {formatDisplayDate(payout.paidOn)}</span>
+                    </button>
+                    <button type="button" className="ep-btn ep-btn-secondary bulk-history-print" onClick={(event) => { event.stopPropagation(); window.print(); }}>Print</button>
+                    {expanded && <div className="bulk-history-details">
+                      {payout.employees?.map((line) => <div key={line.employee} className="bulk-history-line">
+                        <strong>{line.employeeName}</strong><span>Days: {formatWorkingTime(line)}</span><span>Gross: ₹{formatMoney(line.grossSalary)}</span><span>Advance Left: ₹{formatMoney(line.outstandingAdvanceAfter)}</span><span>Advance Cut: ₹{formatMoney(line.advanceDeducted)}</span><strong>Net Paid: ₹{formatMoney(line.netSalary)}</strong>
+                      </div>)}
+                    </div>}
+                  </article>
+                );
+              })}
+            </div>
+          )}
+        </section>
 
 
         {/* =====================================
