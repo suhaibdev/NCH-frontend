@@ -2561,12 +2561,9 @@ const PayoutPage = () => {
                         </option>
 
                         <option value="bank">
-                          Bank
+                          Bank Transfer
                         </option>
 
-                        <option value="cheque">
-                          Cheque
-                        </option>
                       </select>
 
                     </div>
@@ -2813,7 +2810,7 @@ const PayoutPage = () => {
                 <div className="payout-field">
 
                   <label>
-                    Default Payment Method
+                    Payment Method
                   </label>
 
                   <select
@@ -2834,12 +2831,9 @@ const PayoutPage = () => {
                     </option>
 
                     <option value="bank">
-                      Bank
+                      Bank Transfer
                     </option>
 
-                    <option value="cheque">
-                      Cheque
-                    </option>
                   </select>
 
                 </div>
