@@ -13,7 +13,19 @@ const getCurrentMonth = () => {
   return `${year}-${month}`;
 };
 
-const getToday = () => new Date().toISOString().slice(0, 10);
+const getToday = () => {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Kolkata",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date());
+  const value = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+
+  return `${value.year}-${value.month}-${value.day}`;
+};
+
+const isFutureAttendanceDate = (value) => /^\d{4}-\d{2}-\d{2}$/.test(value) && value > getToday();
 
 const formatCompactDate = (value) => {
   const [year, month, day] = String(value || "").split("-");
@@ -122,6 +134,11 @@ const AttendancePage = () => {
       return;
     }
 
+    if (isFutureAttendanceDate(canonicalDate)) {
+      setError("Attendance cannot be marked for a future date.");
+      return;
+    }
+
     clearMessages();
     setBulkDateDisplay(formatCompactDate(canonicalDate));
 
@@ -134,6 +151,11 @@ const AttendancePage = () => {
     const canonicalDate = event.target.value;
 
     if (!canonicalDate) {
+      return;
+    }
+
+    if (isFutureAttendanceDate(canonicalDate)) {
+      setError("Attendance cannot be marked for a future date.");
       return;
     }
 
@@ -322,6 +344,11 @@ const AttendancePage = () => {
       return;
     }
 
+    if (isFutureAttendanceDate(canonicalDate)) {
+      setError("Attendance cannot be marked for a future date.");
+      return;
+    }
+
     if (canonicalDate !== bulkDate) {
       setBulkDateDisplay(formatCompactDate(canonicalDate));
       setBulkDate(canonicalDate);
@@ -410,6 +437,11 @@ const AttendancePage = () => {
       return;
     }
 
+    if (isFutureAttendanceDate(date)) {
+      setError("Attendance cannot be marked for a future date.");
+      return;
+    }
+
     const finalWorkHours = present ? (workHours === "" ? 8 : Number(workHours)) : 0;
 
     const finalOvertime = present ? (overtime === "" ? 0 : Number(overtime)) : 0;
@@ -475,6 +507,11 @@ const AttendancePage = () => {
     clearMessages();
 
     const fullDate = `${month}-${String(day).padStart(2, "0")}`;
+
+    if (isFutureAttendanceDate(fullDate)) {
+      setError("Attendance cannot be marked for a future date.");
+      return;
+    }
 
     if (record) {
       setEditRecordId(record._id);
@@ -636,6 +673,7 @@ const AttendancePage = () => {
                   ref={bulkDatePickerRef}
                   type="date"
                   value={bulkDate}
+                  max={getToday()}
                   onChange={handleBulkCalendarChange}
                   className="bulk-date-native-input"
                   tabIndex={-1}
@@ -830,6 +868,7 @@ const AttendancePage = () => {
               <input
                 type="date"
                 value={date}
+                max={getToday()}
                 onChange={(event) => setDate(event.target.value)}
                 className="ep-input"
                 disabled={saving}
