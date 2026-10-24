@@ -21,7 +21,7 @@ const AttendancePage = () => {
 
   const [month, setMonth] = useState(getCurrentMonth());
 
-  const [attendanceMode, setAttendanceMode] = useState("bulk");
+  const [attendanceMode, setAttendanceMode] = useState(null);
 
   const [bulkDate, setBulkDate] = useState(getToday());
 
@@ -82,7 +82,11 @@ const AttendancePage = () => {
 
       const employeeList = Array.isArray(res.data) ? res.data : [];
 
-      setEmployees(employeeList.filter((employee) => employee.isActive));
+      setEmployees(
+        employeeList
+          .filter((employee) => employee.isActive)
+          .sort((left, right) => left.name.localeCompare(right.name))
+      );
     } catch (err) {
       console.error("Failed to fetch employees:", err);
 
@@ -144,21 +148,23 @@ const AttendancePage = () => {
       const defaultWorkHours = Number(res.data?.defaultWorkHours);
 
       setBulkRows(
-        activeEmployees.map((employee) => {
-          const record = recordByEmployee.get(String(employee._id));
-          const present = record ? Number(record.workHours || 0) > 0 : true;
+        [...activeEmployees]
+          .sort((left, right) => left.name.localeCompare(right.name))
+          .map((employee) => {
+            const record = recordByEmployee.get(String(employee._id));
+            const present = record ? Number(record.workHours || 0) > 0 : true;
 
-          return {
-            employeeId: employee._id,
-            employeeName: employee.name,
-            selected: true,
-            present,
-            defaultWorkHours,
-            workHours: record ? Number(record.workHours || 0) : defaultWorkHours,
-            overtime: record ? Number(record.overtime || 0) : 0,
-            advancePayment: record ? Number(record.advancePayment || 0) : 0,
-          };
-        })
+            return {
+              employeeId: employee._id,
+              employeeName: employee.name,
+              selected: true,
+              present,
+              defaultWorkHours,
+              workHours: record ? Number(record.workHours || 0) : defaultWorkHours,
+              overtime: record ? Number(record.overtime || 0) : 0,
+              advancePayment: record ? Number(record.advancePayment || 0) : 0,
+            };
+          })
       );
     } catch (err) {
       console.error("Failed to load bulk attendance:", err);
@@ -199,6 +205,21 @@ const AttendancePage = () => {
     );
   };
 
+  const handleBulkWorkHoursChange = (employeeId, rawValue) => {
+    const workHours = rawValue === "" ? "" : Number(rawValue);
+
+    if (workHours !== "" && workHours > 8) {
+      setError("Work hours must be between 0 and 8.");
+      return;
+    }
+
+    updateBulkRow(employeeId, {
+      workHours,
+      present: Number(workHours) > 0,
+      ...(Number(workHours) === 0 ? { overtime: 0 } : {}),
+    });
+  };
+
   const handleBulkSave = async () => {
     clearMessages();
     const selectedRows = bulkRows.filter((row) => row.selected);
@@ -228,6 +249,7 @@ const AttendancePage = () => {
         fetchBulkAttendance(bulkDate),
         fetchMonthAttendance(bulkDate.slice(0, 7)),
       ]);
+      setAttendanceMode(null);
     } catch (err) {
       console.error("Error saving bulk attendance:", err);
       setError(err.response?.data?.message || "Unable to save bulk attendance.");
@@ -275,8 +297,8 @@ const AttendancePage = () => {
 
     const finalAdvance = advancePayment === "" ? 0 : Number(advancePayment);
 
-    if (finalWorkHours < 0 || finalWorkHours > 24) {
-      setError("Work hours must be between 0 and 24.");
+    if (finalWorkHours < 0 || finalWorkHours > 8) {
+      setError("Work hours must be between 0 and 8.");
       return;
     }
 
@@ -320,6 +342,7 @@ const AttendancePage = () => {
       await fetchMonthAttendance(month);
 
       resetForm();
+      setAttendanceMode(null);
     } catch (err) {
       console.error("Error saving attendance:", err);
 
@@ -455,7 +478,7 @@ const AttendancePage = () => {
       </div>
 
       {attendanceMode === "bulk" ? (
-        <section className="attendance-card bulk-attendance-card" aria-label="Bulk Attendance">
+        <section className="bulk-attendance-card" aria-label="Bulk Attendance">
           <div className="attendance-card-header">
             <div>
               <h2>Bulk Attendance</h2>
@@ -551,15 +574,11 @@ const AttendancePage = () => {
                             type="number"
                             value={row.workHours}
                             onChange={(event) =>
-                              updateBulkRow(row.employeeId, {
-                                workHours:
-                                  event.target.value === "" ? "" : Number(event.target.value),
-                                present: Number(event.target.value) > 0,
-                              })
+                              handleBulkWorkHoursChange(row.employeeId, event.target.value)
                             }
                             className="ep-input ep-input-no-spinner"
                             min="0"
-                            max="24"
+                            max="8"
                             step="0.5"
                             disabled={savingBulk || !row.present}
                           />
@@ -616,7 +635,7 @@ const AttendancePage = () => {
           )}
         </section>
       ) : (
-        <div className="attendance-card" id="attendance-form-card">
+        <div className="single-attendance-section" id="attendance-form-card">
           <div className="attendance-card-header">
             <div>
               <h2>{editRecordId ? "Edit Attendance" : "Mark Attendance"}</h2>
@@ -684,8 +703,10 @@ const AttendancePage = () => {
 
                   if (!isPresent) {
                     setWorkHours(0);
+                    setOvertime(0);
                   } else if (Number(workHours || 0) === 0) {
                     setWorkHours("");
+                    setOvertime(0);
                   }
                 }}
                 className="ep-input"
@@ -708,15 +729,23 @@ const AttendancePage = () => {
 
                   const hours = raw === "" ? "" : Number(raw);
 
+                  if (hours !== "" && hours > 8) {
+                    setError("Work hours must be between 0 and 8.");
+                    return;
+                  }
+
                   setWorkHours(hours);
 
                   if (hours !== "") {
                     setPresent(hours > 0);
+                    if (hours === 0) {
+                      setOvertime(0);
+                    }
                   }
                 }}
                 className="ep-input ep-input-no-spinner"
                 min={0}
-                max={24}
+                max={8}
                 step="0.5"
                 placeholder={present ? "Default: 8 hours" : "Saved as 0 when absent"}
                 disabled={saving}
@@ -805,7 +834,7 @@ const AttendancePage = () => {
           REGISTER
       ============================ */}
 
-      <div className="attendance-card attendance-register-card">
+      <section className="attendance-register-section">
         <div className="att-register-header">
           <div className="att-register-heading">
             <h2>Attendance Register</h2>
@@ -975,7 +1004,7 @@ const AttendancePage = () => {
             </table>
           </div>
         )}
-      </div>
+      </section>
     </div>
   );
 };

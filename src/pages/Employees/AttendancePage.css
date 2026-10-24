@@ -1067,3 +1067,171 @@
     font-size: 11px;
   }
 }
+
+/* Flat Attendance repair: keep the operational view dense and width-safe. */
+.bulk-attendance-card,
+.single-attendance-section,
+.attendance-register-section {
+  width: 100%;
+  margin-bottom: 22px;
+  box-sizing: border-box;
+}
+
+.bulk-attendance-card,
+.single-attendance-section {
+  border-top: 1px solid #e7ecf1;
+  border-bottom: 1px solid #e7ecf1;
+}
+
+.bulk-attendance-card .attendance-card-header,
+.single-attendance-section .attendance-card-header,
+.attendance-register-section .att-register-header {
+  padding: 14px 0;
+}
+
+.bulk-attendance-table {
+  min-width: 560px;
+}
+
+.bulk-attendance-table th,
+.bulk-attendance-table td {
+  padding: 8px 6px;
+}
+
+.bulk-attendance-table td .ep-input {
+  width: auto;
+  min-width: 0;
+}
+
+.bulk-attendance-table td:nth-child(2) .ep-input {
+  width: 92px;
+}
+
+.bulk-attendance-table td:nth-child(3) .ep-input,
+.bulk-attendance-table td:nth-child(4) .ep-input {
+  width: 4.5ch;
+}
+
+.bulk-attendance-table td:nth-child(5) .ep-input {
+  width: 7ch;
+}
+
+.bulk-attendance-actions {
+  padding: 14px 0 20px;
+}
+
+.attendance-register-section .att-register-wrap {
+  border-top: 1px solid #edf0f3;
+}
+
+@media (max-width: 650px) {
+  .attendance-page {
+    width: calc(100% + 24px);
+    max-width: none;
+    margin-left: -12px;
+    padding: 0 10px;
+  }
+
+  .bulk-attendance-card .attendance-card-header,
+  .single-attendance-section .attendance-card-header,
+  .attendance-register-section .att-register-header {
+    padding: 12px 0;
+  }
+
+  .bulk-attendance-table-wrap {
+    overflow-x: auto;
+    padding: 0;
+  }
+
+  .bulk-attendance-table,
+  .bulk-attendance-table tbody,
+  .bulk-attendance-table tr,
+  .bulk-attendance-table td {
+    display: table-cell;
+    width: auto;
+    min-width: 0;
+  }
+
+  .bulk-attendance-table {
+    display: table;
+    min-width: 540px;
+  }
+
+  .bulk-attendance-table thead {
+    display: table-header-group;
+  }
+
+  .bulk-attendance-table tr {
+    display: table-row;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .bulk-attendance-table td {
+    padding: 7px 4px;
+  }
+
+  .bulk-attendance-table td::before {
+    display: none;
+  }
+
+  .bulk-attendance-table td:first-child {
+    display: table-cell;
+    padding-bottom: 7px;
+    border-bottom: 1px solid #edf0f3;
+  }
+
+  .bulk-attendance-table td .ep-input {
+    font-size: 12px;
+  }
+
+  .bulk-attendance-table td:nth-child(2) .ep-input {
+    width: 78px;
+  }
+
+  .bulk-attendance-table td:nth-child(3) .ep-input,
+  .bulk-attendance-table td:nth-child(4) .ep-input {
+    width: 4ch;
+  }
+
+  .bulk-attendance-table td:nth-child(5) .ep-input {
+    width: 6ch;
+  }
+
+  .att-register-wrap {
+    width: 100%;
+  }
+
+  .att-register {
+    font-size: 10px;
+  }
+
+  .att-register th,
+  .att-register td {
+    min-width: 24px;
+    padding: 4px 2px;
+  }
+
+  .att-sticky-col {
+    min-width: 76px;
+    max-width: 76px;
+    padding-left: 5px !important;
+    padding-right: 5px !important;
+  }
+
+  .att-emp-name {
+    overflow: hidden;
+    white-space: normal;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+  }
+
+  .att-month-control {
+    width: auto;
+  }
+
+  .att-month-control .ep-input {
+    width: 145px;
+  }
+}
