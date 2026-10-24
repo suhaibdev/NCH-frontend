@@ -537,8 +537,14 @@ const AttendancePage = () => {
                     <tr>
                       <th>Employee</th>
                       <th>Status</th>
-                      <th>Working Hour</th>
-                      <th>Overtime</th>
+                      <th>
+                        <span className="bulk-header-desktop">Working Hour</span>
+                        <span className="bulk-header-mobile">Work</span>
+                      </th>
+                      <th>
+                        <span className="bulk-header-desktop">Overtime</span>
+                        <span className="bulk-header-mobile">OT</span>
+                      </th>
                       <th>Advance</th>
                     </tr>
                   </thead>

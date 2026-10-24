@@ -215,6 +215,10 @@
   font-weight: 800;
 }
 
+.bulk-header-mobile {
+  display: none;
+}
+
 .bulk-attendance-table td .ep-input {
   width: 100%;
   min-width: 86px;
@@ -1158,16 +1162,16 @@
   }
 
   .bulk-status-column {
-    width: 84px;
+    width: 90px;
   }
 
   .bulk-work-column,
   .bulk-overtime-column {
-    width: 50px;
+    width: 44px;
   }
 
   .bulk-advance-column {
-    width: 62px;
+    width: 60px;
   }
 
   .bulk-attendance-table thead {
@@ -1191,6 +1195,14 @@
     padding: 6px 2px;
     text-align: center;
     white-space: normal;
+  }
+
+  .bulk-header-desktop {
+    display: none;
+  }
+
+  .bulk-header-mobile {
+    display: inline;
   }
 
   .bulk-attendance-table th:first-child,
