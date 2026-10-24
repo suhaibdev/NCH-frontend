@@ -151,7 +151,8 @@
 }
 
 .bulk-date-field {
-  width: min(220px, 100%);
+  flex: 0 0 200px;
+  width: 200px;
   min-width: 0;
 }
 
@@ -165,8 +166,51 @@
   font-weight: 700;
 }
 
-.bulk-date-field .ep-input {
+.bulk-date-control {
+  position: relative;
+
   width: 100%;
+  height: 34px;
+}
+
+.bulk-date-display {
+  display: flex;
+  align-items: center;
+
+  width: 100%;
+  height: 100%;
+  padding: 0 11px;
+
+  color: #344054;
+  background: #ffffff;
+  border: 1px solid #d0d5dd;
+  border-radius: 6px;
+
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  box-sizing: border-box;
+}
+
+.bulk-date-native-input {
+  position: absolute;
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+  margin: 0;
+
+  opacity: 0;
+  cursor: pointer;
+}
+
+.bulk-attendance-card .attendance-card-header {
+  justify-content: flex-start;
+  gap: clamp(24px, 4vw, 64px);
+}
+
+.bulk-attendance-card .attendance-card-header > div:first-child {
+  flex: 0 1 520px;
+  min-width: 0;
 }
 
 .bulk-select-all {
@@ -213,6 +257,24 @@
 
   font-size: 12px;
   font-weight: 800;
+}
+
+.bulk-attendance-table th:not(:first-child),
+.bulk-attendance-table td:not(:first-child) {
+  text-align: center;
+}
+
+.bulk-status-column {
+  width: 122px;
+}
+
+.bulk-work-column,
+.bulk-overtime-column {
+  width: 132px;
+}
+
+.bulk-advance-column {
+  width: 112px;
 }
 
 .bulk-header-mobile {
@@ -875,6 +937,12 @@
   }
 
   .bulk-date-field {
+    flex-basis: auto;
+    width: 100%;
+  }
+
+  .bulk-attendance-card .attendance-card-header > div:first-child {
+    flex: initial;
     width: 100%;
   }
 
@@ -1107,16 +1175,16 @@
 }
 
 .bulk-attendance-table td:nth-child(2) .ep-input {
-  width: 92px;
+  width: 120px;
 }
 
 .bulk-attendance-table td:nth-child(3) .ep-input,
 .bulk-attendance-table td:nth-child(4) .ep-input {
-  width: 4.5ch;
+  width: 5.5ch;
 }
 
 .bulk-attendance-table td:nth-child(5) .ep-input {
-  width: 7ch;
+  width: 8ch;
 }
 
 .bulk-attendance-actions {

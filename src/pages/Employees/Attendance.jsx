@@ -15,6 +15,16 @@ const getCurrentMonth = () => {
 
 const getToday = () => new Date().toISOString().slice(0, 10);
 
+const formatCompactDate = (value) => {
+  const [year, month, day] = String(value || "").split("-");
+
+  if (!year || !month || !day) {
+    return "DD/MM/YY";
+  }
+
+  return `${day}/${month}/${year.slice(-2)}`;
+};
+
 const AttendancePage = () => {
   const [employees, setEmployees] = useState([]);
   const [monthRecords, setMonthRecords] = useState([]);
@@ -504,17 +514,22 @@ const AttendancePage = () => {
             </div>
             <div className="bulk-date-field">
               <label htmlFor="bulk-attendance-date">Date</label>
-              <input
-                id="bulk-attendance-date"
-                type="date"
-                value={bulkDate}
-                onChange={(event) => {
-                  clearMessages();
-                  setBulkDate(event.target.value);
-                }}
-                className="ep-input"
-                disabled={savingBulk}
-              />
+              <div className="bulk-date-control">
+                <span className="bulk-date-display" aria-hidden="true">
+                  {formatCompactDate(bulkDate)}
+                </span>
+                <input
+                  id="bulk-attendance-date"
+                  type="date"
+                  value={bulkDate}
+                  onChange={(event) => {
+                    clearMessages();
+                    setBulkDate(event.target.value);
+                  }}
+                  className="bulk-date-native-input"
+                  disabled={savingBulk}
+                />
+              </div>
             </div>
           </div>
 
