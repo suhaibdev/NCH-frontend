@@ -1139,7 +1139,7 @@
   }
 
   .bulk-attendance-table-wrap {
-    overflow-x: auto;
+    overflow-x: hidden;
     padding: 0;
   }
 
@@ -1215,6 +1215,8 @@
 
   .bulk-attendance-table td .ep-input {
     font-size: 12px;
+    padding: 0 5px;
+    box-sizing: border-box;
   }
 
   .bulk-attendance-table td:nth-child(2) .ep-input {
@@ -1242,6 +1244,14 @@
   .bulk-employee-choice {
     max-height: 2.8em;
     overflow: hidden;
+    gap: 4px;
+    font-size: 12px;
+    line-height: 1.25;
+  }
+
+  .bulk-employee-choice input {
+    width: 14px;
+    height: 14px;
   }
 
   .att-register-wrap {

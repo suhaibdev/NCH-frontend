@@ -524,20 +524,6 @@ const AttendancePage = () => {
             <div className="attendance-state">No active employees found.</div>
           ) : (
             <>
-              <label className="bulk-select-all">
-                <input
-                  type="checkbox"
-                  checked={bulkRows.every((row) => row.selected)}
-                  onChange={(event) =>
-                    setBulkRows((rows) =>
-                      rows.map((row) => ({ ...row, selected: event.target.checked }))
-                    )
-                  }
-                  disabled={savingBulk}
-                />
-                Select All
-              </label>
-
               <div className="bulk-attendance-table-wrap">
                 <table className="bulk-attendance-table">
                   <colgroup>
