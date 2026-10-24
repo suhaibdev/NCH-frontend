@@ -206,7 +206,12 @@ const AttendancePage = () => {
   };
 
   const handleBulkWorkHoursChange = (employeeId, rawValue) => {
-    const workHours = rawValue === "" ? "" : Number(rawValue);
+    if (rawValue === "") {
+      updateBulkRow(employeeId, { workHours: "" });
+      return;
+    }
+
+    const workHours = Number(rawValue);
 
     if (workHours !== "" && workHours > 8) {
       setError("Work hours must be between 0 and 8.");
@@ -226,6 +231,19 @@ const AttendancePage = () => {
 
     if (selectedRows.length === 0) {
       setError("Select at least one employee to save attendance.");
+      return;
+    }
+
+    const incompleteRow = selectedRows.find(
+      (row) =>
+        row.workHours === "" ||
+        row.workHours === null ||
+        row.workHours === undefined ||
+        !Number.isFinite(Number(row.workHours))
+    );
+
+    if (incompleteRow) {
+      setError(`Working Hour is required for ${incompleteRow.employeeName}.`);
       return;
     }
 
@@ -522,6 +540,13 @@ const AttendancePage = () => {
 
               <div className="bulk-attendance-table-wrap">
                 <table className="bulk-attendance-table">
+                  <colgroup>
+                    <col className="bulk-employee-column" />
+                    <col className="bulk-status-column" />
+                    <col className="bulk-work-column" />
+                    <col className="bulk-overtime-column" />
+                    <col className="bulk-advance-column" />
+                  </colgroup>
                   <thead>
                     <tr>
                       <th>Employee</th>
