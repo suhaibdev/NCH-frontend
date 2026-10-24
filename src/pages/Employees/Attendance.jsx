@@ -645,7 +645,7 @@ const AttendancePage = () => {
             </>
           )}
         </section>
-      ) : (
+      ) : attendanceMode === "single" ? (
         <div className="single-attendance-section" id="attendance-form-card">
           <div className="attendance-card-header">
             <div>
@@ -839,7 +839,7 @@ const AttendancePage = () => {
             </div>
           </form>
         </div>
-      )}
+      ) : null}
 
       {/* ============================
           REGISTER

@@ -885,7 +885,6 @@
   }
 
   .bulk-attendance-table,
-  .bulk-attendance-table tbody,
   .bulk-attendance-table tr,
   .bulk-attendance-table td {
     display: block;
@@ -1139,17 +1138,8 @@
   }
 
   .bulk-attendance-table-wrap {
-    overflow-x: hidden;
+    overflow-x: visible;
     padding: 0;
-  }
-
-  .bulk-attendance-table,
-  .bulk-attendance-table tbody,
-  .bulk-attendance-table tr,
-  .bulk-attendance-table td {
-    display: table-cell;
-    width: auto;
-    min-width: 0;
   }
 
   .bulk-attendance-table {
@@ -1159,21 +1149,25 @@
     table-layout: fixed;
   }
 
+  .bulk-attendance-table tbody {
+    display: table-row-group;
+  }
+
   .bulk-employee-column {
-    width: 28%;
+    width: auto;
   }
 
   .bulk-status-column {
-    width: 28%;
+    width: 84px;
   }
 
   .bulk-work-column,
   .bulk-overtime-column {
-    width: 14%;
+    width: 50px;
   }
 
   .bulk-advance-column {
-    width: 16%;
+    width: 62px;
   }
 
   .bulk-attendance-table thead {
@@ -1188,12 +1182,13 @@
   }
 
   .bulk-attendance-table td {
-    padding: 7px 4px;
+    display: table-cell;
+    padding: 6px 2px;
     text-align: center;
   }
 
   .bulk-attendance-table th {
-    padding: 6px 3px;
+    padding: 6px 2px;
     text-align: center;
     white-space: normal;
   }
@@ -1221,23 +1216,23 @@
 
   .bulk-attendance-table td:nth-child(2) .ep-input {
     width: 100%;
-    min-width: 72px;
-    max-width: 86px;
+    min-width: 0;
+    max-width: 100%;
     height: 32px;
   }
 
   .bulk-attendance-table td:nth-child(3) .ep-input,
   .bulk-attendance-table td:nth-child(4) .ep-input {
     width: 100%;
-    min-width: 4.5ch;
-    max-width: 5.5ch;
+    min-width: 0;
+    max-width: 100%;
     height: 32px;
   }
 
   .bulk-attendance-table td:nth-child(5) .ep-input {
     width: 100%;
-    min-width: 6.5ch;
-    max-width: 7.5ch;
+    min-width: 0;
+    max-width: 100%;
     height: 32px;
   }
 
