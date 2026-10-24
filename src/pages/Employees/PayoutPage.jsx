@@ -1436,8 +1436,7 @@ const PayoutPage = () => {
                         <th>Advance Left</th>
                         <th>Paid On</th>
                         <th>Method</th>
-                        <th>Print</th>
-                        <th>Delete</th>
+                        <th>Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -1461,42 +1460,44 @@ const PayoutPage = () => {
                               <td>{formatBusinessDate(payout.paidOn)}</td>
                               <td>{formatPaymentMethod(payout.paymentMethod)}</td>
                               <td>
-                                <button
-                                  type="button"
-                                  className="ep-btn ep-btn-secondary history-edit-btn"
-                                  disabled
-                                  title="Edit payout — coming in next phase"
-                                >
-                                  Edit
-                                </button>
-                                <button
-                                  type="button"
-                                  className="ep-btn ep-btn-secondary history-print-btn"
-                                  onClick={(event) => {
-                                    event.stopPropagation();
-                                    handlePrintBulk(payout);
-                                  }}
-                                >
-                                  Print
-                                </button>
-                              </td>
-                              <td>
-                                <button
-                                  type="button"
-                                  className="ep-btn ep-btn-delete history-delete-btn"
-                                  disabled={deletingBulkHistoryId === payout._id}
-                                  onClick={(event) => {
-                                    event.stopPropagation();
-                                    handleDeleteBulkHistory(payout);
-                                  }}
-                                >
-                                  {deletingBulkHistoryId === payout._id ? "Deleting..." : "Delete"}
-                                </button>
+                                <div className="payout-history-actions">
+                                  <button
+                                    type="button"
+                                    className="ep-btn ep-btn-secondary history-edit-btn"
+                                    disabled
+                                    title="Edit payout — coming in next phase"
+                                  >
+                                    Edit
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="ep-btn ep-btn-secondary history-print-btn"
+                                    onClick={(event) => {
+                                      event.stopPropagation();
+                                      handlePrintBulk(payout);
+                                    }}
+                                  >
+                                    Print
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="ep-btn ep-btn-delete history-delete-btn"
+                                    disabled={deletingBulkHistoryId === payout._id}
+                                    onClick={(event) => {
+                                      event.stopPropagation();
+                                      handleDeleteBulkHistory(payout);
+                                    }}
+                                  >
+                                    {deletingBulkHistoryId === payout._id
+                                      ? "Deleting..."
+                                      : "Delete"}
+                                  </button>
+                                </div>
                               </td>
                             </tr>
                             {expanded && (
                               <tr className="payout-history-expanded-row">
-                                <td colSpan="10">
+                                <td colSpan="9">
                                   <div className="payout-history-details">
                                     {payout.employees?.map((line) => (
                                       <div key={line.employee} className="payout-history-line">
@@ -1550,35 +1551,37 @@ const PayoutPage = () => {
                           <strong>Paid On</strong>
                           <span>{formatBusinessDate(payout.paidOn)}</span>
                         </div>
-                        <button
-                          type="button"
-                          className="ep-btn ep-btn-secondary history-edit-btn"
-                          disabled
-                          title="Edit payout — coming in next phase"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          type="button"
-                          className="ep-btn ep-btn-secondary history-print-btn"
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            handlePrintBulk(payout);
-                          }}
-                        >
-                          Print
-                        </button>
-                        <button
-                          type="button"
-                          className="ep-btn ep-btn-delete history-delete-btn"
-                          disabled={deletingBulkHistoryId === payout._id}
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            handleDeleteBulkHistory(payout);
-                          }}
-                        >
-                          {deletingBulkHistoryId === payout._id ? "Deleting..." : "Delete"}
-                        </button>
+                        <div className="payout-history-actions">
+                          <button
+                            type="button"
+                            className="ep-btn ep-btn-secondary history-edit-btn"
+                            disabled
+                            title="Edit payout — coming in next phase"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            type="button"
+                            className="ep-btn ep-btn-secondary history-print-btn"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              handlePrintBulk(payout);
+                            }}
+                          >
+                            Print
+                          </button>
+                          <button
+                            type="button"
+                            className="ep-btn ep-btn-delete history-delete-btn"
+                            disabled={deletingBulkHistoryId === payout._id}
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              handleDeleteBulkHistory(payout);
+                            }}
+                          >
+                            {deletingBulkHistoryId === payout._id ? "Deleting..." : "Delete"}
+                          </button>
+                        </div>
                         {expanded && (
                           <div className="payout-history-mobile-expanded">
                             <span>Advance Cut: ₹{formatMoney(payout.totalAdvanceCut)}</span>
@@ -1644,8 +1647,7 @@ const PayoutPage = () => {
                         <th>Net Paid</th>
                         <th>Paid On</th>
                         <th>Method</th>
-                        <th>Print</th>
-                        <th>Delete</th>
+                        <th>Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -1669,42 +1671,42 @@ const PayoutPage = () => {
                               <td>{formatBusinessDate(payout.paidOn)}</td>
                               <td>{formatPaymentMethod(payout.paymentMethod)}</td>
                               <td>
-                                <button
-                                  type="button"
-                                  className="ep-btn ep-btn-secondary history-edit-btn"
-                                  disabled
-                                  title="Edit payout — coming in next phase"
-                                >
-                                  Edit
-                                </button>
-                                <button
-                                  type="button"
-                                  className="ep-btn ep-btn-secondary history-print-btn"
-                                  disabled
-                                  title="Single payout printing will be enabled in the print-repair phase"
-                                >
-                                  Print
-                                </button>
-                              </td>
-                              <td>
-                                <button
-                                  type="button"
-                                  className="ep-btn ep-btn-delete history-delete-btn"
-                                  disabled={deletingSingleHistoryId === payout._id}
-                                  onClick={(event) => {
-                                    event.stopPropagation();
-                                    handleDeleteSingleHistory(payout);
-                                  }}
-                                >
-                                  {deletingSingleHistoryId === payout._id
-                                    ? "Deleting..."
-                                    : "Delete"}
-                                </button>
+                                <div className="payout-history-actions">
+                                  <button
+                                    type="button"
+                                    className="ep-btn ep-btn-secondary history-edit-btn"
+                                    disabled
+                                    title="Edit payout — coming in next phase"
+                                  >
+                                    Edit
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="ep-btn ep-btn-secondary history-print-btn"
+                                    disabled
+                                    title="Single payout printing will be enabled in the print-repair phase"
+                                  >
+                                    Print
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="ep-btn ep-btn-delete history-delete-btn"
+                                    disabled={deletingSingleHistoryId === payout._id}
+                                    onClick={(event) => {
+                                      event.stopPropagation();
+                                      handleDeleteSingleHistory(payout);
+                                    }}
+                                  >
+                                    {deletingSingleHistoryId === payout._id
+                                      ? "Deleting..."
+                                      : "Delete"}
+                                  </button>
+                                </div>
                               </td>
                             </tr>
                             {expanded && (
                               <tr className="payout-history-expanded-row">
-                                <td colSpan="8">
+                                <td colSpan="7">
                                   <div className="payout-history-line">
                                     <span>Working Time: {formatWorkingTime(payout)}</span>
                                     <span>Gross: ₹{formatMoney(payout.grossSalary)}</span>
@@ -1750,33 +1752,35 @@ const PayoutPage = () => {
                           <strong>Paid On</strong>
                           <span>{formatBusinessDate(payout.paidOn)}</span>
                         </div>
-                        <button
-                          type="button"
-                          className="ep-btn ep-btn-secondary history-edit-btn"
-                          disabled
-                          title="Edit payout — coming in next phase"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          type="button"
-                          className="ep-btn ep-btn-secondary history-print-btn"
-                          disabled
-                          title="Single payout printing will be enabled in the print-repair phase"
-                        >
-                          Print
-                        </button>
-                        <button
-                          type="button"
-                          className="ep-btn ep-btn-delete history-delete-btn"
-                          disabled={deletingSingleHistoryId === payout._id}
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            handleDeleteSingleHistory(payout);
-                          }}
-                        >
-                          {deletingSingleHistoryId === payout._id ? "Deleting..." : "Delete"}
-                        </button>
+                        <div className="payout-history-actions">
+                          <button
+                            type="button"
+                            className="ep-btn ep-btn-secondary history-edit-btn"
+                            disabled
+                            title="Edit payout — coming in next phase"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            type="button"
+                            className="ep-btn ep-btn-secondary history-print-btn"
+                            disabled
+                            title="Single payout printing will be enabled in the print-repair phase"
+                          >
+                            Print
+                          </button>
+                          <button
+                            type="button"
+                            className="ep-btn ep-btn-delete history-delete-btn"
+                            disabled={deletingSingleHistoryId === payout._id}
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              handleDeleteSingleHistory(payout);
+                            }}
+                          >
+                            {deletingSingleHistoryId === payout._id ? "Deleting..." : "Delete"}
+                          </button>
+                        </div>
                         {expanded && (
                           <div className="payout-history-mobile-expanded">
                             <span>Method: {formatPaymentMethod(payout.paymentMethod)}</span>
@@ -2961,29 +2965,34 @@ const PayoutPage = () => {
               </table>
 
               <section className="payout-print-summary" aria-label="Payout summary">
-                <div>
-                  <span>Total Gross</span>
-                  <strong>₹{formatMoney(printPayout.totalGross)}</strong>
+                <div className="payout-print-summary-left">
+                  <div className="payout-print-summary-row">
+                    <span>Payment Method</span>
+                    <strong>{formatBulkPaymentMethod(printPayout)}</strong>
+                  </div>
+                  <div className="payout-print-summary-row">
+                    <span>Other Deduction</span>
+                    <strong>₹{formatMoney(printPayout.totalOtherDeduction)}</strong>
+                  </div>
+                  <div className="payout-print-summary-row">
+                    <span>Advance Left</span>
+                    <strong>₹{formatMoney(printPayout.totalAdvanceLeft)}</strong>
+                  </div>
                 </div>
-                <div>
-                  <span>Total Advance Cut</span>
-                  <strong>₹{formatMoney(printPayout.totalAdvanceCut)}</strong>
-                </div>
-                <div>
-                  <span>Total Advance Left</span>
-                  <strong>₹{formatMoney(printPayout.totalAdvanceLeft)}</strong>
-                </div>
-                <div>
-                  <span>Total Other Deduction</span>
-                  <strong>₹{formatMoney(printPayout.totalOtherDeduction)}</strong>
-                </div>
-                <div>
-                  <span>Total Paid</span>
-                  <strong>₹{formatMoney(printPayout.totalNetPaid)}</strong>
-                </div>
-                <div>
-                  <span>Payment Method</span>
-                  <strong>{formatBulkPaymentMethod(printPayout)}</strong>
+
+                <div className="payout-print-summary-right">
+                  <div className="payout-print-summary-row">
+                    <strong>Total Gross</strong>
+                    <strong>₹{formatMoney(printPayout.totalGross)}</strong>
+                  </div>
+                  <div className="payout-print-summary-row">
+                    <strong>Advance Cut</strong>
+                    <strong>₹{formatMoney(printPayout.totalAdvanceCut)}</strong>
+                  </div>
+                  <div className="payout-print-summary-row payout-print-total-paid">
+                    <strong>Total Paid</strong>
+                    <strong>₹{formatMoney(printPayout.totalNetPaid)}</strong>
+                  </div>
                 </div>
               </section>
             </section>
