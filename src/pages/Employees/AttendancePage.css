@@ -173,34 +173,52 @@
   height: 34px;
 }
 
-.bulk-date-display {
+.bulk-date-text-input {
   display: flex;
   align-items: center;
 
   width: 100%;
   height: 100%;
-  padding: 0 11px;
-
-  color: #344054;
-  background: #ffffff;
-  border: 1px solid #d0d5dd;
-  border-radius: 6px;
-
-  font-size: 13px;
+  padding: 0 39px 0 11px !important;
   font-variant-numeric: tabular-nums;
-  box-sizing: border-box;
+}
+
+.bulk-date-picker-button {
+  position: absolute;
+  top: 50%;
+  right: 0;
+
+  display: grid;
+  place-items: center;
+
+  width: 36px;
+  height: 100%;
+  padding: 0;
+
+  color: #475467;
+  background: transparent;
+  border-left: 1px solid #eaecf0;
+  border-top: 0;
+  border-right: 0;
+  border-bottom: 0;
+
+  font-size: 15px;
+  line-height: 1;
+  transform: translateY(-50%);
+  cursor: pointer;
 }
 
 .bulk-date-native-input {
   position: absolute;
-  inset: 0;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
 
-  width: 100%;
-  height: 100%;
+  clip: rect(0 0 0 0);
   margin: 0;
 
   opacity: 0;
-  cursor: pointer;
+  pointer-events: none;
 }
 
 .bulk-attendance-card .attendance-card-header {

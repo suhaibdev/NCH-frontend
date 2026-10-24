@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import api from "../../config/axios";
 
 import "./AttendancePage.css";
@@ -25,6 +25,32 @@ const formatCompactDate = (value) => {
   return `${day}/${month}/${year.slice(-2)}`;
 };
 
+const parseCompactDate = (value) => {
+  const match = String(value || "")
+    .trim()
+    .match(/^(\d{2})\/(\d{2})\/(\d{2})$/);
+
+  if (!match) {
+    return null;
+  }
+
+  const [, dayText, monthText, yearText] = match;
+  const year = 2000 + Number(yearText);
+  const month = Number(monthText);
+  const day = Number(dayText);
+  const candidate = new Date(Date.UTC(year, month - 1, day));
+
+  if (
+    candidate.getUTCFullYear() !== year ||
+    candidate.getUTCMonth() !== month - 1 ||
+    candidate.getUTCDate() !== day
+  ) {
+    return null;
+  }
+
+  return `${year}-${monthText}-${dayText}`;
+};
+
 const AttendancePage = () => {
   const [employees, setEmployees] = useState([]);
   const [monthRecords, setMonthRecords] = useState([]);
@@ -34,6 +60,10 @@ const AttendancePage = () => {
   const [attendanceMode, setAttendanceMode] = useState(null);
 
   const [bulkDate, setBulkDate] = useState(getToday());
+
+  const [bulkDateDisplay, setBulkDateDisplay] = useState(() => formatCompactDate(getToday()));
+
+  const bulkDatePickerRef = useRef(null);
 
   const [bulkRows, setBulkRows] = useState([]);
 
@@ -82,6 +112,54 @@ const AttendancePage = () => {
   const clearMessages = () => {
     setMessage("");
     setError("");
+  };
+
+  const commitBulkDateDisplay = () => {
+    const canonicalDate = parseCompactDate(bulkDateDisplay);
+
+    if (!canonicalDate) {
+      setError("Enter a valid date in DD/MM/YY format.");
+      return;
+    }
+
+    clearMessages();
+    setBulkDateDisplay(formatCompactDate(canonicalDate));
+
+    if (canonicalDate !== bulkDate) {
+      setBulkDate(canonicalDate);
+    }
+  };
+
+  const handleBulkCalendarChange = (event) => {
+    const canonicalDate = event.target.value;
+
+    if (!canonicalDate) {
+      return;
+    }
+
+    clearMessages();
+    setBulkDateDisplay(formatCompactDate(canonicalDate));
+    setBulkDate(canonicalDate);
+  };
+
+  const openBulkDatePicker = () => {
+    const picker = bulkDatePickerRef.current;
+
+    if (!picker || savingBulk) {
+      return;
+    }
+
+    try {
+      if (typeof picker.showPicker === "function") {
+        picker.showPicker();
+      } else {
+        picker.focus();
+        picker.click();
+      }
+    } catch {
+      picker.focus();
+      picker.click();
+    }
   };
 
   const fetchEmployees = async () => {
@@ -237,6 +315,19 @@ const AttendancePage = () => {
 
   const handleBulkSave = async () => {
     clearMessages();
+    const canonicalDate = parseCompactDate(bulkDateDisplay);
+
+    if (!canonicalDate) {
+      setError("Enter a valid date in DD/MM/YY format.");
+      return;
+    }
+
+    if (canonicalDate !== bulkDate) {
+      setBulkDateDisplay(formatCompactDate(canonicalDate));
+      setBulkDate(canonicalDate);
+      return;
+    }
+
     const selectedRows = bulkRows.filter((row) => row.selected);
 
     if (selectedRows.length === 0) {
@@ -515,18 +606,40 @@ const AttendancePage = () => {
             <div className="bulk-date-field">
               <label htmlFor="bulk-attendance-date">Date</label>
               <div className="bulk-date-control">
-                <span className="bulk-date-display" aria-hidden="true">
-                  {formatCompactDate(bulkDate)}
-                </span>
                 <input
                   id="bulk-attendance-date"
+                  type="text"
+                  value={bulkDateDisplay}
+                  onChange={(event) => setBulkDateDisplay(event.target.value)}
+                  onBlur={commitBulkDateDisplay}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      event.preventDefault();
+                      commitBulkDateDisplay();
+                    }
+                  }}
+                  className="ep-input bulk-date-text-input"
+                  inputMode="numeric"
+                  placeholder="DD/MM/YY"
+                  disabled={savingBulk}
+                />
+                <button
+                  type="button"
+                  className="bulk-date-picker-button"
+                  onClick={openBulkDatePicker}
+                  aria-label="Choose date"
+                  disabled={savingBulk}
+                >
+                  📅
+                </button>
+                <input
+                  ref={bulkDatePickerRef}
                   type="date"
                   value={bulkDate}
-                  onChange={(event) => {
-                    clearMessages();
-                    setBulkDate(event.target.value);
-                  }}
+                  onChange={handleBulkCalendarChange}
                   className="bulk-date-native-input"
+                  tabIndex={-1}
+                  aria-hidden="true"
                   disabled={savingBulk}
                 />
               </div>
