@@ -305,7 +305,7 @@ const CustomersPage = () => {
           <span>Total Customers</span>
 
           <strong>
-            {customers.length}
+            {isLoading ? "…" : customers.length}
           </strong>
         </div>
       </div>

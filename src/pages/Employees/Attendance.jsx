@@ -632,7 +632,7 @@ const AttendancePage = () => {
         <div className="attendance-count">
           <span>Active Employees</span>
 
-          <strong>{employees.length}</strong>
+          <strong>{loadingEmployees ? "…" : employees.length}</strong>
         </div>
       </div>
 

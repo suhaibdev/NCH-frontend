@@ -2794,8 +2794,10 @@ const PayoutPage = () => {
               <button
                 type="button"
                 className="ep-btn ep-btn-primary"
-                disabled
-                title="Single payout printing will be enabled in the print-repair phase"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  handlePrintSingle(singleResult);
+                }}
               >
                 Print
               </button>
