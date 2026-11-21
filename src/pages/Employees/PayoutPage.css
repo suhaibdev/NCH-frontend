@@ -2159,3 +2159,284 @@
     flex: 1 1 120px;
   }
 }
+
+/* ==========================================================
+   MOBILE CREATE-SECTION LAYOUT (<= 768px ONLY)
+   Flattens the nested page/section cards, tightens gutters and
+   makes the create forms compact. Desktop/tablet are unaffected.
+   Keep this block last so it wins over the earlier mobile rules.
+========================================================== */
+@media (max-width: 768px) {
+  /* 1. Gutters: only the admin shell's 12px side padding remains.
+        padding-bottom keeps the fixed bottom-nav clearance. */
+  .ep-container.payout-page {
+    margin: 0;
+    padding: 0 0 96px;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .payout-card {
+    margin-bottom: 12px;
+    border: 0;
+    border-top: 1px solid #e4e7ec;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .payout-card.payout-preview-card {
+    border-top: 3px solid #1976d2;
+  }
+
+  .payout-card-header {
+    padding: 12px 0 8px;
+    border-bottom: 0;
+  }
+
+  .payout-card-header h2 {
+    font-size: 17px;
+  }
+
+  .payout-period-section,
+  .payout-form,
+  .bulk-payout-form {
+    padding-right: 0;
+    padding-left: 0;
+  }
+
+  .payout-period-section {
+    padding-top: 4px;
+  }
+
+  /* 2. Headings: keep "Payout" and "Create Payout"; the tab switcher
+        names the mode, so the repeated card title is hidden. */
+  .payout-page-header {
+    margin-bottom: 12px;
+  }
+
+  .payout-page-header h1 {
+    font-size: 22px;
+  }
+
+  .payout-page-header p {
+    margin-top: 4px;
+    font-size: 13px;
+  }
+
+  .payout-create-heading h2 {
+    margin: 12px 0 8px;
+    color: #24324a;
+    font-size: 18px;
+  }
+
+  .payout-create-card > .payout-card-header {
+    padding: 8px 0 4px;
+  }
+
+  .payout-create-card > .payout-card-header h2 {
+    display: none;
+  }
+
+  .payout-create-card > .payout-card-header p {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  /* 3. Mode switch: compact full-width underline tabs, no outer box. */
+  .payout-mode-switch {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0;
+    width: 100%;
+    margin-bottom: 8px;
+    padding: 0;
+    border-bottom: 1px solid #e4e7ec;
+    border-radius: 0;
+    background: transparent;
+    box-sizing: border-box;
+  }
+
+  .payout-mode-btn {
+    min-height: 40px;
+    padding: 0 8px;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .payout-mode-btn.active {
+    margin-bottom: -1px;
+    border-bottom: 2px solid #1976d2;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  /* 4. Payroll Period: compact 2x2 grid (also beats the <=420 single column). */
+  .payout-period-section .payout-message {
+    margin: 8px 0 0;
+  }
+
+  .payout-period-buttons {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .payout-period-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    min-height: 40px;
+    padding: 0 8px;
+    line-height: 1.2;
+    text-align: center;
+  }
+
+  /* 5. Start/End side by side. Employee and Payment Method span the row. */
+  .payout-form,
+  .bulk-payout-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+
+  .payout-form > .payout-field:first-child,
+  .bulk-payout-form > .payout-field:nth-child(3),
+  .payout-preview-action,
+  .bulk-preview-button-wrap {
+    grid-column: 1 / -1;
+  }
+
+  .payout-field {
+    gap: 5px;
+  }
+
+  .payout-field label {
+    font-size: 12px;
+  }
+
+  .payout-form .ep-input,
+  .bulk-payout-form .ep-input,
+  .payout-deduction-grid .ep-input {
+    min-width: 0;
+    height: 42px;
+    padding: 0 10px;
+    font-size: 14px;
+  }
+
+  .payout-form input[type="date"],
+  .bulk-payout-form input[type="date"] {
+    -webkit-appearance: none;
+    appearance: none;
+    line-height: 1.2;
+  }
+
+  .payout-preview-action .ep-btn,
+  .bulk-preview-button-wrap .ep-btn,
+  .payout-create-action .ep-btn {
+    width: 100%;
+    min-height: 42px;
+  }
+
+  /* 7. Single flow: preview, deductions, summary, success card. */
+  .payout-preview-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    padding: 12px 0;
+  }
+
+  .payout-stat {
+    padding: 10px;
+  }
+
+  .payout-stat strong {
+    font-size: 16px;
+  }
+
+  .payout-deduction-section {
+    padding: 0 0 12px;
+  }
+
+  .payout-deduction-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .payout-deduction-buttons {
+    flex-wrap: wrap;
+  }
+
+  .payout-small-btn {
+    min-height: 40px;
+  }
+
+  .payout-salary-summary {
+    margin: 0 0 12px;
+    padding: 12px;
+  }
+
+  .payout-create-action {
+    padding: 0 0 12px;
+  }
+
+  .bulk-success-header {
+    padding: 12px 0;
+  }
+
+  .bulk-success-details {
+    gap: 0;
+    background: transparent;
+  }
+
+  .bulk-success-detail {
+    padding: 10px 0;
+    border-bottom: 1px solid #e7ecf1;
+    background: transparent;
+  }
+
+  .bulk-success-actions {
+    padding: 12px 0 4px;
+  }
+
+  .bulk-success-actions .ep-btn {
+    min-height: 42px;
+  }
+
+  /* Bulk preview/result gutters (layout only). */
+  .bulk-select-bar {
+    padding: 10px 0;
+    background: transparent;
+  }
+
+  .bulk-summary {
+    padding: 12px 0;
+    background: transparent;
+  }
+
+  .bulk-result-summary,
+  .bulk-result-list,
+  .bulk-print-action {
+    padding-right: 0;
+    padding-left: 0;
+  }
+
+  .bulk-mobile-card-list {
+    padding: 10px 0;
+  }
+
+  /* History section: tighter gutters only. */
+  .payout-history-tabs {
+    padding: 10px 0;
+  }
+
+  .payout-history-mobile-list {
+    padding: 10px 0;
+  }
+
+  .payout-history-pagination {
+    padding: 10px 0;
+  }
+}

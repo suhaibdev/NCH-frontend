@@ -2466,7 +2466,7 @@ const PayoutPage = () => {
 
         {payoutMode === "single" && !singleResult && (
           <>
-            <div className="payout-card">
+            <div className="payout-card payout-create-card">
               <div className="payout-card-header">
                 <div>
                   <h2>Create Single Payout</h2>
@@ -2817,7 +2817,7 @@ const PayoutPage = () => {
 
         {payoutMode === "bulk" && !bulkResult?.payout && (
           <>
-            <div className="payout-card">
+            <div className="payout-card payout-create-card">
               <div className="payout-card-header">
                 <div>
                   <h2>Bulk Payout</h2>
