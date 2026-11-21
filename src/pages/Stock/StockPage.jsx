@@ -7,6 +7,12 @@ import React, {
 
 import api from "../../config/axios";
 import { formatBusinessDate } from "../../utils/businessDate";
+import {
+  DEFAULT_GST_RATE_PERCENT,
+  GST_RATE_PERCENTS,
+  HSN_PATTERN,
+  effectiveGstRate,
+} from "../../utils/gst";
 
 import "./StockPage.css";
 
@@ -41,6 +47,33 @@ const EMPTY_ADD_FORM = {
   openingStock: "",
   minimumStock: "",
   notes: "",
+  hsnCode: "",
+  gstRatePercent: String(DEFAULT_GST_RATE_PERCENT),
+};
+
+
+/*
+ * Finished Goods tax metadata (HSN, GST rate). Returns an error
+ * message or "" when valid. The backend re-validates.
+ */
+const validateTaxForm = (form) => {
+  if (
+    form.hsnCode &&
+    !HSN_PATTERN.test(form.hsnCode)
+  ) {
+    return "HSN code must be 4 to 8 digits.";
+  }
+
+  if (
+    !GST_RATE_PERCENTS.includes(
+      Number(form.gstRatePercent)
+    ) ||
+    form.gstRatePercent === ""
+  ) {
+    return "Select a valid GST rate.";
+  }
+
+  return "";
 };
 
 
@@ -141,6 +174,8 @@ const StockPage = () => {
       },
       minimumStock: "",
       notes: "",
+      hsnCode: "",
+      gstRatePercent: String(DEFAULT_GST_RATE_PERCENT),
     });
 
 
@@ -455,6 +490,69 @@ const StockPage = () => {
   };
 
 
+  /*
+   * Finished Goods tax details (HSN, GST rate). Shown only
+   * for Finished Goods; these are tax metadata, not prices.
+   */
+  const renderTaxFields = (
+    form,
+    onChange
+  ) => (
+    <>
+      <div className="stock-field">
+        <label htmlFor="stock-hsn-code">
+          HSN Code
+        </label>
+
+        <input
+          id="stock-hsn-code"
+          type="text"
+          inputMode="numeric"
+          maxLength={8}
+          name="hsnCode"
+          value={form.hsnCode}
+          onChange={(event) =>
+            onChange({
+              target: {
+                name: "hsnCode",
+                value: event.target.value.replace(/\D/g, ""),
+              },
+            })
+          }
+          placeholder="4 to 8 digits (optional)"
+        />
+      </div>
+
+
+      <div className="stock-field">
+        <label htmlFor="stock-gst-rate">
+          GST Rate *
+        </label>
+
+        <select
+          id="stock-gst-rate"
+          name="gstRatePercent"
+          value={form.gstRatePercent}
+          onChange={onChange}
+        >
+          {GST_RATE_PERCENTS.map((rate) => (
+            <option
+              key={rate}
+              value={String(rate)}
+            >
+              {rate}%
+            </option>
+          ))}
+        </select>
+
+        <small>
+          Tax details for invoices. Default 5%.
+        </small>
+      </div>
+    </>
+  );
+
+
   const renderIdentityFields = (
     form,
     onChange,
@@ -640,6 +738,19 @@ const StockPage = () => {
         return;
       }
 
+      const isFinishedGoods =
+        activeCategory === "finished_goods";
+
+      if (isFinishedGoods) {
+        const taxError =
+          validateTaxForm(addForm);
+
+        if (taxError) {
+          showError(taxError);
+          return;
+        }
+      }
+
       try {
         setSaving(true);
 
@@ -664,6 +775,14 @@ const StockPage = () => {
             minimumStock,
             notes:
               addForm.notes.trim(),
+            ...(isFinishedGoods
+              ? {
+                  hsnCode:
+                    addForm.hsnCode.trim(),
+                  gstRatePercent:
+                    Number(addForm.gstRatePercent),
+                }
+              : {}),
           }
         );
 
@@ -824,6 +943,10 @@ const StockPage = () => {
         item.minimumStock ?? 0,
       notes:
         item.notes || "",
+      hsnCode:
+        item.hsnCode || "",
+      gstRatePercent:
+        String(effectiveGstRate(item)),
     });
 
     setSupplierQuery(item.supplier?.name || "");
@@ -920,6 +1043,19 @@ const StockPage = () => {
         return;
       }
 
+      const isFinishedGoods =
+        editItem.category === "finished_goods";
+
+      if (isFinishedGoods) {
+        const taxError =
+          validateTaxForm(editForm);
+
+        if (taxError) {
+          showError(taxError);
+          return;
+        }
+      }
+
       try {
         setSaving(true);
 
@@ -939,6 +1075,14 @@ const StockPage = () => {
             minimumStock,
             notes:
               editForm.notes.trim(),
+            ...(isFinishedGoods
+              ? {
+                  hsnCode:
+                    editForm.hsnCode.trim(),
+                  gstRatePercent:
+                    Number(editForm.gstRatePercent),
+                }
+              : {}),
           }
         );
 
@@ -1613,6 +1757,13 @@ const StockPage = () => {
                 </div>
 
 
+                {activeCategory === "finished_goods" &&
+                  renderTaxFields(
+                    addForm,
+                    handleAddChange
+                  )}
+
+
                 <div className="stock-field stock-field-wide">
                   <label>
                     Notes
@@ -1999,6 +2150,13 @@ const StockPage = () => {
                   Unit cannot be changed after stock activity starts.
                 </small>
               </div>
+
+
+              {editItem.category === "finished_goods" &&
+                renderTaxFields(
+                  editForm,
+                  handleEditChange
+                )}
 
 
               <div className="stock-field">

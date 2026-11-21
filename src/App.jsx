@@ -15,6 +15,7 @@ import SalarySlip from "./pages/Employees/SalarySlip";
 import AdminPortalPage from "./pages/AdminPortalPage";
 import EmployeesPage from "./pages/Employees/EmployeesPage";
 import CustomersPage from "./pages/Customer/CustomersPage";
+import CustomerDetailPage from "./pages/Customer/CustomerDetailPage";
 import SuppliersPage from "./pages/Suppliers/SuppliersPage";
 import SupplierDetailPage from "./pages/Suppliers/SupplierDetailPage";
 import ReceiveMaterialPage from "./pages/Suppliers/ReceiveMaterialPage";
@@ -105,6 +106,8 @@ const App = () => {
             <Route path="/admin/employees" element={<EmployeesPage />} />
 
             <Route path="/admin/customers" element={<CustomersPage />} />
+
+            <Route path="/admin/customers/:customerId" element={<CustomerDetailPage />} />
 
             <Route path="/admin/suppliers" element={<SuppliersPage />} />
 
