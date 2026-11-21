@@ -101,6 +101,32 @@ const formatWorkingTime = (record) => {
   return `${fullWorkingDays}D ${remainingWorkingHours}H`;
 };
 
+const getTodayInput = () => {
+  const now = new Date();
+
+  return formatInputDate(now.getFullYear(), now.getMonth(), now.getDate());
+};
+
+const NET_NEGATIVE_TEXT = "has deductions greater than gross salary.";
+
+const FUTURE_PERIOD_TEXT =
+  "This period has not started yet. Choose a period that has already started.";
+
+const getPayoutErrorMessage = (err, fallback) => {
+  const data = err.response?.data;
+  const base = data?.message || fallback;
+
+  if (data?.code !== "PAYOUT_OVERLAP" || !data.overlap) {
+    return base;
+  }
+
+  const { sourceLabel, startDate, endDate, paidOn } = data.overlap;
+
+  return `${base} Existing: ${sourceLabel || "Payout"}, period ${formatBusinessDate(
+    startDate
+  )} – ${formatBusinessDate(endDate)}, paid on ${formatBusinessDate(paidOn)}.`;
+};
+
 const getPeriodDates = (type) => {
   const today = new Date();
 
@@ -108,11 +134,16 @@ const getPeriodDates = (type) => {
 
   const month = today.getMonth();
 
+  const todayInput = getTodayInput();
+
+  // The backend rejects end dates after today, so presets are capped.
+  const cap = (endDate) => (endDate > todayInput ? todayInput : endDate);
+
   if (type === "1-10") {
     return {
       startDate: formatInputDate(year, month, 1),
 
-      endDate: formatInputDate(year, month, 10),
+      endDate: cap(formatInputDate(year, month, 10)),
     };
   }
 
@@ -120,7 +151,7 @@ const getPeriodDates = (type) => {
     return {
       startDate: formatInputDate(year, month, 11),
 
-      endDate: formatInputDate(year, month, 20),
+      endDate: cap(formatInputDate(year, month, 20)),
     };
   }
 
@@ -130,7 +161,7 @@ const getPeriodDates = (type) => {
     return {
       startDate: formatInputDate(year, month, 21),
 
-      endDate: formatInputDate(year, month, lastDay),
+      endDate: cap(formatInputDate(year, month, lastDay)),
     };
   }
 
@@ -253,6 +284,14 @@ const PayoutPage = () => {
   const [historyTab, setHistoryTab] = useState("bulk");
   const [deletingBulkHistoryId, setDeletingBulkHistoryId] = useState(null);
   const [deletingSingleHistoryId, setDeletingSingleHistoryId] = useState(null);
+
+  const todayInput = getTodayInput();
+
+  const singlePresetFuture =
+    singlePeriodType !== "custom" && Boolean(startDate) && startDate > todayInput;
+
+  const bulkPresetFuture =
+    bulkPeriodType !== "custom" && Boolean(bulkStartDate) && bulkStartDate > todayInput;
 
   /* ========================================================
      INITIAL LOAD
@@ -492,7 +531,7 @@ const PayoutPage = () => {
   const handlePreview = async (event) => {
     event.preventDefault();
 
-    if (isPreviewing) {
+    if (isPreviewing || singlePresetFuture) {
       return;
     }
 
@@ -550,6 +589,11 @@ const PayoutPage = () => {
   const otherValue = Number(otherDeduction || 0);
 
   const netSalary = grossSalary - advanceValue - otherValue;
+
+  const singleNetNegative = Boolean(preview) && netSalary < 0;
+
+  const singleEmployeeName =
+    employees.find((employee) => String(employee._id) === String(employeeId))?.name || "Employee";
 
   /* ========================================================
      SINGLE DEDUCTIONS
@@ -620,6 +664,12 @@ const PayoutPage = () => {
       return;
     }
 
+    if (singleNetNegative) {
+      showError(`${singleEmployeeName} ${NET_NEGATIVE_TEXT}`);
+
+      return;
+    }
+
     creatingRef.current = true;
 
     try {
@@ -663,7 +713,7 @@ const PayoutPage = () => {
     } catch (err) {
       console.error("Create payout error:", err);
 
-      showError(err.response?.data?.message || "Unable to create payout.");
+      showError(getPayoutErrorMessage(err, "Unable to create payout."));
     } finally {
       creatingRef.current = false;
 
@@ -736,6 +786,10 @@ const PayoutPage = () => {
 
   const handleBulkPreview = async (event) => {
     event.preventDefault();
+
+    if (bulkPresetFuture) {
+      return;
+    }
 
     clearMessage();
 
@@ -1028,6 +1082,8 @@ const PayoutPage = () => {
      CREATE BULK PAYOUT
   ======================================================== */
 
+  const negativeBulkRows = selectedBulkRows.filter((row) => row.calculatedNet < 0);
+
   const handleBulkCreate = async () => {
     if (bulkCreating) {
       return;
@@ -1035,6 +1091,12 @@ const PayoutPage = () => {
 
     if (selectedBulkRows.length === 0) {
       showError("Please select at least one employee.");
+
+      return;
+    }
+
+    if (negativeBulkRows.length > 0) {
+      showError(`${negativeBulkRows[0].employeeName} ${NET_NEGATIVE_TEXT}`);
 
       return;
     }
@@ -1133,7 +1195,7 @@ const PayoutPage = () => {
     } catch (err) {
       console.error("Bulk payout creation error:", err);
 
-      showError(err.response?.data?.message || "Unable to create bulk payouts.");
+      showError(getPayoutErrorMessage(err, "Unable to create bulk payouts."));
     } finally {
       setBulkCreating(false);
     }
@@ -1887,6 +1949,10 @@ const PayoutPage = () => {
                     </button>
                   ))}
                 </div>
+
+                {singlePresetFuture && (
+                  <div className="payout-message warning">{FUTURE_PERIOD_TEXT}</div>
+                )}
               </div>
 
               <form className="payout-form" onSubmit={handlePreview}>
@@ -1961,7 +2027,11 @@ const PayoutPage = () => {
                 </div>
 
                 <div className="payout-preview-action">
-                  <button type="submit" className="ep-btn ep-btn-primary" disabled={isPreviewing}>
+                  <button
+                    type="submit"
+                    className="ep-btn ep-btn-primary"
+                    disabled={isPreviewing || singlePresetFuture}
+                  >
                     {isPreviewing ? "Calculating..." : "Preview Payout"}
                   </button>
                 </div>
@@ -2121,12 +2191,18 @@ const PayoutPage = () => {
                   </div>
                 </div>
 
+                {singleNetNegative && (
+                  <div className="payout-message warning">
+                    {singleEmployeeName} {NET_NEGATIVE_TEXT}
+                  </div>
+                )}
+
                 <div className="payout-create-action">
                   <button
                     type="button"
                     className="ep-btn ep-btn-primary"
                     onClick={handleCreatePayout}
-                    disabled={isCreating}
+                    disabled={isCreating || singleNetNegative}
                   >
                     {isCreating ? "Creating Payout..." : "Create Payout"}
                   </button>
@@ -2223,6 +2299,10 @@ const PayoutPage = () => {
                     </button>
                   ))}
                 </div>
+
+                {bulkPresetFuture && (
+                  <div className="payout-message warning">{FUTURE_PERIOD_TEXT}</div>
+                )}
               </div>
 
               <form className="bulk-payout-form" onSubmit={handleBulkPreview}>
@@ -2279,7 +2359,11 @@ const PayoutPage = () => {
                 </div>
 
                 <div className="bulk-preview-button-wrap">
-                  <button type="submit" className="ep-btn ep-btn-primary" disabled={bulkPreviewing}>
+                  <button
+                    type="submit"
+                    className="ep-btn ep-btn-primary"
+                    disabled={bulkPreviewing || bulkPresetFuture}
+                  >
                     {bulkPreviewing ? "Calculating All..." : "Preview All Employees"}
                   </button>
                 </div>
@@ -2460,7 +2544,12 @@ const PayoutPage = () => {
                               />
                             </td>
 
-                            <td className="bulk-net-value">₹{formatMoney(row.calculatedNet)}</td>
+                            <td className="bulk-net-value">
+                              ₹{formatMoney(row.calculatedNet)}
+                              {row.selected && row.calculatedNet < 0 && (
+                                <small className="bulk-net-warning">Deductions exceed gross</small>
+                              )}
+                            </td>
 
                             <td>
                               <select
@@ -2619,6 +2708,10 @@ const PayoutPage = () => {
                           <span>Net Paid</span>
                           <strong>₹{formatMoney(row.calculatedNet)}</strong>
                         </div>
+
+                        {row.selected && row.calculatedNet < 0 && (
+                          <small className="bulk-net-warning">Deductions exceed gross</small>
+                        )}
                       </article>
                     );
                   })}
@@ -2664,7 +2757,9 @@ const PayoutPage = () => {
                   <button
                     type="button"
                     className="ep-btn ep-btn-primary bulk-create-btn"
-                    disabled={bulkCreating || selectedBulkRows.length === 0}
+                    disabled={
+                      bulkCreating || selectedBulkRows.length === 0 || negativeBulkRows.length > 0
+                    }
                     onClick={handleBulkCreate}
                   >
                     {bulkCreating

@@ -27,6 +27,28 @@ const getToday = () => {
 
 const isFutureAttendanceDate = (value) => /^\d{4}-\d{2}-\d{2}$/.test(value) && value > getToday();
 
+const ATTENDANCE_LOCK_TEXT =
+  "Attendance is locked because a payout covers this date. Delete the payout first to edit.";
+
+const isAttendanceLockError = (err) =>
+  err?.response?.status === 409 && err.response?.data?.code === "ATTENDANCE_LOCKED_BY_PAYOUT";
+
+const getSaveErrorMessage = (err, fallback, nameLookup = () => "") => {
+  if (!isAttendanceLockError(err)) {
+    return err.response?.data?.message || fallback;
+  }
+
+  const locked = Array.isArray(err.response.data.locked) ? err.response.data.locked : [];
+  const details = locked.map((item) => {
+    const name = item.employeeName || nameLookup(item.employeeId) || "Employee";
+    return item.payoutNumber ? `${name} (payout ${item.payoutNumber})` : name;
+  });
+
+  return details.length > 0
+    ? `${ATTENDANCE_LOCK_TEXT} Locked: ${details.join(", ")}.`
+    : ATTENDANCE_LOCK_TEXT;
+};
+
 const formatCompactDate = (value) => {
   const [year, month, day] = String(value || "").split("-");
 
@@ -120,6 +142,20 @@ const AttendancePage = () => {
   useEffect(() => {
     fetchBulkAttendance(bulkDate);
   }, [bulkDate]);
+
+  const findEmployeeName = (id) =>
+    employees.find((employee) => String(employee._id) === String(id))?.name ||
+    bulkRows.find((row) => String(row.employeeId) === String(id))?.employeeName ||
+    "";
+
+  const scrollErrorIntoView = () => {
+    window.requestAnimationFrame(() => {
+      document.getElementById("attendance-error")?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    });
+  };
 
   const clearMessages = () => {
     setMessage("");
@@ -398,7 +434,8 @@ const AttendancePage = () => {
       setAttendanceMode(null);
     } catch (err) {
       console.error("Error saving bulk attendance:", err);
-      setError(err.response?.data?.message || "Unable to save bulk attendance.");
+      setError(getSaveErrorMessage(err, "Unable to save bulk attendance.", findEmployeeName));
+      if (isAttendanceLockError(err)) scrollErrorIntoView();
     } finally {
       setSavingBulk(false);
     }
@@ -497,7 +534,8 @@ const AttendancePage = () => {
     } catch (err) {
       console.error("Error saving attendance:", err);
 
-      setError(err.response?.data?.message || "Error marking attendance.");
+      setError(getSaveErrorMessage(err, "Error marking attendance.", findEmployeeName));
+      if (isAttendanceLockError(err)) scrollErrorIntoView();
     } finally {
       setSaving(false);
     }
@@ -604,7 +642,11 @@ const AttendancePage = () => {
 
       {message && <div className="attendance-message success">{message}</div>}
 
-      {error && <div className="attendance-message error">{error}</div>}
+      {error && (
+        <div id="attendance-error" className="attendance-message error">
+          {error}
+        </div>
+      )}
 
       {/* ============================
           ATTENDANCE FORM

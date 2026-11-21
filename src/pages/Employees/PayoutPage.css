@@ -814,6 +814,19 @@
   white-space: nowrap;
 }
 
+.bulk-net-warning {
+  display: block;
+
+  margin-top: 4px;
+
+  color: #d32f2f;
+
+  font-size: 12px;
+  font-weight: 700;
+
+  white-space: normal;
+}
+
 /* ==========================================================
    BULK SUMMARY
 ========================================================== */
