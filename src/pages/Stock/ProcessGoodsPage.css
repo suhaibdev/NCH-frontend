@@ -460,3 +460,204 @@ button:disabled {
     display: block;
   }
 }
+
+/* ==========================================================
+   MOBILE LAYOUT (<= 768px ONLY)
+   Serves Process Goods, Washers directory/new, Washer detail/account.
+   ROOT FIX: .process-container is a grid with no column template, so its
+   auto track could not shrink below the 760px table. minmax(0, 1fr) lets
+   the column fit the screen; wide tables scroll inside their own wrapper.
+========================================================== */
+@media (max-width: 768px) {
+  .process-page {
+    min-height: 0;
+    padding: 0 0 24px;
+    background: transparent;
+  }
+
+  .process-container {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .process-container > *,
+  .process-card {
+    min-width: 0;
+  }
+
+  .process-grid,
+  .process-form-wide {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .process-grid {
+    gap: 12px;
+  }
+
+  .process-header {
+    gap: 10px;
+  }
+
+  .process-header h1 {
+    font-size: 1.6rem;
+  }
+
+  .process-header > button {
+    width: 100%;
+    min-height: 42px;
+  }
+
+  .process-card {
+    padding: 12px 0;
+    border: 0;
+    border-top: 1px solid #dce5f2;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .process-card h2 {
+    font-size: 1.1rem;
+  }
+
+  .process-form input,
+  .process-form select,
+  .process-search,
+  .inline-filter select,
+  .washing-rate-control input {
+    min-height: 42px;
+  }
+
+  .compact-button,
+  .back-button,
+  .secondary-button,
+  .process-actions button,
+  .process-pagination button {
+    min-height: 40px;
+  }
+
+  .process-table-scroll {
+    margin-top: 12px;
+  }
+
+  .process-pagination {
+    flex-wrap: wrap;
+  }
+
+  /* Washers directory (4 cols) and Washers list (5 cols): compact rows. */
+  .washers-table,
+  .washers-table tbody,
+  .washers-manage-table,
+  .washers-manage-table tbody {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .washers-table thead,
+  .washers-manage-table thead {
+    display: none;
+  }
+
+  .washers-table tbody tr,
+  .washers-manage-table tbody tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 4px 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid #e2e9f3;
+  }
+
+  .washers-table td,
+  .washers-manage-table td {
+    display: block;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    font-size: 0.9rem;
+    overflow-wrap: anywhere;
+  }
+
+  /* Directory: Name | Phone | Status | Action(View) */
+  .washers-table td:nth-child(1) {
+    grid-column: 1;
+    grid-row: 1;
+    color: #102a56;
+    font-weight: 700;
+  }
+
+  .washers-table td:nth-child(2) {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .washers-table td:nth-child(3) {
+    grid-column: 1;
+    grid-row: 3;
+  }
+
+  .washers-table td:nth-child(2)::before {
+    content: "Phone: ";
+    color: #64748b;
+  }
+
+  .washers-table td:nth-child(3)::before {
+    content: "Status: ";
+    color: #64748b;
+  }
+
+  .washers-table td:nth-child(4) {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    align-self: center;
+  }
+
+  /* Washers list: Name | Phone | Default Rate | Status | Actions(Edit) */
+  .washers-manage-table td:nth-child(1) {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .washers-manage-table td:nth-child(2) {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .washers-manage-table td:nth-child(3) {
+    grid-column: 1;
+    grid-row: 3;
+  }
+
+  .washers-manage-table td:nth-child(4) {
+    grid-column: 1;
+    grid-row: 4;
+  }
+
+  .washers-manage-table td:nth-child(2)::before {
+    content: "Phone: ";
+    color: #64748b;
+  }
+
+  .washers-manage-table td:nth-child(3)::before {
+    content: "Rate: ";
+    color: #64748b;
+  }
+
+  .washers-manage-table td:nth-child(5) {
+    grid-column: 2;
+    grid-row: 1 / span 4;
+    align-self: center;
+  }
+
+  .washers-manage-table .table-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    font-weight: 700;
+  }
+
+  .washers-table .compact-button,
+  .washers-manage-table .compact-button {
+    min-width: 72px;
+  }
+}

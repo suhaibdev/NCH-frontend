@@ -53,7 +53,7 @@ const WashersListPage = () => {
             <p className="process-state">Loading washers…</p>
           ) : items.length ? (
             <div className="process-table-scroll">
-              <table className="process-table">
+              <table className="process-table washers-table">
                 <thead>
                   <tr>
                     <th>Name</th>

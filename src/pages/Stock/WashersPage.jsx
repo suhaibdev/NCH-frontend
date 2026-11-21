@@ -247,7 +247,7 @@ const WashersPage = () => {
               <p className="process-state">No washers found. Add the first washer to begin.</p>
             ) : (
               <div className="process-table-scroll">
-                <table className="process-table">
+                <table className="process-table washers-manage-table">
                   <thead>
                     <tr>
                       <th>Name</th>

@@ -190,6 +190,15 @@
 ========================================== */
 
 @media (max-width: 768px) {
+  /* Safety net: horizontal overflow on any admin page can no longer widen the
+     layout viewport (which hid the fixed bottom nav). clip creates no scroll
+     container, so sticky headers and fixed modals are unaffected. */
+  .admin-shell-main {
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: clip;
+  }
+
   :where(.admin-shell-main) .ep-container {
     margin: 0;
     padding: 0;

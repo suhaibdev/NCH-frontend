@@ -418,3 +418,167 @@
     width: 100%;
   }
 }
+
+/* ==========================================================
+   MOBILE LAYOUT (<= 768px ONLY)
+   Flat sections and compact stock-type rows (no page-level overflow).
+========================================================== */
+@media (max-width: 768px) {
+  .stock-types-page {
+    padding: 12px 0 24px;
+  }
+
+  .stock-types-header {
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .stock-types-header h1 {
+    font-size: 24px;
+  }
+
+  .stock-type-primary-btn {
+    min-height: 42px;
+  }
+
+  .stock-types-toolbar {
+    gap: 10px;
+    margin-bottom: 8px;
+    padding: 0 0 10px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .stock-type-search input,
+  .stock-type-filter select {
+    height: 42px;
+  }
+
+  .stock-types-card,
+  .stock-types-info {
+    border: 0;
+    border-top: 1px solid #e4e7ec;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .stock-types-info {
+    margin-top: 12px;
+    padding: 12px 0;
+  }
+
+  .stock-types-table-scroll {
+    overflow: visible;
+  }
+
+  .stock-types-table,
+  .stock-types-table tbody {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .stock-types-table thead {
+    display: none;
+  }
+
+  .stock-types-table tbody tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 6px 10px;
+    padding: 12px 0;
+    border-bottom: 1px solid #eaecf0;
+  }
+
+  .stock-types-table td {
+    display: block;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    font-size: 13px;
+    overflow-wrap: anywhere;
+  }
+
+  /* Stock Type | Category chip */
+  .stock-types-table td:nth-child(1) {
+    grid-column: 1;
+    grid-row: 1;
+    font-size: 14px;
+  }
+
+  .stock-types-table td:nth-child(2) {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: start;
+  }
+
+  /* Products | Identity rules */
+  .stock-types-table td:nth-child(3) {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .stock-types-table td:nth-child(5) {
+    grid-column: 2;
+    grid-row: 2;
+    color: #667085;
+    text-align: right;
+  }
+
+  .stock-types-table td:nth-child(3)::before {
+    content: "Products: ";
+    color: #667085;
+  }
+
+  .stock-types-table td:nth-child(5)::before {
+    content: "Identity: ";
+  }
+
+  /* Notes */
+  .stock-types-table td:nth-child(4) {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    font-size: 12px;
+  }
+
+  .stock-types-table td:nth-child(4)::before {
+    content: "Notes: ";
+    color: #667085;
+  }
+
+  /* Actions: three equal buttons on their own row. */
+  .stock-types-table td:nth-child(6) {
+    grid-column: 1 / -1;
+    grid-row: 4;
+  }
+
+  .stock-types-table .stock-type-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .stock-types-table .stock-type-actions button,
+  .stock-types-table .stock-type-actions a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    min-height: 40px;
+    padding: 0 4px;
+  }
+
+  /* Empty / loading row spans the whole grid. */
+  .stock-types-table td.stock-types-empty {
+    grid-column: 1 / -1;
+    grid-row: auto;
+    padding: 24px 0 !important;
+    font-size: 13px;
+    text-align: center;
+  }
+
+  .stock-types-table td.stock-types-empty::before {
+    content: none;
+  }
+}

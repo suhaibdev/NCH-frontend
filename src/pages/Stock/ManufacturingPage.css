@@ -620,3 +620,225 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ==========================================================
+   MOBILE LAYOUT (<= 768px ONLY)
+   ROOT FIX: .manufacturing-container (and the nested form grids) had no
+   column template, so the auto track could not shrink below the 720px
+   history table. minmax(0, 1fr) lets everything fit the screen.
+========================================================== */
+@media (max-width: 768px) {
+  .manufacturing-page {
+    min-height: 0;
+    padding: 0 0 24px;
+    background: transparent;
+  }
+
+  .manufacturing-container {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .manufacturing-form,
+  .manufacturing-input-list,
+  .manufacturing-detail-inputs,
+  .manufacturing-reverse-form {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .manufacturing-details,
+  .manufacturing-output-grid,
+  .manufacturing-input-grid,
+  .manufacturing-washed-grid,
+  .manufacturing-label-grid,
+  .manufacturing-additional-grid,
+  .manufacturing-summary,
+  .manufacturing-history-meta,
+  .manufacturing-history-materials > div,
+  .manufacturing-item-context {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .manufacturing-container > *,
+  .manufacturing-form > *,
+  .manufacturing-card,
+  .manufacturing-input-row {
+    min-width: 0;
+  }
+
+  .manufacturing-header h1 {
+    font-size: 1.6rem;
+  }
+
+  /* Flat sections instead of nested cards. */
+  .manufacturing-card {
+    padding: 12px 0;
+    border: 0;
+    border-top: 1px solid #dce5f2;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .manufacturing-input-row {
+    padding: 10px 0;
+    border: 0;
+    border-top: 1px solid #e2e9f3;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  /* Controls: 40-44px, date field usable on iOS. */
+  .manufacturing-page input,
+  .manufacturing-page select {
+    min-height: 44px;
+  }
+
+  .manufacturing-page input[type="date"] {
+    -webkit-appearance: none;
+    appearance: none;
+    line-height: 1.2;
+  }
+
+  .manufacturing-page button,
+  .manufacturing-back {
+    min-height: 40px;
+  }
+
+  .manufacturing-back {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .manufacturing-section-heading,
+  .manufacturing-input-heading,
+  .manufacturing-additional-heading,
+  .manufacturing-error,
+  .manufacturing-actions,
+  .manufacturing-pagination {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .manufacturing-section-heading button,
+  .manufacturing-actions button,
+  .manufacturing-error button,
+  .manufacturing-pagination button,
+  .manufacturing-additional-heading button {
+    width: 100%;
+    min-height: 42px;
+  }
+
+  .manufacturing-history-link {
+    display: block;
+    text-align: center;
+  }
+
+  /* History filters: single column at every mobile width. */
+  .manufacturing-filter-row,
+  .manufacturing-filter-row-primary,
+  .manufacturing-filter-row-actions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .manufacturing-filter-row-actions button {
+    width: 100%;
+    min-height: 42px;
+  }
+
+  /* History table: compact rows (still a clickable, keyboard-toggled tr). */
+  .manufacturing-table-scroll {
+    margin-top: 12px;
+    overflow: visible;
+  }
+
+  .manufacturing-history-table,
+  .manufacturing-history-table tbody {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .manufacturing-history-table thead {
+    display: none;
+  }
+
+  .manufacturing-history-table .manufacturing-history-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 4px 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid #e2e9f3;
+  }
+
+  .manufacturing-history-row > td {
+    display: block;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    font-size: 0.9rem;
+    overflow-wrap: anywhere;
+  }
+
+  .manufacturing-history-row > td:nth-child(1) {
+    grid-column: 1;
+    grid-row: 1;
+    color: #102a56;
+    font-weight: 700;
+  }
+
+  .manufacturing-history-row > td:nth-child(6) {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: start;
+  }
+
+  .manufacturing-history-row > td:nth-child(3) {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .manufacturing-history-row > td:nth-child(2) {
+    grid-column: 1;
+    grid-row: 3;
+  }
+
+  .manufacturing-history-row > td:nth-child(5) {
+    grid-column: 2;
+    grid-row: 3;
+    text-align: right;
+  }
+
+  .manufacturing-history-row > td:nth-child(4) {
+    grid-column: 1 / -1;
+    grid-row: 4;
+  }
+
+  .manufacturing-history-row > td:nth-child(2)::before {
+    content: "Date: ";
+    color: #64748b;
+  }
+
+  .manufacturing-history-row > td:nth-child(5)::before {
+    content: "Qty: ";
+    color: #64748b;
+  }
+
+  .manufacturing-history-row > td:nth-child(4)::before {
+    content: "Size: ";
+    color: #64748b;
+  }
+
+  .manufacturing-history-expanded-row,
+  .manufacturing-history-expanded-row > td {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .manufacturing-history-detail {
+    padding: 12px 0;
+  }
+}

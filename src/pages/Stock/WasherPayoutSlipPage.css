@@ -121,3 +121,39 @@
     color: #000;
   }
 }
+
+/* ==========================================================
+   MOBILE SCREEN LAYOUT (<= 768px, screen only; print is untouched)
+========================================================== */
+@media screen and (max-width: 768px) {
+  .washer-slip-page {
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  .washer-slip-actions {
+    gap: 10px;
+  }
+
+  .washer-slip-actions a,
+  .washer-slip-actions button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    box-sizing: border-box;
+  }
+
+  .washer-slip {
+    padding: 14px;
+    box-shadow: none;
+    overflow-wrap: anywhere;
+  }
+
+  .washer-slip th,
+  .washer-slip td {
+    padding: 8px 6px;
+    font-size: 13px;
+  }
+}
