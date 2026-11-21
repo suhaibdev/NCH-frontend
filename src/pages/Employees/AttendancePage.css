@@ -1383,3 +1383,55 @@
     width: 145px;
   }
 }
+
+/* ==========================================================
+   MOBILE HEADER / TABS (<= 768px ONLY)
+   Active Employees becomes a compact one-line stat; Bulk/Single tabs
+   are two equal, compact 40px buttons. Attendance logic is untouched.
+========================================================== */
+@media (max-width: 768px) {
+  .attendance-page-header {
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .attendance-page-header h1 {
+    font-size: 24px;
+  }
+
+  .attendance-count {
+    width: 100%;
+    min-width: 0;
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 0;
+    border: 0;
+    border-top: 1px solid #edf0f3;
+    border-bottom: 1px solid #edf0f3;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .attendance-count span {
+    font-size: 13px;
+  }
+
+  .attendance-count strong {
+    margin-top: 0;
+    font-size: 18px;
+  }
+
+  .attendance-mode-tabs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .attendance-mode-tab {
+    min-height: 40px;
+    flex: none;
+  }
+}

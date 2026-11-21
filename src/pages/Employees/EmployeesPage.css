@@ -1,0 +1,175 @@
+/* ==========================================================
+   EMPLOYEES PAGE
+========================================================== */
+
+/* Same wrapped row as before, now with visible labels at all widths. */
+.employees-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.employees-form .ep-field {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.employees-form .ep-field label {
+  color: #344054;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.employees-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.employees-table-wrap {
+  width: 100%;
+  margin-top: 16px;
+  overflow-x: auto;
+}
+
+/* ==========================================================
+   MOBILE (<= 768px ONLY): spacing fix, stacked form, compact rows
+========================================================== */
+
+@media (max-width: 768px) {
+  .employees-title {
+    margin: 0 0 14px;
+  }
+
+  .employees-form {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .employees-form .ep-field .ep-input {
+    width: 100%;
+    min-width: 0;
+    height: 42px;
+    box-sizing: border-box;
+  }
+
+  .employees-form-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  }
+
+  .employees-form-actions .ep-btn {
+    width: 100%;
+    min-height: 42px;
+  }
+
+  .employees-table-wrap {
+    margin-top: 8px;
+    overflow: visible;
+  }
+
+  .employees-table,
+  .employees-table tbody {
+    display: block;
+    width: 100%;
+    margin: 0;
+    background: transparent;
+  }
+
+  .employees-table thead {
+    display: none;
+  }
+
+  .employees-table tbody tr {
+    display: grid;
+    grid-template-columns: 28px minmax(0, 1fr) auto;
+    column-gap: 8px;
+    row-gap: 2px;
+    padding: 10px 0;
+    border-bottom: 1px solid #ececec;
+    background: transparent;
+  }
+
+  .employees-table tbody tr:nth-child(even) {
+    background: transparent;
+  }
+
+  .employees-table td {
+    display: block;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    font-size: 13px;
+    overflow-wrap: anywhere;
+  }
+
+  .employees-table td:nth-child(1) {
+    grid-column: 1;
+    grid-row: 1;
+    color: #98a2b3;
+    font-size: 12px;
+  }
+
+  .employees-table td:nth-child(2) {
+    grid-column: 2;
+    grid-row: 1;
+    color: #24324a;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .employees-table td:nth-child(3) {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .employees-table td:nth-child(4) {
+    grid-column: 2;
+    grid-row: 3;
+  }
+
+  .employees-table td:nth-child(3)::before {
+    content: "Contact: ";
+    color: #667085;
+  }
+
+  .employees-table td:nth-child(4)::before {
+    content: "Base Salary: ";
+    color: #667085;
+  }
+
+  .employees-table td:nth-child(5) {
+    grid-column: 2;
+    grid-row: 4;
+    color: #667085;
+    font-size: 12px;
+  }
+
+  .employees-table td:nth-child(3):empty,
+  .employees-table td:nth-child(4):empty,
+  .employees-table td:nth-child(5):empty {
+    display: none;
+  }
+
+  /* Actions keep their inline display:flex; stack Edit / Delete. */
+  .employees-table td:nth-child(6) {
+    grid-column: 3;
+    grid-row: 1 / span 4;
+    flex-direction: column;
+    gap: 8px;
+    align-self: center;
+  }
+
+  .employees-table td .ep-btn {
+    width: auto;
+    min-width: 80px;
+    min-height: 40px;
+    margin: 0;
+  }
+}

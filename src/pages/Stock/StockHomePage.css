@@ -228,3 +228,65 @@
     font-size: 28px;
   }
 }
+
+/* ==========================================================
+   MOBILE FLAT SECTIONS (<= 768px ONLY)
+   Panels lose their card chrome; each stock area card stays a whole-card link.
+========================================================== */
+@media (max-width: 768px) {
+  .stock-home-page {
+    padding: 0 0 24px;
+  }
+
+  .stock-home-header {
+    margin: 4px 0 14px;
+  }
+
+  .stock-home-header h1 {
+    font-size: 24px;
+  }
+
+  .stock-home-search-panel,
+  .stock-home-navigation {
+    padding: 12px 0;
+    border: 0;
+    border-top: 1px solid #e4e7ec;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .stock-home-search-panel {
+    margin-bottom: 12px;
+  }
+
+  .stock-home-search-panel h2,
+  .stock-home-section-heading h2 {
+    font-size: 18px;
+  }
+
+  .stock-home-search-field {
+    margin-top: 12px;
+  }
+
+  .stock-home-search-field input {
+    height: 42px;
+    padding: 0 12px;
+  }
+
+  .stock-home-section-heading {
+    margin-bottom: 12px;
+  }
+
+  .stock-home-cards {
+    gap: 10px;
+  }
+
+  .stock-home-card {
+    min-height: 0;
+    padding: 14px;
+  }
+
+  .stock-home-card p {
+    margin: 6px 0 0;
+  }
+}

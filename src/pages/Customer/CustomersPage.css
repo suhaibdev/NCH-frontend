@@ -505,3 +505,71 @@
         gap: 6px;
     }
 }
+
+/* ==========================================================
+   MOBILE FLAT SECTIONS (<= 768px ONLY)
+========================================================== */
+@media (max-width: 768px) {
+    .customers-header {
+        gap: 10px;
+        margin-bottom: 12px;
+    }
+
+    .customers-header h1 {
+        font-size: 24px;
+    }
+
+    .customers-count {
+        width: 100%;
+        min-width: 0;
+        flex-direction: row;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 8px 0;
+        border: 0;
+        border-top: 1px solid #edf0f3;
+        border-bottom: 1px solid #edf0f3;
+        border-radius: 0;
+        background: transparent;
+    }
+
+    .customers-count strong {
+        margin-top: 0;
+        font-size: 18px;
+    }
+
+    .customers-card {
+        margin-bottom: 12px;
+        border: 0;
+        border-top: 1px solid #e7ecf1;
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
+    }
+
+    .customers-card-header,
+    .customers-list-header {
+        padding: 12px 0;
+        border-bottom: 0;
+    }
+
+    .customers-form,
+    .customers-filters {
+        gap: 12px;
+        padding: 0 0 12px;
+    }
+
+    .customers-page .ep-input {
+        height: 42px;
+    }
+
+    .customers-form-actions .ep-btn,
+    .customers-clear-btn {
+        min-height: 42px;
+    }
+
+    .customers-state {
+        padding: 24px 0;
+    }
+}

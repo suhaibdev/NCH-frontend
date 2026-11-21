@@ -180,3 +180,29 @@
     width:100%;
   }
 }
+
+/* ==========================================
+   MOBILE FLAT SECTIONS (<= 768px ONLY)
+   Removes the white page card and its nested gutters inside the admin
+   shell (only the shell's 12px side padding remains). Login lives outside
+   the shell, so its card is untouched. Specificity is (0,1,0) on purpose:
+   per-page rules that already override .ep-container keep winning.
+========================================== */
+
+@media (max-width: 768px) {
+  :where(.admin-shell-main) .ep-container {
+    margin: 0;
+    padding: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  :where(.admin-shell-main) .ep-container .ep-input {
+    min-height: 42px;
+  }
+
+  :where(.admin-shell-main) .ep-container .ep-btn {
+    min-height: 40px;
+  }
+}

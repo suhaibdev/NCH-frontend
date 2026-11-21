@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../../config/axios';
 
 import '../AdminCommon.css';
+import './EmployeesPage.css';
 const EmployeesPage = () => {
   const [employees, setEmployees] = useState([]);
   const [name, setName] = useState('');
@@ -61,55 +62,73 @@ const EmployeesPage = () => {
 
   return (
     <div className="ep-container">
-      <h2 className="ep-title">Employees</h2>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '16px' }}>
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value.replace(/\b\w/g, char => char.toUpperCase()))}
-          placeholder="Name"
-          className="ep-input"
-        />
-        <input
-          type="tel"
-          maxLength="10"
-          value={contactNumber}
-          onChange={(e) => setContactNumber(e.target.value.replace(/\D/g, ''))}
-          placeholder="Contact"
-          className="ep-input"
-        />
-        <input
-          value={baseDailySalary}
-          onChange={(e) => setBaseDailySalary(e.target.value)}
-          placeholder="Base salary"
-          className="ep-input"
-        />
-        <input
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-          placeholder="Address"
-          className="ep-input"
-        />
-        <button onClick={handleAddOrUpdate} className="ep-btn ep-btn-primary" style={{ margin: 0 }}>
-          {editId ? 'Update' : 'Add'}
-        </button>
-        {editId && (
-          <button
-            onClick={() => {
-              setEditId(null);
-              setName('');
-              setContactNumber('');
-              setBaseDailySalary('');
-              setAddress('');
-            }}
-            className="ep-btn ep-btn-secondary"
-            style={{ margin: 0 }}
-          >
-            Cancel
+      <h2 className="ep-title employees-title">Employees</h2>
+      <div className="employees-form">
+        <div className="ep-field">
+          <label htmlFor="employee-name">Name</label>
+          <input
+            id="employee-name"
+            value={name}
+            onChange={(e) => setName(e.target.value.replace(/\b\w/g, char => char.toUpperCase()))}
+            placeholder="Name"
+            className="ep-input"
+          />
+        </div>
+        <div className="ep-field">
+          <label htmlFor="employee-contact">Contact</label>
+          <input
+            id="employee-contact"
+            type="tel"
+            maxLength="10"
+            value={contactNumber}
+            onChange={(e) => setContactNumber(e.target.value.replace(/\D/g, ''))}
+            placeholder="Contact"
+            className="ep-input"
+          />
+        </div>
+        <div className="ep-field">
+          <label htmlFor="employee-salary">Base Salary per day</label>
+          <input
+            id="employee-salary"
+            value={baseDailySalary}
+            onChange={(e) => setBaseDailySalary(e.target.value)}
+            placeholder="Base salary"
+            className="ep-input"
+          />
+        </div>
+        <div className="ep-field">
+          <label htmlFor="employee-address">Address</label>
+          <input
+            id="employee-address"
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+            placeholder="Address"
+            className="ep-input"
+          />
+        </div>
+        <div className="employees-form-actions">
+          <button onClick={handleAddOrUpdate} className="ep-btn ep-btn-primary" style={{ margin: 0 }}>
+            {editId ? 'Update' : 'Add'}
           </button>
-        )}
+          {editId && (
+            <button
+              onClick={() => {
+                setEditId(null);
+                setName('');
+                setContactNumber('');
+                setBaseDailySalary('');
+                setAddress('');
+              }}
+              className="ep-btn ep-btn-secondary"
+              style={{ margin: 0 }}
+            >
+              Cancel
+            </button>
+          )}
+        </div>
       </div>
-      <div style={{ overflowX: 'auto', width: '100%', marginTop: '16px' }}>
-        <table className="ep-table">
+      <div className="employees-table-wrap">
+        <table className="ep-table employees-table">
           <thead>
             <tr>
               <th>S.No</th>
