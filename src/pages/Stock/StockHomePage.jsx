@@ -164,6 +164,11 @@ const StockHomePage = () => {
               <h3>Stock Types</h3>
               <p>Manage stock classifications and their tracking rules.</p>
             </Link>
+            <Link to="/admin/stock/history" className="stock-home-card">
+              <span className="stock-home-card-kicker">Movements</span>
+              <h3>Stock History</h3>
+              <p>Review every stock movement with filters and balances.</p>
+            </Link>
           </div>
         </section>
       </div>

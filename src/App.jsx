@@ -23,6 +23,7 @@ import PayoutPage from "./pages/Employees/PayoutPage";
 
 import StockPage from "./pages/Stock/StockPage";
 import StockHomePage from "./pages/Stock/StockHomePage";
+import StockHistoryPage from "./pages/Stock/StockHistoryPage";
 import StockTypesPage from "./pages/Stock/StockTypesPage";
 import StockTypeProductsPage from "./pages/Stock/StockTypeProductsPage";
 import WashersPage from "./pages/Stock/WashersPage";
@@ -124,6 +125,8 @@ const App = () => {
             <Route path="/admin/factory-flow" element={<FactoryFlowPage />} />
 
             <Route path="/admin/stock/manage" element={<StockPage />} />
+
+            <Route path="/admin/stock/history" element={<StockHistoryPage />} />
 
             <Route path="/admin/stock/types" element={<StockTypesPage />} />
 
