@@ -1949,6 +1949,7 @@
   opacity: 0.75;
 }
 
+.history-edit-btn:not(:disabled):hover,
 .history-print-btn:not(:disabled):hover,
 .history-delete-btn:not(:disabled):hover {
   opacity: 0.72;
@@ -2050,5 +2051,111 @@
   .payout-history-pagination {
     justify-content: space-between;
     padding: 14px;
+  }
+}
+
+/* Inline edit of a saved payout (history rows and mobile cards). */
+.payout-edit-panel {
+  display: grid;
+  gap: 12px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid #d7dde5;
+  border-radius: 8px;
+  background: #ffffff;
+  box-sizing: border-box;
+  white-space: normal;
+  cursor: default;
+}
+
+.payout-edit-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  min-width: 0;
+}
+
+.payout-edit-lines {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.payout-edit-line {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) repeat(2, minmax(0, 1fr)) minmax(0, 1.4fr);
+  align-items: end;
+  gap: 10px 12px;
+  min-width: 0;
+  padding: 10px;
+  border-radius: 8px;
+  background: #fafbfc;
+  box-sizing: border-box;
+}
+
+.payout-edit-line-info,
+.payout-edit-preview {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  color: #475467;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.payout-edit-line-info strong,
+.payout-edit-preview strong {
+  color: #101828;
+  font-size: 13px;
+}
+
+.payout-edit-preview .payout-edit-negative {
+  color: #d32f2f;
+}
+
+.payout-edit-panel .payout-message {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.payout-edit-conflict {
+  display: block;
+  margin-top: 6px;
+  font-weight: 500;
+}
+
+.payout-edit-note {
+  margin: 0;
+  color: #667085;
+  font-size: 12px;
+}
+
+.payout-edit-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.payout-edit-actions .ep-btn {
+  margin: 0;
+}
+
+.payout-edit-actions .ep-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  transform: none;
+}
+
+@media (max-width: 768px) {
+  .payout-edit-grid,
+  .payout-edit-line {
+    grid-template-columns: 1fr;
+  }
+
+  .payout-edit-actions .ep-btn {
+    flex: 1 1 120px;
   }
 }

@@ -172,6 +172,342 @@ const getPeriodDates = (type) => {
 };
 
 /* ==========================================================
+   SAVED PAYOUT EDIT HELPERS
+========================================================== */
+
+const PAYMENT_METHOD_OPTIONS = [
+  ["cash", "Cash"],
+  ["upi", "UPI"],
+  ["bank", "Bank Transfer"],
+  ["cheque", "Cheque"],
+];
+
+const CHRONOLOGY_CONFLICT_CODE = "ADVANCE_CHRONOLOGY_CONFLICT";
+
+const roundMoney = (value) => Math.round(value * 100) / 100;
+
+const toAmountText = (value) => String(roundMoney(Number(value || 0)));
+
+/** Returns a rounded amount >= 0, or null when the text is empty or invalid. */
+const parseDraftAmount = (text) => {
+  if (String(text ?? "").trim() === "") return null;
+  const number = Number(text);
+  return Number.isFinite(number) && number >= 0 ? roundMoney(number) : null;
+};
+
+const amountChanged = (text, saved) => {
+  const next = parseDraftAmount(text);
+  return next !== null && Math.round(next * 100) !== Math.round(Number(saved || 0) * 100);
+};
+
+const getCommonLineMethod = (payout) => {
+  const methods = [
+    ...new Set((payout?.employees || []).map((line) => line.paymentMethod).filter(Boolean)),
+  ];
+  return methods.length === 1 ? methods[0] : "";
+};
+
+const createSingleEditDraft = (payout) => ({
+  paymentMethod: payout.paymentMethod || "",
+  advanceDeducted: toAmountText(payout.advanceDeducted),
+  deductions: toAmountText(payout.deductions),
+});
+
+const createBulkEditDraft = (payout) => ({
+  paymentMethod: getCommonLineMethod(payout),
+  lines: Object.fromEntries(
+    (payout.employees || []).map((line) => [
+      String(line.employee),
+      {
+        advanceDeducted: toAmountText(line.advanceDeducted),
+        deductions: toAmountText(line.deductions),
+      },
+    ])
+  ),
+});
+
+const createEditDraft = (type, payout) =>
+  type === "bulk" ? createBulkEditDraft(payout) : createSingleEditDraft(payout);
+
+/** Preview only: the backend recalculates and its saved result is authoritative. */
+const previewEditLine = (saved, draftLine) => {
+  const cut = parseDraftAmount(draftLine?.advanceDeducted);
+  const deductions = parseDraftAmount(draftLine?.deductions);
+  if (cut === null || deductions === null) return { valid: false };
+  const before = Number(saved.outstandingAdvanceAfter || 0) + Number(saved.advanceDeducted || 0);
+  return {
+    valid: true,
+    advanceLeft: roundMoney(before - cut),
+    netPaid: roundMoney(Number(saved.grossSalary || 0) - cut - deductions),
+  };
+};
+
+const getChangedAmounts = (saved, draftLine) => {
+  const changes = {};
+  ["advanceDeducted", "deductions"].forEach((key) => {
+    if (amountChanged(draftLine?.[key], saved[key])) {
+      changes[key] = parseDraftAmount(draftLine[key]);
+    }
+  });
+  return changes;
+};
+
+const buildSingleEditPayload = (payout, draft) => {
+  const body = getChangedAmounts(payout, draft);
+  if (draft.paymentMethod && draft.paymentMethod !== (payout.paymentMethod || "")) {
+    body.paymentMethod = draft.paymentMethod;
+  }
+  return body;
+};
+
+const buildBulkEditPayload = (payout, draft) => {
+  const body = {};
+  const lines = payout.employees || [];
+  if (draft.paymentMethod && lines.some((line) => line.paymentMethod !== draft.paymentMethod)) {
+    body.paymentMethod = draft.paymentMethod;
+  }
+  const employees = lines
+    .map((line) => ({
+      employeeId: String(line.employee),
+      ...getChangedAmounts(line, draft.lines[String(line.employee)]),
+    }))
+    .filter((line) => Object.keys(line).length > 1);
+  if (employees.length > 0) body.employees = employees;
+  return body;
+};
+
+const buildEditPayload = (type, payout, draft) =>
+  type === "bulk" ? buildBulkEditPayload(payout, draft) : buildSingleEditPayload(payout, draft);
+
+const isEditDraftValid = (type, draft) => {
+  const lines = type === "bulk" ? Object.values(draft.lines) : [draft];
+  return lines.every(
+    (line) =>
+      parseDraftAmount(line.advanceDeducted) !== null && parseDraftAmount(line.deductions) !== null
+  );
+};
+
+const getEditConflictText = (err) => {
+  const data = err.response?.data;
+  if (data?.code !== CHRONOLOGY_CONFLICT_CODE || !data.conflict) return "";
+  const conflict = data.conflict;
+  return `Conflicting payout: ${conflict.payoutNumber || conflict.sourceLabel || "Payout"} (${formatBusinessDate(
+    conflict.startDate
+  )} – ${formatBusinessDate(conflict.endDate)}), recovers ₹${formatMoney(
+    conflict.recordedAdvanceDeducted
+  )}, only ₹${formatMoney(conflict.availableAdvance)} available.`;
+};
+
+/** Maps a saved single payout onto the saved bulk print shape (one line). */
+const toSinglePrintRecord = (payout) => ({
+  _id: payout._id,
+  startDate: payout.startDate,
+  endDate: payout.endDate,
+  paidOn: payout.paidOn,
+  paymentMethod: payout.paymentMethod || "",
+  employees: [
+    {
+      employee: payout.employee?._id || payout.employee || payout._id,
+      employeeName: payout.employee?.name || "Employee",
+      totalHoursWorked: payout.totalHoursWorked,
+      fullWorkingDays: payout.fullWorkingDays,
+      remainingWorkingHours: payout.remainingWorkingHours,
+      grossSalary: payout.grossSalary,
+      outstandingAdvanceAfter: payout.outstandingAdvanceAfter,
+      advanceDeducted: payout.advanceDeducted,
+      deductions: payout.deductions,
+      netSalary: payout.netSalary,
+      paymentMethod: payout.paymentMethod || "",
+    },
+  ],
+  totalGross: payout.grossSalary,
+  totalAdvanceCut: payout.advanceDeducted,
+  totalAdvanceLeft: payout.outstandingAdvanceAfter,
+  totalOtherDeduction: payout.deductions,
+  totalNetPaid: payout.netSalary,
+});
+
+const EditPaymentMethodSelect = ({ value, keepLabel, disabled, onChange }) => (
+  <select
+    className="ep-input"
+    value={value}
+    disabled={disabled}
+    onChange={(event) => onChange(event.target.value)}
+  >
+    {keepLabel && <option value="">{keepLabel}</option>}
+    {PAYMENT_METHOD_OPTIONS.map(([optionValue, label]) => (
+      <option key={optionValue} value={optionValue}>
+        {label}
+      </option>
+    ))}
+  </select>
+);
+
+const EditAmountInput = ({ label, value, disabled, onChange }) => (
+  <div className="payout-field">
+    <label>{label}</label>
+    <input
+      type="number"
+      min={0}
+      step="0.01"
+      inputMode="decimal"
+      value={value}
+      disabled={disabled}
+      onChange={(event) => onChange(event.target.value)}
+      className="ep-input ep-input-no-spinner"
+    />
+  </div>
+);
+
+const EditPreview = ({ preview }) =>
+  preview.valid ? (
+    <div className="payout-edit-preview">
+      <span>Advance Left (preview): ₹{formatMoney(preview.advanceLeft)}</span>
+      <strong className={preview.netPaid < 0 ? "payout-edit-negative" : ""}>
+        Net Paid (preview): ₹{formatMoney(preview.netPaid)}
+      </strong>
+      {preview.netPaid < 0 && (
+        <small className="payout-edit-negative">Deductions exceed gross</small>
+      )}
+    </div>
+  ) : (
+    <div className="payout-edit-preview">
+      <small className="payout-edit-negative">Enter amounts of 0 or more.</small>
+    </div>
+  );
+
+const EditFooter = ({ type, payout, edit, onSave, onCancel }) => {
+  const valid = isEditDraftValid(type, edit.draft);
+  const dirty = valid && Object.keys(buildEditPayload(type, payout, edit.draft)).length > 0;
+  return (
+    <>
+      {edit.error && (
+        <div className="payout-message error" role="alert">
+          {edit.error}
+          {edit.conflictText && <span className="payout-edit-conflict">{edit.conflictText}</span>}
+        </div>
+      )}
+      <p className="payout-edit-note">
+        Advance Left and Net Paid are recalculated by the server when you save.
+      </p>
+      <div className="payout-edit-actions">
+        <button
+          type="button"
+          className="ep-btn ep-btn-secondary"
+          disabled={edit.saving}
+          onClick={onCancel}
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          className="ep-btn ep-btn-primary"
+          disabled={edit.saving || !valid || !dirty}
+          onClick={onSave}
+        >
+          {edit.saving ? "Saving..." : "Save"}
+        </button>
+      </div>
+    </>
+  );
+};
+
+const SinglePayoutEditor = ({ payout, edit, onDraftChange, onSave, onCancel }) => {
+  const { draft, saving } = edit;
+  const setField = (key) => (value) => onDraftChange((current) => ({ ...current, [key]: value }));
+  return (
+    <div className="payout-edit-panel" onClick={(event) => event.stopPropagation()}>
+      <div className="payout-edit-grid">
+        <div className="payout-field">
+          <label>Payment Method</label>
+          <EditPaymentMethodSelect
+            value={draft.paymentMethod}
+            keepLabel={payout.paymentMethod ? "" : "Not set"}
+            disabled={saving}
+            onChange={setField("paymentMethod")}
+          />
+        </div>
+        <EditAmountInput
+          label="Advance Cut"
+          value={draft.advanceDeducted}
+          disabled={saving}
+          onChange={setField("advanceDeducted")}
+        />
+        <EditAmountInput
+          label="Other Deduction"
+          value={draft.deductions}
+          disabled={saving}
+          onChange={setField("deductions")}
+        />
+      </div>
+      <div className="payout-edit-line-info">
+        <span>Working Time: {formatWorkingTime(payout)}</span>
+        <span>Gross: ₹{formatMoney(payout.grossSalary)}</span>
+      </div>
+      <EditPreview preview={previewEditLine(payout, draft)} />
+      <EditFooter type="single" payout={payout} edit={edit} onSave={onSave} onCancel={onCancel} />
+    </div>
+  );
+};
+
+const BulkPayoutEditor = ({ payout, edit, onDraftChange, onSave, onCancel }) => {
+  const { draft, saving } = edit;
+  const setMethod = (value) => onDraftChange((current) => ({ ...current, paymentMethod: value }));
+  const setLineField = (employeeId, key) => (value) =>
+    onDraftChange((current) => ({
+      ...current,
+      lines: {
+        ...current.lines,
+        [employeeId]: { ...current.lines[employeeId], [key]: value },
+      },
+    }));
+  return (
+    <div className="payout-edit-panel" onClick={(event) => event.stopPropagation()}>
+      <div className="payout-edit-grid">
+        <div className="payout-field">
+          <label>Payment Method (all employees)</label>
+          <EditPaymentMethodSelect
+            value={draft.paymentMethod}
+            keepLabel={getCommonLineMethod(payout) ? "" : "Mixed — keep as is"}
+            disabled={saving}
+            onChange={setMethod}
+          />
+        </div>
+      </div>
+      <div className="payout-edit-lines">
+        {(payout.employees || []).map((line) => {
+          const employeeId = String(line.employee);
+          const draftLine = draft.lines[employeeId] || {};
+          return (
+            <div key={employeeId} className="payout-edit-line">
+              <div className="payout-edit-line-info">
+                <strong>{line.employeeName}</strong>
+                <span>Working Time: {formatWorkingTime(line)}</span>
+                <span>Gross: ₹{formatMoney(line.grossSalary)}</span>
+              </div>
+              <EditAmountInput
+                label="Advance Cut"
+                value={draftLine.advanceDeducted ?? ""}
+                disabled={saving}
+                onChange={setLineField(employeeId, "advanceDeducted")}
+              />
+              <EditAmountInput
+                label="Other Deduction"
+                value={draftLine.deductions ?? ""}
+                disabled={saving}
+                onChange={setLineField(employeeId, "deductions")}
+              />
+              <EditPreview preview={previewEditLine(line, draftLine)} />
+            </div>
+          );
+        })}
+      </div>
+      <EditFooter type="bulk" payout={payout} edit={edit} onSave={onSave} onCancel={onCancel} />
+    </div>
+  );
+};
+
+/* ==========================================================
    COMPONENT
 ========================================================== */
 
@@ -284,6 +620,8 @@ const PayoutPage = () => {
   const [historyTab, setHistoryTab] = useState("bulk");
   const [deletingBulkHistoryId, setDeletingBulkHistoryId] = useState(null);
   const [deletingSingleHistoryId, setDeletingSingleHistoryId] = useState(null);
+  // Inline edit of one saved payout: { type, id, draft, saving, error, conflictText }.
+  const [historyEdit, setHistoryEdit] = useState(null);
 
   const todayInput = getTodayInput();
 
@@ -397,12 +735,12 @@ const PayoutPage = () => {
     }
   };
 
-  const fetchBulkHistory = async (page = 1) => {
+  const fetchBulkHistory = async (page = 1, { silent = false } = {}) => {
     try {
-      setBulkHistoryLoading(true);
+      if (!silent) setBulkHistoryLoading(true);
       const response = await api.get("/payout/bulk-history", { params: { page, limit: 20 } });
       if (page > 1 && response.data?.total > 0 && response.data?.items?.length === 0)
-        return fetchBulkHistory(page - 1);
+        return fetchBulkHistory(page - 1, { silent });
       setBulkHistory(Array.isArray(response.data?.items) ? response.data.items : []);
       setBulkHistoryPage(response.data?.page || page);
       setBulkHistoryMeta({
@@ -411,18 +749,18 @@ const PayoutPage = () => {
       });
     } catch (err) {
       console.error("Failed to fetch bulk payout history:", err);
-      showError(err.response?.data?.message || "Unable to load bulk payout history.");
+      if (!silent) showError(err.response?.data?.message || "Unable to load bulk payout history.");
     } finally {
-      setBulkHistoryLoading(false);
+      if (!silent) setBulkHistoryLoading(false);
     }
   };
 
-  const fetchSingleHistory = async (page = 1) => {
+  const fetchSingleHistory = async (page = 1, { silent = false } = {}) => {
     try {
-      setSingleHistoryLoading(true);
+      if (!silent) setSingleHistoryLoading(true);
       const response = await api.get("/payout/single-history", { params: { page, limit: 20 } });
       if (page > 1 && response.data?.total > 0 && response.data?.items?.length === 0)
-        return fetchSingleHistory(page - 1);
+        return fetchSingleHistory(page - 1, { silent });
       setSingleHistory(Array.isArray(response.data?.items) ? response.data.items : []);
       setSingleHistoryPage(response.data?.page || page);
       setSingleHistoryMeta({
@@ -431,11 +769,164 @@ const PayoutPage = () => {
       });
     } catch (err) {
       console.error("Failed to fetch single payout history:", err);
-      showError(err.response?.data?.message || "Unable to load single payout history.");
+      if (!silent)
+        showError(err.response?.data?.message || "Unable to load single payout history.");
     } finally {
-      setSingleHistoryLoading(false);
+      if (!silent) setSingleHistoryLoading(false);
     }
   };
+
+  /* ========================================================
+     INLINE EDIT OF SAVED PAYOUTS
+  ======================================================== */
+
+  const findEditedPayout = (edit) => {
+    if (!edit) return null;
+    const list = edit.type === "bulk" ? bulkHistory : singleHistory;
+    return list.find((item) => item._id === edit.id) || null;
+  };
+
+  const isEditingRow = (type, id) => historyEdit?.type === type && historyEdit.id === id;
+
+  const isEditDirty = () => {
+    const payout = findEditedPayout(historyEdit);
+    if (!historyEdit || !payout) return false;
+    return (
+      JSON.stringify(historyEdit.draft) !==
+      JSON.stringify(createEditDraft(historyEdit.type, payout))
+    );
+  };
+
+  /** Closes the open edit; false when it is saving or the user keeps the draft. */
+  const leaveHistoryEdit = () => {
+    if (!historyEdit) return true;
+    if (historyEdit.saving) return false;
+    if (isEditDirty() && !window.confirm("Discard unsaved payout changes?")) return false;
+    setHistoryEdit(null);
+    return true;
+  };
+
+  const startHistoryEdit = (type, payout) => {
+    if (isEditingRow(type, payout._id)) return;
+    if (!leaveHistoryEdit()) return;
+    setHistoryEdit({
+      type,
+      id: payout._id,
+      draft: createEditDraft(type, payout),
+      saving: false,
+      error: "",
+      conflictText: "",
+    });
+    if (type === "bulk") setExpandedBulkHistoryId(payout._id);
+    else setExpandedSingleHistoryId(payout._id);
+  };
+
+  const toggleHistoryRow = (type, id) => {
+    const expandedId = type === "bulk" ? expandedBulkHistoryId : expandedSingleHistoryId;
+    const nextExpanded = expandedId === id ? null : id;
+    if (historyEdit?.type === type && historyEdit.id !== nextExpanded && !leaveHistoryEdit()) {
+      return;
+    }
+    if (type === "bulk") setExpandedBulkHistoryId(nextExpanded);
+    else setExpandedSingleHistoryId(nextExpanded);
+  };
+
+  const changeHistoryTab = (tab) => {
+    if (tab === historyTab || !leaveHistoryEdit()) return;
+    setHistoryTab(tab);
+  };
+
+  const changeBulkHistoryPage = (page) => {
+    if (leaveHistoryEdit()) fetchBulkHistory(page);
+  };
+
+  const changeSingleHistoryPage = (page) => {
+    if (leaveHistoryEdit()) fetchSingleHistory(page);
+  };
+
+  const updateHistoryEditDraft = (updater) => {
+    setHistoryEdit((current) =>
+      current && !current.saving ? { ...current, draft: updater(current.draft) } : current
+    );
+  };
+
+  const cancelHistoryEdit = () => {
+    setHistoryEdit((current) => (current?.saving ? current : null));
+  };
+
+  const refetchEditedHistoryPage = (type) =>
+    type === "bulk"
+      ? fetchBulkHistory(bulkHistoryPage, { silent: true })
+      : fetchSingleHistory(singleHistoryPage, { silent: true });
+
+  const saveHistoryEdit = async () => {
+    const edit = historyEdit;
+    const payout = findEditedPayout(edit);
+    if (!edit || edit.saving || !payout || !isEditDraftValid(edit.type, edit.draft)) return;
+
+    const body = buildEditPayload(edit.type, payout, edit.draft);
+    if (Object.keys(body).length === 0) return;
+
+    const isBulk = edit.type === "bulk";
+    setHistoryEdit({ ...edit, saving: true, error: "", conflictText: "" });
+
+    try {
+      const response = await api.patch(
+        isBulk ? `/payout/bulk/${edit.id}` : `/payout/${edit.id}`,
+        body
+      );
+      // Backend result is authoritative. Bulk PATCH has no "mixed" summary;
+      // formatBulkPaymentMethod derives the label from the saved lines.
+      const saved = isBulk ? response.data?.payout : response.data;
+      if (saved?._id) {
+        const replace = (list) => list.map((item) => (item._id === saved._id ? saved : item));
+        if (isBulk) setBulkHistory(replace);
+        else setSingleHistory(replace);
+      }
+      setHistoryEdit(null);
+      showSuccess("Payout updated.");
+      await refetchEditedHistoryPage(edit.type);
+    } catch (err) {
+      console.error("Payout edit error:", err);
+      // Keep the draft and show the backend reason inside the row.
+      setHistoryEdit((current) =>
+        current && current.id === edit.id
+          ? {
+              ...current,
+              saving: false,
+              error: err.response?.data?.message || "Unable to update payout.",
+              conflictText: getEditConflictText(err),
+            }
+          : current
+      );
+      const status = err.response?.status;
+      if (status === 400 || status === 409) {
+        await refetchEditedHistoryPage(edit.type);
+      }
+    }
+  };
+
+  // Close an edit whose payout is no longer on the loaded page (e.g. deleted elsewhere).
+  useEffect(() => {
+    if (historyEdit && !historyEdit.saving && !findEditedPayout(historyEdit)) {
+      setHistoryEdit(null);
+    }
+  }, [bulkHistory, singleHistory]);
+
+  const renderHistoryEditor = (type, payout) => {
+    const Editor = type === "bulk" ? BulkPayoutEditor : SinglePayoutEditor;
+    return (
+      <Editor
+        payout={payout}
+        edit={historyEdit}
+        onDraftChange={updateHistoryEditDraft}
+        onSave={saveHistoryEdit}
+        onCancel={cancelHistoryEdit}
+      />
+    );
+  };
+
+  const editSaving = Boolean(historyEdit?.saving);
 
   const handleDeleteBulkHistory = async (payout) => {
     const period = `${formatBusinessDate(payout.startDate)} – ${formatBusinessDate(payout.endDate)}`;
@@ -1216,6 +1707,15 @@ const PayoutPage = () => {
     setPrintRequested(true);
   };
 
+  // Single payouts print through the same saved-record bulk print (one line).
+  const handlePrintSingle = (savedPayout) => {
+    if (!savedPayout) {
+      showError("The saved payout is unavailable for printing.");
+      return;
+    }
+    handlePrintBulk(toSinglePrintRecord(savedPayout));
+  };
+
   /* ========================================================
      DELETE SINGLE PAYOUT
   ======================================================== */
@@ -1464,7 +1964,7 @@ const PayoutPage = () => {
               role="tab"
               aria-selected={historyTab === "bulk"}
               className={historyTab === "bulk" ? "active" : ""}
-              onClick={() => setHistoryTab("bulk")}
+              onClick={() => changeHistoryTab("bulk")}
             >
               Bulk Payout
             </button>
@@ -1473,7 +1973,7 @@ const PayoutPage = () => {
               role="tab"
               aria-selected={historyTab === "single"}
               className={historyTab === "single" ? "active" : ""}
-              onClick={() => setHistoryTab("single")}
+              onClick={() => changeHistoryTab("single")}
             >
               Single Payout
             </button>
@@ -1504,11 +2004,12 @@ const PayoutPage = () => {
                     <tbody>
                       {bulkHistory.map((payout, index) => {
                         const expanded = expandedBulkHistoryId === payout._id;
+                        const editing = isEditingRow("bulk", payout._id);
                         return (
                           <React.Fragment key={payout._id}>
                             <tr
                               className="payout-history-summary-row"
-                              onClick={() => setExpandedBulkHistoryId(expanded ? null : payout._id)}
+                              onClick={() => toggleHistoryRow("bulk", payout._id)}
                             >
                               <td>{(bulkHistoryPage - 1) * 20 + index + 1}</td>
                               <td>
@@ -1520,20 +2021,27 @@ const PayoutPage = () => {
                               <td>₹{formatMoney(payout.totalAdvanceCut)}</td>
                               <td>₹{formatMoney(payout.totalAdvanceLeft)}</td>
                               <td>{formatBusinessDate(payout.paidOn)}</td>
-                              <td>{formatPaymentMethod(payout.paymentMethod)}</td>
+                              <td>{formatBulkPaymentMethod(payout)}</td>
                               <td>
                                 <div className="payout-history-actions">
                                   <button
                                     type="button"
                                     className="ep-btn ep-btn-secondary history-edit-btn"
-                                    disabled
-                                    title="Edit payout — coming in next phase"
+                                    disabled={editSaving || deletingBulkHistoryId === payout._id}
+                                    onClick={(event) => {
+                                      event.stopPropagation();
+                                      startHistoryEdit("bulk", payout);
+                                    }}
                                   >
                                     Edit
                                   </button>
                                   <button
                                     type="button"
                                     className="ep-btn ep-btn-secondary history-print-btn"
+                                    disabled={editing}
+                                    title={
+                                      editing ? "Finish or cancel the edit to print" : undefined
+                                    }
                                     onClick={(event) => {
                                       event.stopPropagation();
                                       handlePrintBulk(payout);
@@ -1544,7 +2052,7 @@ const PayoutPage = () => {
                                   <button
                                     type="button"
                                     className="ep-btn ep-btn-delete history-delete-btn"
-                                    disabled={deletingBulkHistoryId === payout._id}
+                                    disabled={editing || deletingBulkHistoryId === payout._id}
                                     onClick={(event) => {
                                       event.stopPropagation();
                                       handleDeleteBulkHistory(payout);
@@ -1557,7 +2065,12 @@ const PayoutPage = () => {
                                 </div>
                               </td>
                             </tr>
-                            {expanded && (
+                            {expanded && editing && (
+                              <tr className="payout-history-expanded-row">
+                                <td colSpan="9">{renderHistoryEditor("bulk", payout)}</td>
+                              </tr>
+                            )}
+                            {expanded && !editing && (
                               <tr className="payout-history-expanded-row">
                                 <td colSpan="9">
                                   <div className="payout-history-details">
@@ -1593,11 +2106,12 @@ const PayoutPage = () => {
                 <div className="payout-history-mobile-list">
                   {bulkHistory.map((payout, index) => {
                     const expanded = expandedBulkHistoryId === payout._id;
+                    const editing = isEditingRow("bulk", payout._id);
                     return (
                       <article
                         key={payout._id}
                         className="payout-history-mobile-card"
-                        onClick={() => setExpandedBulkHistoryId(expanded ? null : payout._id)}
+                        onClick={() => toggleHistoryRow("bulk", payout._id)}
                       >
                         <strong>#{(bulkHistoryPage - 1) * 20 + index + 1}</strong>
                         <span>
@@ -1617,14 +2131,19 @@ const PayoutPage = () => {
                           <button
                             type="button"
                             className="ep-btn ep-btn-secondary history-edit-btn"
-                            disabled
-                            title="Edit payout — coming in next phase"
+                            disabled={editSaving || deletingBulkHistoryId === payout._id}
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              startHistoryEdit("bulk", payout);
+                            }}
                           >
                             Edit
                           </button>
                           <button
                             type="button"
                             className="ep-btn ep-btn-secondary history-print-btn"
+                            disabled={editing}
+                            title={editing ? "Finish or cancel the edit to print" : undefined}
                             onClick={(event) => {
                               event.stopPropagation();
                               handlePrintBulk(payout);
@@ -1635,7 +2154,7 @@ const PayoutPage = () => {
                           <button
                             type="button"
                             className="ep-btn ep-btn-delete history-delete-btn"
-                            disabled={deletingBulkHistoryId === payout._id}
+                            disabled={editing || deletingBulkHistoryId === payout._id}
                             onClick={(event) => {
                               event.stopPropagation();
                               handleDeleteBulkHistory(payout);
@@ -1644,11 +2163,16 @@ const PayoutPage = () => {
                             {deletingBulkHistoryId === payout._id ? "Deleting..." : "Delete"}
                           </button>
                         </div>
-                        {expanded && (
+                        {expanded && editing && (
+                          <div className="payout-history-mobile-expanded">
+                            {renderHistoryEditor("bulk", payout)}
+                          </div>
+                        )}
+                        {expanded && !editing && (
                           <div className="payout-history-mobile-expanded">
                             <span>Advance Cut: ₹{formatMoney(payout.totalAdvanceCut)}</span>
                             <span>Advance Left: ₹{formatMoney(payout.totalAdvanceLeft)}</span>
-                            <span>Method: {formatPaymentMethod(payout.paymentMethod)}</span>
+                            <span>Method: {formatBulkPaymentMethod(payout)}</span>
                             {payout.employees?.map((line) => (
                               <div key={line.employee} className="payout-history-line">
                                 <strong>{line.employeeName}</strong>
@@ -1673,8 +2197,8 @@ const PayoutPage = () => {
                 <div className="payout-history-pagination">
                   <button
                     type="button"
-                    disabled={bulkHistoryPage <= 1}
-                    onClick={() => fetchBulkHistory(bulkHistoryPage - 1)}
+                    disabled={editSaving || bulkHistoryPage <= 1}
+                    onClick={() => changeBulkHistoryPage(bulkHistoryPage - 1)}
                   >
                     Previous
                   </button>
@@ -1683,8 +2207,8 @@ const PayoutPage = () => {
                   </span>
                   <button
                     type="button"
-                    disabled={bulkHistoryPage >= bulkHistoryMeta.totalPages}
-                    onClick={() => fetchBulkHistory(bulkHistoryPage + 1)}
+                    disabled={editSaving || bulkHistoryPage >= bulkHistoryMeta.totalPages}
+                    onClick={() => changeBulkHistoryPage(bulkHistoryPage + 1)}
                   >
                     Next
                   </button>
@@ -1715,13 +2239,12 @@ const PayoutPage = () => {
                     <tbody>
                       {singleHistory.map((payout, index) => {
                         const expanded = expandedSingleHistoryId === payout._id;
+                        const editing = isEditingRow("single", payout._id);
                         return (
                           <React.Fragment key={payout._id}>
                             <tr
                               className="payout-history-summary-row"
-                              onClick={() =>
-                                setExpandedSingleHistoryId(expanded ? null : payout._id)
-                              }
+                              onClick={() => toggleHistoryRow("single", payout._id)}
                             >
                               <td>{(singleHistoryPage - 1) * 20 + index + 1}</td>
                               <td>{payout.employee?.name || "Employee"}</td>
@@ -1737,23 +2260,32 @@ const PayoutPage = () => {
                                   <button
                                     type="button"
                                     className="ep-btn ep-btn-secondary history-edit-btn"
-                                    disabled
-                                    title="Edit payout — coming in next phase"
+                                    disabled={editSaving || deletingSingleHistoryId === payout._id}
+                                    onClick={(event) => {
+                                      event.stopPropagation();
+                                      startHistoryEdit("single", payout);
+                                    }}
                                   >
                                     Edit
                                   </button>
                                   <button
                                     type="button"
                                     className="ep-btn ep-btn-secondary history-print-btn"
-                                    disabled
-                                    title="Single payout printing will be enabled in the print-repair phase"
+                                    disabled={editing}
+                                    title={
+                                      editing ? "Finish or cancel the edit to print" : undefined
+                                    }
+                                    onClick={(event) => {
+                                      event.stopPropagation();
+                                      handlePrintSingle(payout);
+                                    }}
                                   >
                                     Print
                                   </button>
                                   <button
                                     type="button"
                                     className="ep-btn ep-btn-delete history-delete-btn"
-                                    disabled={deletingSingleHistoryId === payout._id}
+                                    disabled={editing || deletingSingleHistoryId === payout._id}
                                     onClick={(event) => {
                                       event.stopPropagation();
                                       handleDeleteSingleHistory(payout);
@@ -1766,7 +2298,12 @@ const PayoutPage = () => {
                                 </div>
                               </td>
                             </tr>
-                            {expanded && (
+                            {expanded && editing && (
+                              <tr className="payout-history-expanded-row">
+                                <td colSpan="7">{renderHistoryEditor("single", payout)}</td>
+                              </tr>
+                            )}
+                            {expanded && !editing && (
                               <tr className="payout-history-expanded-row">
                                 <td colSpan="7">
                                   <div className="payout-history-line">
@@ -1794,11 +2331,12 @@ const PayoutPage = () => {
                 <div className="payout-history-mobile-list">
                   {singleHistory.map((payout, index) => {
                     const expanded = expandedSingleHistoryId === payout._id;
+                    const editing = isEditingRow("single", payout._id);
                     return (
                       <article
                         key={payout._id}
                         className="payout-history-mobile-card"
-                        onClick={() => setExpandedSingleHistoryId(expanded ? null : payout._id)}
+                        onClick={() => toggleHistoryRow("single", payout._id)}
                       >
                         <strong>#{(singleHistoryPage - 1) * 20 + index + 1}</strong>
                         <span>{payout.employee?.name || "Employee"}</span>
@@ -1818,23 +2356,30 @@ const PayoutPage = () => {
                           <button
                             type="button"
                             className="ep-btn ep-btn-secondary history-edit-btn"
-                            disabled
-                            title="Edit payout — coming in next phase"
+                            disabled={editSaving || deletingSingleHistoryId === payout._id}
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              startHistoryEdit("single", payout);
+                            }}
                           >
                             Edit
                           </button>
                           <button
                             type="button"
                             className="ep-btn ep-btn-secondary history-print-btn"
-                            disabled
-                            title="Single payout printing will be enabled in the print-repair phase"
+                            disabled={editing}
+                            title={editing ? "Finish or cancel the edit to print" : undefined}
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              handlePrintSingle(payout);
+                            }}
                           >
                             Print
                           </button>
                           <button
                             type="button"
                             className="ep-btn ep-btn-delete history-delete-btn"
-                            disabled={deletingSingleHistoryId === payout._id}
+                            disabled={editing || deletingSingleHistoryId === payout._id}
                             onClick={(event) => {
                               event.stopPropagation();
                               handleDeleteSingleHistory(payout);
@@ -1843,7 +2388,12 @@ const PayoutPage = () => {
                             {deletingSingleHistoryId === payout._id ? "Deleting..." : "Delete"}
                           </button>
                         </div>
-                        {expanded && (
+                        {expanded && editing && (
+                          <div className="payout-history-mobile-expanded">
+                            {renderHistoryEditor("single", payout)}
+                          </div>
+                        )}
+                        {expanded && !editing && (
                           <div className="payout-history-mobile-expanded">
                             <span>Method: {formatPaymentMethod(payout.paymentMethod)}</span>
                             <span>Working Time: {formatWorkingTime(payout)}</span>
@@ -1864,8 +2414,8 @@ const PayoutPage = () => {
                 <div className="payout-history-pagination">
                   <button
                     type="button"
-                    disabled={singleHistoryPage <= 1}
-                    onClick={() => fetchSingleHistory(singleHistoryPage - 1)}
+                    disabled={editSaving || singleHistoryPage <= 1}
+                    onClick={() => changeSingleHistoryPage(singleHistoryPage - 1)}
                   >
                     Previous
                   </button>
@@ -1874,8 +2424,8 @@ const PayoutPage = () => {
                   </span>
                   <button
                     type="button"
-                    disabled={singleHistoryPage >= singleHistoryMeta.totalPages}
-                    onClick={() => fetchSingleHistory(singleHistoryPage + 1)}
+                    disabled={editSaving || singleHistoryPage >= singleHistoryMeta.totalPages}
+                    onClick={() => changeSingleHistoryPage(singleHistoryPage + 1)}
                   >
                     Next
                   </button>
@@ -2160,6 +2710,8 @@ const PayoutPage = () => {
                         <option value="upi">UPI</option>
 
                         <option value="bank">Bank Transfer</option>
+
+                        <option value="cheque">Cheque</option>
                       </select>
                     </div>
                   </div>
@@ -2355,6 +2907,8 @@ const PayoutPage = () => {
                     <option value="upi">UPI</option>
 
                     <option value="bank">Bank Transfer</option>
+
+                    <option value="cheque">Cheque</option>
                   </select>
                 </div>
 
