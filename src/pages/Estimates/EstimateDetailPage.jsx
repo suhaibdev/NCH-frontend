@@ -2,30 +2,20 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 
 import api from "../../config/axios";
-import { formatPaise, formatState, rupeesToPaise } from "../../utils/gst";
+import { formatPaise, formatState } from "../../utils/gst";
 import {
-  PAYMENT_METHODS,
   STATUS_LABELS,
   formatAddress,
   formatDateOnly,
   formatTimestamp,
-  getBusinessToday,
   isCanceledRequest,
-  paymentMethodLabel,
   unitLabel,
 } from "../../utils/estimates";
+import DocumentPayments from "../Sales/DocumentPayments";
 import EstimatePrint from "./EstimatePrint";
 
 import "../AdminCommon.css";
 import "./Estimates.css";
-
-const emptyPayment = () => ({
-  amount: "",
-  paymentDate: getBusinessToday(),
-  method: "cash",
-  reference: "",
-  notes: "",
-});
 
 const EstimateDetailPage = () => {
   const { estimateId } = useParams();
@@ -43,15 +33,6 @@ const EstimateDetailPage = () => {
   const [showCancel, setShowCancel] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
   const [isCancelling, setIsCancelling] = useState(false);
-
-  const [showPayment, setShowPayment] = useState(false);
-  const [paymentForm, setPaymentForm] = useState(emptyPayment);
-  const [paymentError, setPaymentError] = useState("");
-  const [isRecording, setIsRecording] = useState(false);
-
-  const [voidingId, setVoidingId] = useState(null);
-  const [voidReason, setVoidReason] = useState("");
-  const [isVoiding, setIsVoiding] = useState(false);
 
   const [printing, setPrinting] = useState(false);
   const finishPrinting = useCallback(() => setPrinting(false), []);
@@ -117,69 +98,6 @@ const EstimateDetailPage = () => {
     }
   };
 
-  const handleRecordPayment = async (event) => {
-    event.preventDefault();
-    setPaymentError("");
-
-    const amountPaise = rupeesToPaise(paymentForm.amount);
-    if (!amountPaise) {
-      setPaymentError("Enter an amount greater than zero with up to 2 decimals.");
-      return;
-    }
-    if (amountPaise > detail.summary.outstandingPaise) {
-      setPaymentError(
-        `Payment cannot exceed the outstanding balance of ${formatPaise(detail.summary.outstandingPaise)}.`
-      );
-      return;
-    }
-
-    try {
-      setIsRecording(true);
-      setMessage("");
-      const response = await api.post(`/estimates/${estimateId}/payments`, {
-        ...paymentForm,
-        amount: paymentForm.amount.trim(),
-        reference: paymentForm.reference.trim(),
-        notes: paymentForm.notes.trim(),
-      });
-      applyResponse(
-        response.data,
-        `Payment of ${formatPaise(amountPaise)} recorded. Outstanding: ${formatPaise(
-          response.data.summary?.outstandingPaise
-        )}.`
-      );
-      setShowPayment(false);
-      setPaymentForm(emptyPayment());
-    } catch (err) {
-      setPaymentError(err.response?.data?.message || "Unable to record payment.");
-    } finally {
-      setIsRecording(false);
-    }
-  };
-
-  const handleVoid = async (event, paymentId) => {
-    event.preventDefault();
-    if (!voidReason.trim()) {
-      setActionError("Enter a reason for voiding the payment.");
-      return;
-    }
-    try {
-      setIsVoiding(true);
-      setActionError("");
-      setMessage("");
-      const response = await api.post(`/estimates/${estimateId}/payments/${paymentId}/void`, {
-        reason: voidReason.trim(),
-      });
-      applyResponse(response.data);
-      setVoidingId(null);
-      setVoidReason("");
-    } catch (err) {
-      setActionError(err.response?.data?.message || "Unable to void payment.");
-    } finally {
-      setIsVoiding(false);
-    }
-  };
-
   /* ---------- page-level states ---------- */
 
   if (state === "loading") {
@@ -211,7 +129,6 @@ const EstimateDetailPage = () => {
   const { estimate, payments, summary } = detail;
   const isActive = estimate.status === "active";
   const customer = estimate.customerSnapshot || {};
-  const busy = isCancelling || isRecording || isVoiding;
 
   const details = [
     ["Customer", customer.billingName || customer.name],
@@ -271,7 +188,7 @@ const EstimateDetailPage = () => {
                   setShowCancel((value) => !value);
                   setActionError("");
                 }}
-                disabled={busy}
+                disabled={isCancelling}
               >
                 Cancel Estimate
               </button>
@@ -396,215 +313,16 @@ const EstimateDetailPage = () => {
         </div>
       </section>
 
-      <section className="est-card">
-        <div className="est-card-header">
-          <div>
-            <h2>Payments</h2>
-            <p>Estimate payments only. Voided payments stay listed for history.</p>
-          </div>
-          {isActive && summary.outstandingPaise > 0 && !showPayment && (
-            <button
-              type="button"
-              className="ep-btn ep-btn-primary"
-              onClick={() => {
-                setShowPayment(true);
-                setPaymentError("");
-              }}
-              disabled={busy}
-            >
-              Record Payment
-            </button>
-          )}
-        </div>
-
-        {showPayment && isActive && (
-          <form className="est-inline-panel" onSubmit={handleRecordPayment} noValidate>
-            <div className="est-payment-grid">
-              <div className="est-field">
-                <label htmlFor="est-pay-amount">Amount (₹)</label>
-                <input
-                  id="est-pay-amount"
-                  type="text"
-                  inputMode="decimal"
-                  className="ep-input"
-                  placeholder={`Up to ${formatPaise(summary.outstandingPaise)}`}
-                  value={paymentForm.amount}
-                  onChange={(event) =>
-                    setPaymentForm((prev) => ({
-                      ...prev,
-                      amount: event.target.value.replace(/[^\d.]/g, ""),
-                    }))
-                  }
-                  disabled={isRecording}
-                />
-              </div>
-              <div className="est-field">
-                <label htmlFor="est-pay-date">Payment Date</label>
-                <input
-                  id="est-pay-date"
-                  type="date"
-                  className="ep-input"
-                  min={String(estimate.estimateDate).slice(0, 10)}
-                  max={getBusinessToday()}
-                  value={paymentForm.paymentDate}
-                  onChange={(event) =>
-                    setPaymentForm((prev) => ({ ...prev, paymentDate: event.target.value }))
-                  }
-                  disabled={isRecording}
-                />
-              </div>
-              <div className="est-field">
-                <label htmlFor="est-pay-method">Method</label>
-                <select
-                  id="est-pay-method"
-                  className="ep-input"
-                  value={paymentForm.method}
-                  onChange={(event) =>
-                    setPaymentForm((prev) => ({ ...prev, method: event.target.value }))
-                  }
-                  disabled={isRecording}
-                >
-                  {PAYMENT_METHODS.map(([value, label]) => (
-                    <option key={value} value={value}>
-                      {label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="est-field">
-                <label htmlFor="est-pay-reference">Reference</label>
-                <input
-                  id="est-pay-reference"
-                  type="text"
-                  className="ep-input"
-                  maxLength={150}
-                  placeholder="UTR, cheque no. (optional)"
-                  value={paymentForm.reference}
-                  onChange={(event) =>
-                    setPaymentForm((prev) => ({ ...prev, reference: event.target.value }))
-                  }
-                  disabled={isRecording}
-                />
-              </div>
-              <div className="est-field">
-                <label htmlFor="est-pay-notes">Notes</label>
-                <input
-                  id="est-pay-notes"
-                  type="text"
-                  className="ep-input"
-                  maxLength={500}
-                  value={paymentForm.notes}
-                  onChange={(event) =>
-                    setPaymentForm((prev) => ({ ...prev, notes: event.target.value }))
-                  }
-                  disabled={isRecording}
-                />
-              </div>
-            </div>
-            {paymentError && <div className="est-message error">{paymentError}</div>}
-            <div className="est-form-actions">
-              <button type="submit" className="ep-btn ep-btn-primary" disabled={isRecording}>
-                {isRecording ? "Recording..." : "Save Payment"}
-              </button>
-              <button
-                type="button"
-                className="ep-btn ep-btn-secondary"
-                onClick={() => setShowPayment(false)}
-                disabled={isRecording}
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
-        )}
-
-        {payments.length === 0 ? (
-          <div className="est-state">No payments recorded.</div>
-        ) : (
-          <div className="est-table-wrapper">
-            <table className="ep-table est-table">
-              <thead>
-                <tr>
-                  <th>Date</th>
-                  <th className="num">Amount</th>
-                  <th>Method</th>
-                  <th>Reference</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {payments.map((payment) => (
-                  <tr key={payment._id} className={payment.voided ? "est-voided" : undefined}>
-                    <td className="est-cell-main">{formatDateOnly(payment.paymentDate)}</td>
-                    <td className="num est-money est-cell-side">
-                      {formatPaise(payment.amountPaise)}
-                    </td>
-                    <td data-label="Method">{paymentMethodLabel(payment.method)}</td>
-                    <td data-label="Reference">
-                      {payment.reference || "-"}
-                      {payment.notes ? <div className="est-muted">{payment.notes}</div> : null}
-                    </td>
-                    <td data-label="Status">
-                      {payment.voided
-                        ? `Voided ${formatTimestamp(payment.voidedAt)}: ${payment.voidReason || "-"}`
-                        : "Valid"}
-                    </td>
-                    <td className="est-cell-full">
-                      {!payment.voided && isActive && voidingId !== payment._id && (
-                        <button
-                          type="button"
-                          className="ep-btn ep-btn-delete"
-                          onClick={() => {
-                            setVoidingId(payment._id);
-                            setVoidReason("");
-                            setActionError("");
-                          }}
-                          disabled={busy}
-                        >
-                          Void
-                        </button>
-                      )}
-                      {voidingId === payment._id && (
-                        <form
-                          className="est-void-form"
-                          onSubmit={(event) => handleVoid(event, payment._id)}
-                        >
-                          <input
-                            type="text"
-                            className="ep-input"
-                            placeholder="Reason for voiding"
-                            aria-label="Reason for voiding"
-                            maxLength={250}
-                            value={voidReason}
-                            onChange={(event) => setVoidReason(event.target.value)}
-                            disabled={isVoiding}
-                          />
-                          <button
-                            type="submit"
-                            className="ep-btn ep-btn-delete"
-                            disabled={isVoiding}
-                          >
-                            {isVoiding ? "Voiding..." : "Confirm Void"}
-                          </button>
-                          <button
-                            type="button"
-                            className="ep-btn ep-btn-secondary"
-                            onClick={() => setVoidingId(null)}
-                            disabled={isVoiding}
-                          >
-                            Cancel
-                          </button>
-                        </form>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
+      <DocumentPayments
+        apiBase={`/estimates/${estimateId}`}
+        documentDate={estimate.estimateDate}
+        isActive={isActive}
+        payments={payments}
+        summary={summary}
+        description="Estimate payments only. Voided payments stay listed for history."
+        disabled={isCancelling}
+        onUpdated={applyResponse}
+      />
 
       {printing && <EstimatePrint estimate={estimate} summary={summary} onDone={finishPrinting} />}
     </div>

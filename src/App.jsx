@@ -19,6 +19,9 @@ import CustomerDetailPage from "./pages/Customer/CustomerDetailPage";
 import EstimatesPage from "./pages/Estimates/EstimatesPage";
 import EstimateFormPage from "./pages/Estimates/EstimateFormPage";
 import EstimateDetailPage from "./pages/Estimates/EstimateDetailPage";
+import InvoicesPage from "./pages/Invoices/InvoicesPage";
+import InvoiceFormPage from "./pages/Invoices/InvoiceFormPage";
+import InvoiceDetailPage from "./pages/Invoices/InvoiceDetailPage";
 import SuppliersPage from "./pages/Suppliers/SuppliersPage";
 import SupplierDetailPage from "./pages/Suppliers/SupplierDetailPage";
 import ReceiveMaterialPage from "./pages/Suppliers/ReceiveMaterialPage";
@@ -121,6 +124,17 @@ const App = () => {
             <Route
               path="/admin/estimates/:estimateId/edit"
               element={<EstimateFormPage key="edit" />}
+            />
+
+            <Route path="/admin/invoices" element={<InvoicesPage />} />
+
+            <Route path="/admin/invoices/new" element={<InvoiceFormPage key="new" />} />
+
+            <Route path="/admin/invoices/:invoiceId" element={<InvoiceDetailPage />} />
+
+            <Route
+              path="/admin/invoices/:invoiceId/edit"
+              element={<InvoiceFormPage key="edit" />}
             />
 
             <Route path="/admin/suppliers" element={<SuppliersPage />} />

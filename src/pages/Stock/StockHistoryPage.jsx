@@ -27,6 +27,8 @@ const MOVEMENT_TYPE_LABELS = {
   manufacturing_reverse_out: "Manufacturing Reversal (Out)",
   estimate_out: "Estimate Out",
   estimate_return: "Estimate Return",
+  invoice_out: "Invoice Out",
+  invoice_return: "Invoice Return",
   adjustment: "Adjustment",
 };
 

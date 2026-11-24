@@ -1,0 +1,327 @@
+/* ==========================================================
+   INVOICES (extends Estimates.css layout classes)
+========================================================== */
+
+.est-status.reversed {
+  color: #b42318;
+  background: #fff3f2;
+}
+
+.inv-badge {
+  display: inline-block;
+  padding: 3px 9px;
+  color: #1d4ed8;
+  background: #eef4ff;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.inv-banner {
+  margin-bottom: 18px;
+  padding: 12px 15px;
+  color: #b54708;
+  background: #fffaeb;
+  border: 1px solid #fedf89;
+  border-left: 4px solid #f79009;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.inv-customer-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+  color: #475467;
+  font-size: 13px;
+}
+
+.inv-missing {
+  color: #b42318;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.inv-batch-input {
+  max-width: 140px;
+}
+
+.inv-tax-table {
+  width: 100%;
+  margin: 0;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.inv-tax-table th,
+.inv-tax-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #edf0f3;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.inv-tax-table th:first-child,
+.inv-tax-table td:first-child {
+  text-align: left;
+}
+
+.inv-tax-table th {
+  color: #475467;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.inv-totals {
+  width: 100%;
+  max-width: 360px;
+  margin: 14px 0 0 auto;
+}
+
+.inv-totals p {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0;
+  padding: 5px 0;
+  color: #344054;
+  font-size: 14px;
+}
+
+.inv-totals p.inv-grand {
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid #d0d5dd;
+  color: #24324a;
+  font-size: 18px;
+  font-weight: 750;
+}
+
+.inv-preview-note {
+  margin: 10px 0 0;
+  color: #667085;
+  font-size: 12px;
+  text-align: right;
+}
+
+.inv-words {
+  margin: 8px 0 0;
+  color: #475467;
+  font-size: 13px;
+  text-align: right;
+}
+
+.inv-parties {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.inv-parties h3 {
+  margin: 0 0 6px;
+  color: #667085;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.inv-parties p {
+  margin: 0 0 3px;
+  color: #24324a;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+/* Print root lives in <body>; it is never shown on screen. */
+#invoice-print-root {
+  display: none;
+}
+
+/* ==========================================================
+   MOBILE (<= 768px ONLY)
+========================================================== */
+@media (max-width: 768px) {
+  .inv-parties {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .inv-tax-wrapper {
+    overflow-x: auto;
+  }
+
+  .inv-tax-table {
+    font-size: 13px;
+  }
+
+  .inv-tax-table th,
+  .inv-tax-table td {
+    padding: 6px;
+  }
+
+  .inv-totals {
+    max-width: none;
+  }
+
+  .inv-batch-input {
+    max-width: none;
+    min-height: 42px;
+  }
+
+  .inv-words,
+  .inv-preview-note {
+    text-align: left;
+  }
+}
+
+/* ==========================================================
+   PRINT: saved invoice snapshot only, text only.
+   Scoped to body.inv-printing (set only while an invoice prints).
+   More specific than PayoutPage.css's global print rule.
+========================================================== */
+@media print {
+  html body.inv-printing > *:not(#invoice-print-root) {
+    display: none !important;
+  }
+
+  html body.inv-printing > #invoice-print-root {
+    display: block !important;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    color: #000000;
+    background: #ffffff;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 9.5pt;
+  }
+
+  html body.inv-printing > #invoice-print-root * {
+    visibility: visible !important;
+  }
+
+  .inv-print-title {
+    margin: 0 0 3mm;
+    font-size: 13pt;
+    font-weight: 700;
+    letter-spacing: 0.5mm;
+    text-align: center;
+  }
+
+  .inv-print-banner {
+    margin: 0 0 3mm;
+    font-size: 12pt;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .inv-print-grid {
+    display: flex;
+    justify-content: space-between;
+    gap: 6mm;
+    margin-bottom: 3mm;
+    padding: 2mm 0;
+    border-top: 0.3mm solid #000000;
+    border-bottom: 0.3mm solid #000000;
+    break-inside: avoid;
+  }
+
+  .inv-print-grid > div {
+    flex: 1 1 0;
+  }
+
+  .inv-print-grid p {
+    margin: 0 0 0.8mm;
+  }
+
+  .inv-print-grid strong.inv-print-name {
+    font-size: 11pt;
+  }
+
+  .inv-print-label {
+    font-size: 8pt;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .inv-print-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .inv-print-table thead {
+    display: table-header-group;
+  }
+
+  .inv-print-table tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .inv-print-table th,
+  .inv-print-table td {
+    padding: 1.2mm 1.5mm;
+    border-bottom: 0.2mm solid #000000;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .inv-print-table th {
+    border-top: 0.3mm solid #000000;
+    border-bottom: 0.3mm solid #000000;
+    font-size: 8.5pt;
+  }
+
+  .inv-print-table .num {
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .inv-print-summary {
+    margin-top: 4mm;
+    break-inside: avoid;
+  }
+
+  .inv-print-bottom {
+    display: flex;
+    justify-content: space-between;
+    gap: 8mm;
+    margin-top: 3mm;
+    break-inside: avoid;
+  }
+
+  .inv-print-totals {
+    width: 75mm;
+  }
+
+  .inv-print-totals p {
+    display: flex;
+    justify-content: space-between;
+    margin: 0 0 0.8mm;
+  }
+
+  .inv-print-totals p.inv-print-grand {
+    padding-top: 1mm;
+    border-top: 0.3mm solid #000000;
+    font-size: 11pt;
+    font-weight: 700;
+  }
+
+  .inv-print-footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 8mm;
+    margin-top: 6mm;
+    break-inside: avoid;
+  }
+
+  .inv-print-sign {
+    min-width: 60mm;
+    text-align: right;
+  }
+
+  .inv-print-sign p {
+    margin: 0 0 12mm;
+  }
+}

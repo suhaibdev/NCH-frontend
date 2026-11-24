@@ -88,6 +88,12 @@ const CustomerDetailPage = () => {
   const [accountError, setAccountError] = useState("");
   const [accountReload, setAccountReload] = useState(0);
 
+  /* ---------- invoice account (separate from the estimate ledger) ---------- */
+  const [invoiceAccount, setInvoiceAccount] = useState(null);
+  const [invoiceAccountState, setInvoiceAccountState] = useState("loading");
+  const [invoiceAccountError, setInvoiceAccountError] = useState("");
+  const [invoiceAccountReload, setInvoiceAccountReload] = useState(0);
+
   useEffect(() => {
     const controller = new AbortController();
 
@@ -142,6 +148,31 @@ const CustomerDetailPage = () => {
     loadAccount();
     return () => controller.abort();
   }, [customerId, accountReload]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const loadInvoiceAccount = async () => {
+      try {
+        setInvoiceAccountState("loading");
+        setInvoiceAccountError("");
+        const response = await api.get(`/customers/${customerId}/invoice-account`, {
+          signal: controller.signal,
+        });
+        setInvoiceAccount(response.data);
+        setInvoiceAccountState("success");
+      } catch (err) {
+        if (isCanceled(err, controller)) return;
+        setInvoiceAccountError(
+          err.response?.data?.message || "Unable to load the invoice account."
+        );
+        setInvoiceAccountState("error");
+      }
+    };
+
+    loadInvoiceAccount();
+    return () => controller.abort();
+  }, [customerId, invoiceAccountReload]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -523,6 +554,69 @@ const CustomerDetailPage = () => {
                   className="ep-btn ep-btn-primary customers-link-btn"
                 >
                   New Estimate
+                </Link>
+              )}
+            </div>
+          </>
+        )}
+      </section>
+
+      {/* =====================================
+          INVOICE ACCOUNT (GST; separate from estimates)
+      ====================================== */}
+
+      <section className="customers-card">
+        <div className="customers-list-header">
+          <div>
+            <h2>Invoice Account</h2>
+            <p>Active GST invoices and their payments. Kept separate from estimates.</p>
+          </div>
+        </div>
+
+        {invoiceAccountState === "loading" ? (
+          <div className="customers-state">Loading invoice account...</div>
+        ) : invoiceAccountState === "error" ? (
+          <div className="customers-state customers-error-state">
+            <p>{invoiceAccountError}</p>
+            <button
+              type="button"
+              className="ep-btn ep-btn-secondary"
+              onClick={() => setInvoiceAccountReload((value) => value + 1)}
+            >
+              Retry
+            </button>
+          </div>
+        ) : (
+          <>
+            <dl className="customer-detail-grid customer-estimate-grid">
+              {[
+                ["Total Invoiced", formatPaise(invoiceAccount.totalInvoicedPaise)],
+                ["Paid", formatPaise(invoiceAccount.totalPaidPaise)],
+                ["Outstanding", formatPaise(invoiceAccount.outstandingPaise)],
+                [
+                  "Invoices",
+                  `${invoiceAccount.activeCount} active · ${invoiceAccount.reversedCount} reversed`,
+                ],
+              ].map(([label, value]) => (
+                <div key={label} className="customer-detail-item">
+                  <dt>{label}</dt>
+                  <dd>{value}</dd>
+                </div>
+              ))}
+            </dl>
+            <div className="customer-estimate-links">
+              <Link
+                to={`/admin/invoices?customer=${customer._id}`}
+                className="ep-btn ep-btn-secondary customers-link-btn"
+              >
+                View Invoices
+              </Link>
+              {isActive && (
+                <Link
+                  to={`/admin/invoices/new?customer=${customer._id}`}
+                  className="ep-btn ep-btn-primary customers-link-btn"
+                >
+                  New Invoice
                 </Link>
               )}
             </div>

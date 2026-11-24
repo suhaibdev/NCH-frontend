@@ -7,6 +7,7 @@ import {
   FiChevronRight,
   FiDroplet,
   FiDollarSign,
+  FiFile,
   FiFileText,
   FiGitBranch,
   FiGrid,
@@ -82,6 +83,12 @@ const navigationItems = [
     matches: ["/admin/estimates", "/admin/estimates/"],
   },
   {
+    label: "Invoices",
+    to: "/admin/invoices",
+    icon: FiFile,
+    matches: ["/admin/invoices", "/admin/invoices/"],
+  },
+  {
     label: "Employees",
     to: "/admin/employees",
     icon: FiUsers,
@@ -98,6 +105,7 @@ const mobileMoreItems = navigationItems.filter(({ label }) =>
     "Suppliers",
     "Customers",
     "Estimates",
+    "Invoices",
     "Employees",
   ].includes(label)
 );
