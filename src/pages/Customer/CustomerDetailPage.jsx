@@ -82,6 +82,12 @@ const CustomerDetailPage = () => {
 
   const [message, setMessage] = useState("");
 
+  /* ---------- estimate account (separate from any invoice ledger) ---------- */
+  const [estimateAccount, setEstimateAccount] = useState(null);
+  const [accountState, setAccountState] = useState("loading");
+  const [accountError, setAccountError] = useState("");
+  const [accountReload, setAccountReload] = useState(0);
+
   useEffect(() => {
     const controller = new AbortController();
 
@@ -113,6 +119,29 @@ const CustomerDetailPage = () => {
 
     return () => controller.abort();
   }, [customerId, customerReload]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const loadAccount = async () => {
+      try {
+        setAccountState("loading");
+        setAccountError("");
+        const response = await api.get(`/customers/${customerId}/estimate-account`, {
+          signal: controller.signal,
+        });
+        setEstimateAccount(response.data);
+        setAccountState("success");
+      } catch (err) {
+        if (isCanceled(err, controller)) return;
+        setAccountError(err.response?.data?.message || "Unable to load the estimate account.");
+        setAccountState("error");
+      }
+    };
+
+    loadAccount();
+    return () => controller.abort();
+  }, [customerId, accountReload]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -436,6 +465,69 @@ const CustomerDetailPage = () => {
             </div>
           ))}
         </dl>
+      </section>
+
+      {/* =====================================
+          ESTIMATE ACCOUNT (no GST; separate from invoices)
+      ====================================== */}
+
+      <section className="customers-card">
+        <div className="customers-list-header">
+          <div>
+            <h2>Estimate Account</h2>
+            <p>Active estimates and their payments. Kept separate from invoices.</p>
+          </div>
+        </div>
+
+        {accountState === "loading" ? (
+          <div className="customers-state">Loading estimate account...</div>
+        ) : accountState === "error" ? (
+          <div className="customers-state customers-error-state">
+            <p>{accountError}</p>
+            <button
+              type="button"
+              className="ep-btn ep-btn-secondary"
+              onClick={() => setAccountReload((value) => value + 1)}
+            >
+              Retry
+            </button>
+          </div>
+        ) : (
+          <>
+            <dl className="customer-detail-grid customer-estimate-grid">
+              {[
+                ["Total Estimated", formatPaise(estimateAccount.totalEstimatedPaise)],
+                ["Paid", formatPaise(estimateAccount.totalPaidPaise)],
+                ["Outstanding", formatPaise(estimateAccount.outstandingPaise)],
+                [
+                  "Estimates",
+                  `${estimateAccount.activeCount} active · ${estimateAccount.cancelledCount} cancelled`,
+                ],
+              ].map(([label, value]) => (
+                <div key={label} className="customer-detail-item">
+                  <dt>{label}</dt>
+                  <dd>{value}</dd>
+                </div>
+              ))}
+            </dl>
+            <div className="customer-estimate-links">
+              <Link
+                to={`/admin/estimates?customer=${customer._id}`}
+                className="ep-btn ep-btn-secondary customers-link-btn"
+              >
+                View Estimates
+              </Link>
+              {isActive && (
+                <Link
+                  to={`/admin/estimates/new?customer=${customer._id}`}
+                  className="ep-btn ep-btn-primary customers-link-btn"
+                >
+                  New Estimate
+                </Link>
+              )}
+            </div>
+          </>
+        )}
       </section>
 
       {/* =====================================

@@ -1,0 +1,807 @@
+/* ==========================================================
+   ESTIMATES (list, form, detail, print)
+   Estimates carry no GST or HSN.
+========================================================== */
+
+.est-page {
+  width: 100%;
+  max-width: 1200px;
+  box-sizing: border-box;
+}
+
+.est-page .ep-btn {
+  margin: 0;
+  text-decoration: none;
+}
+
+.est-page .ep-input {
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.est-page select.ep-input {
+  background: #ffffff;
+}
+
+.est-page button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.est-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.est-header h1 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  color: #24324a;
+  font-size: 28px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.est-header p {
+  margin: 6px 0 0;
+  color: #667085;
+  font-size: 14px;
+}
+
+.est-header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.est-back-link {
+  display: inline-block;
+  margin-bottom: 8px;
+  color: #1976d2;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.est-back-link:hover {
+  text-decoration: underline;
+}
+
+.est-message {
+  margin-bottom: 18px;
+  padding: 12px 15px;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.est-message.success {
+  color: #176b2c;
+  background: #edf8f0;
+  border: 1px solid #c8e8d0;
+  border-left: 4px solid #2e7d32;
+}
+
+.est-message.error {
+  color: #b42318;
+  background: #fff3f2;
+  border: 1px solid #f6cac7;
+  border-left: 4px solid #d32f2f;
+}
+
+.est-card {
+  margin-bottom: 24px;
+  background: #ffffff;
+  border: 1px solid #e7ecf1;
+  border-radius: 14px;
+  box-shadow: 0 7px 22px rgba(31, 45, 61, 0.07);
+  overflow: hidden;
+}
+
+.est-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 18px 22px;
+  border-bottom: 1px solid #edf0f3;
+}
+
+.est-card-header h2 {
+  margin: 0;
+  color: #24324a;
+  font-size: 19px;
+}
+
+.est-card-header p {
+  margin: 4px 0 0;
+  color: #667085;
+  font-size: 13px;
+}
+
+.est-card-body {
+  padding: 18px 22px;
+}
+
+.est-state {
+  padding: 40px 20px;
+  color: #667085;
+  font-size: 14px;
+  text-align: center;
+}
+
+.est-state.error {
+  color: #b42318;
+}
+
+.est-state p {
+  margin: 0 0 12px;
+}
+
+.est-state-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.est-status {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.est-status.active {
+  color: #176b2c;
+  background: #edf8f0;
+}
+
+.est-status.cancelled {
+  color: #b42318;
+  background: #fff3f2;
+}
+
+.est-status.converted {
+  color: #1d4ed8;
+  background: #eef4ff;
+}
+
+.est-money {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.est-muted {
+  color: #667085;
+  font-size: 12px;
+}
+
+/* ---------- filters ---------- */
+
+.est-filters {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1.4fr) minmax(0, 0.8fr) minmax(0, 0.9fr) minmax(0, 0.9fr) minmax(0, 1fr)
+    auto;
+  align-items: end;
+  gap: 12px;
+  padding: 18px 22px;
+  background: #fafbfd;
+  border-bottom: 1px solid #edf0f3;
+}
+
+.est-field {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.est-field label {
+  color: #344054;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.est-field small {
+  color: #667085;
+  font-size: 12px;
+}
+
+.est-filter-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* ---------- tables ---------- */
+
+.est-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.est-table {
+  width: 100%;
+  margin: 0;
+  border-collapse: collapse;
+}
+
+.est-table th {
+  white-space: nowrap;
+}
+
+.est-table td {
+  vertical-align: middle;
+}
+
+.est-table .num {
+  text-align: right;
+}
+
+.est-row {
+  cursor: pointer;
+}
+
+.est-row:focus-visible {
+  outline: 2px solid #1976d2;
+  outline-offset: -2px;
+}
+
+.est-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 22px;
+  color: #667085;
+  font-size: 13px;
+}
+
+/* ---------- form ---------- */
+
+.est-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.est-readonly {
+  padding: 10px 0;
+  color: #24324a;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.est-picker {
+  display: grid;
+  gap: 10px;
+}
+
+.est-results {
+  max-height: 280px;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+  border: 1px solid #e7ecf1;
+  border-radius: 8px;
+}
+
+.est-results li + li {
+  border-top: 1px solid #f0f2f5;
+}
+
+.est-results button {
+  width: 100%;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 12px;
+  color: #24324a;
+  background: transparent;
+  border: 0;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.est-results button:hover:not(:disabled),
+.est-results button:focus-visible {
+  background: #eef6ff;
+}
+
+.est-results small {
+  color: #667085;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.est-results-state {
+  margin: 0;
+  padding: 14px 12px;
+  color: #667085;
+  font-size: 13px;
+}
+
+.est-qty-input {
+  max-width: 110px;
+}
+
+.est-reprice {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  color: #344054;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.est-total-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+  padding: 14px 22px;
+  border-top: 1px solid #edf0f3;
+  color: #24324a;
+  font-size: 18px;
+  font-weight: 750;
+}
+
+.est-form-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* ---------- detail ---------- */
+
+.est-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.est-summary div {
+  padding: 14px 16px;
+  background: #f5f9ff;
+  border: 1px solid #dbe9fb;
+  border-radius: 10px;
+}
+
+.est-summary span {
+  display: block;
+  color: #667085;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.est-summary strong {
+  display: block;
+  margin-top: 4px;
+  color: #24324a;
+  font-size: 20px;
+}
+
+.est-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 24px;
+  margin: 0;
+}
+
+.est-details dt {
+  color: #667085;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.est-details dd {
+  margin: 4px 0 0;
+  color: #24324a;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.est-inline-panel {
+  display: grid;
+  gap: 12px;
+  padding: 16px 22px;
+  background: #fafbfd;
+  border-bottom: 1px solid #edf0f3;
+}
+
+.est-payment-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.est-voided td {
+  color: #98a2b3;
+}
+
+.est-voided .est-money {
+  text-decoration: line-through;
+}
+
+.est-void-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.est-void-form .ep-input {
+  flex: 1 1 180px;
+}
+
+.est-account {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.est-account-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+/* Print root lives in <body>; it is never shown on screen. */
+#estimate-print-root {
+  display: none;
+}
+
+/* ==========================================================
+   MOBILE (<= 768px ONLY)
+========================================================== */
+@media (max-width: 768px) {
+  .est-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .est-header h1 {
+    font-size: 22px;
+  }
+
+  .est-header-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .est-header-actions .ep-btn {
+    width: 100%;
+    min-height: 40px;
+    padding: 8px 10px;
+    text-align: center;
+  }
+
+  .est-card {
+    margin-bottom: 12px;
+    background: transparent;
+    border: 0;
+    border-top: 1px solid #e7ecf1;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .est-card-header {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 12px 0;
+    border-bottom: 0;
+  }
+
+  .est-card-body,
+  .est-inline-panel,
+  .est-pagination,
+  .est-total-bar {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .est-inline-panel {
+    background: transparent;
+  }
+
+  .est-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 0 0 12px;
+    background: transparent;
+  }
+
+  .est-filters .est-field:first-child,
+  .est-filters .est-field:nth-child(5),
+  .est-filter-actions {
+    grid-column: 1 / -1;
+  }
+
+  .est-filter-actions .ep-btn,
+  .est-form-actions .ep-btn {
+    flex: 1 1 0;
+    min-height: 40px;
+  }
+
+  .est-form-grid,
+  .est-payment-grid,
+  .est-details {
+    grid-template-columns: 1fr;
+  }
+
+  .est-form-actions {
+    flex-direction: column;
+  }
+
+  .est-summary,
+  .est-account {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .est-summary div,
+  .est-account div {
+    padding: 8px;
+  }
+
+  .est-summary strong {
+    font-size: 15px;
+    overflow-wrap: anywhere;
+  }
+
+  .est-account-links .ep-btn {
+    flex: 1 1 0;
+    min-height: 40px;
+    text-align: center;
+  }
+
+  /* Tables become flat stacked rows. */
+  .est-table-wrapper {
+    overflow-x: visible;
+  }
+
+  .est-page .est-table {
+    display: block;
+    background: transparent;
+  }
+
+  .est-page .est-table thead {
+    display: none;
+  }
+
+  .est-page .est-table tbody {
+    display: block;
+  }
+
+  .est-page .est-table tbody tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 4px 10px;
+    padding: 12px 0;
+    background: transparent;
+    border-bottom: 1px solid #edf0f3;
+  }
+
+  .est-page .est-table tbody tr:nth-child(even),
+  .est-page .est-table tbody tr:hover {
+    background: transparent;
+  }
+
+  .est-page .est-table td {
+    display: block;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    font-size: 13px;
+    text-align: left;
+    overflow-wrap: anywhere;
+  }
+
+  .est-page .est-table td.est-cell-main {
+    grid-column: 1;
+    grid-row: 1;
+    font-size: 15px;
+  }
+
+  .est-page .est-table td.est-cell-side {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+    text-align: right;
+  }
+
+  .est-page .est-table td[data-label] {
+    grid-column: 1 / -1;
+    color: #475467;
+  }
+
+  .est-page .est-table td[data-label]::before {
+    content: attr(data-label) ": ";
+    color: #667085;
+    font-weight: 600;
+  }
+
+  .est-page .est-table td.est-cell-full {
+    grid-column: 1 / -1;
+  }
+
+  .est-page .est-table td.est-cell-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 6px;
+  }
+
+  .est-page .est-table td.est-cell-actions .ep-btn {
+    flex: 1 1 0;
+    min-height: 40px;
+    padding: 8px 10px;
+    font-size: 14px;
+  }
+
+  .est-qty-input {
+    max-width: 140px;
+    min-height: 42px;
+  }
+
+  .est-total-bar {
+    justify-content: space-between;
+    font-size: 17px;
+  }
+
+  .est-pagination .ep-btn {
+    width: auto;
+    min-height: 40px;
+  }
+
+  .est-pagination span {
+    text-align: center;
+  }
+
+  .est-results button {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+}
+
+/* ==========================================================
+   PRINT: saved estimate only, text only, no GST or HSN.
+   Scoped to body.est-printing (set only while an estimate prints) so other
+   pages' printing is untouched. PayoutPage.css hides every <body> child
+   except its own root when printing; these selectors are more specific.
+========================================================== */
+@media print {
+  html body.est-printing > *:not(#estimate-print-root) {
+    display: none !important;
+  }
+
+  html body.est-printing > #estimate-print-root {
+    display: block !important;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    color: #000000;
+    background: #ffffff;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 10pt;
+  }
+
+  html body.est-printing > #estimate-print-root * {
+    visibility: visible !important;
+  }
+
+  .est-print-header {
+    margin-bottom: 5mm;
+    text-align: center;
+  }
+
+  .est-print-header strong {
+    display: block;
+    font-size: 15pt;
+    letter-spacing: 0.6mm;
+  }
+
+  .est-print-header span {
+    display: block;
+    margin-top: 1mm;
+    font-size: 12pt;
+    font-weight: 700;
+    letter-spacing: 0.4mm;
+  }
+
+  .est-print-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 8mm;
+    margin-bottom: 5mm;
+  }
+
+  .est-print-meta p {
+    margin: 0 0 1mm;
+  }
+
+  .est-print-cancelled {
+    margin: 0 0 4mm;
+    font-size: 12pt;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .est-print-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .est-print-table thead {
+    display: table-header-group;
+  }
+
+  .est-print-table tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .est-print-table th,
+  .est-print-table td {
+    padding: 1.5mm 2mm;
+    border-bottom: 0.2mm solid #000000;
+    text-align: left;
+  }
+
+  .est-print-table th {
+    border-top: 0.3mm solid #000000;
+    border-bottom: 0.3mm solid #000000;
+  }
+
+  .est-print-table .num {
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .est-print-totals {
+    width: 70mm;
+    margin: 4mm 0 0 auto;
+    break-inside: avoid;
+  }
+
+  .est-print-totals p {
+    display: flex;
+    justify-content: space-between;
+    margin: 0 0 1mm;
+  }
+
+  .est-print-totals p:first-child {
+    font-size: 11pt;
+    font-weight: 700;
+  }
+
+  .est-print-notes {
+    margin-top: 5mm;
+    break-inside: avoid;
+  }
+}

@@ -7,6 +7,7 @@ import {
   FiChevronRight,
   FiDroplet,
   FiDollarSign,
+  FiFileText,
   FiGitBranch,
   FiGrid,
   FiHome,
@@ -75,6 +76,12 @@ const navigationItems = [
     matches: ["/admin/customers", "/admin/customers/"],
   },
   {
+    label: "Estimates",
+    to: "/admin/estimates",
+    icon: FiFileText,
+    matches: ["/admin/estimates", "/admin/estimates/"],
+  },
+  {
     label: "Employees",
     to: "/admin/employees",
     icon: FiUsers,
@@ -83,9 +90,16 @@ const navigationItems = [
 ];
 
 const mobileMoreItems = navigationItems.filter(({ label }) =>
-  ["Products", "Factory Flow", "Payout", "Washers", "Suppliers", "Customers", "Employees"].includes(
-    label
-  )
+  [
+    "Products",
+    "Factory Flow",
+    "Payout",
+    "Washers",
+    "Suppliers",
+    "Customers",
+    "Estimates",
+    "Employees",
+  ].includes(label)
 );
 
 const isCurrentRoute = (pathname, matches) =>

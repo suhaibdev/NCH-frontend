@@ -1204,3 +1204,36 @@
         min-height: 40px;
     }
 }
+
+/* ==========================================================
+   STEP 11B: CUSTOMER ESTIMATE ACCOUNT
+========================================================== */
+
+.customer-estimate-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.customer-estimate-links {
+    display: flex;
+    flex-wrap: wrap;
+
+    gap: 10px;
+
+    padding: 0 22px 20px;
+}
+
+@media (max-width: 768px) {
+    .customer-estimate-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .customer-estimate-links {
+        padding: 0 0 12px;
+    }
+
+    .customer-estimate-links .ep-btn {
+        flex: 1 1 0;
+        min-height: 40px;
+        text-align: center;
+    }
+}

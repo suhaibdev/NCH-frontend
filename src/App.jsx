@@ -16,6 +16,9 @@ import AdminPortalPage from "./pages/AdminPortalPage";
 import EmployeesPage from "./pages/Employees/EmployeesPage";
 import CustomersPage from "./pages/Customer/CustomersPage";
 import CustomerDetailPage from "./pages/Customer/CustomerDetailPage";
+import EstimatesPage from "./pages/Estimates/EstimatesPage";
+import EstimateFormPage from "./pages/Estimates/EstimateFormPage";
+import EstimateDetailPage from "./pages/Estimates/EstimateDetailPage";
 import SuppliersPage from "./pages/Suppliers/SuppliersPage";
 import SupplierDetailPage from "./pages/Suppliers/SupplierDetailPage";
 import ReceiveMaterialPage from "./pages/Suppliers/ReceiveMaterialPage";
@@ -108,6 +111,17 @@ const App = () => {
             <Route path="/admin/customers" element={<CustomersPage />} />
 
             <Route path="/admin/customers/:customerId" element={<CustomerDetailPage />} />
+
+            <Route path="/admin/estimates" element={<EstimatesPage />} />
+
+            <Route path="/admin/estimates/new" element={<EstimateFormPage key="new" />} />
+
+            <Route path="/admin/estimates/:estimateId" element={<EstimateDetailPage />} />
+
+            <Route
+              path="/admin/estimates/:estimateId/edit"
+              element={<EstimateFormPage key="edit" />}
+            />
 
             <Route path="/admin/suppliers" element={<SuppliersPage />} />
 
