@@ -12,6 +12,7 @@ import {
   unitLabel,
 } from "../../utils/estimates";
 import DocumentPayments from "../Sales/DocumentPayments";
+import EstimateConversionPanel from "./EstimateConversionPanel";
 import EstimatePrint from "./EstimatePrint";
 
 import "../AdminCommon.css";
@@ -33,6 +34,8 @@ const EstimateDetailPage = () => {
   const [showCancel, setShowCancel] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
   const [isCancelling, setIsCancelling] = useState(false);
+
+  const [showConvert, setShowConvert] = useState(false);
 
   const [printing, setPrinting] = useState(false);
   const finishPrinting = useCallback(() => setPrinting(false), []);
@@ -128,6 +131,7 @@ const EstimateDetailPage = () => {
 
   const { estimate, payments, summary } = detail;
   const isActive = estimate.status === "active";
+  const isConverted = estimate.status === "converted";
   const customer = estimate.customerSnapshot || {};
 
   const details = [
@@ -142,6 +146,12 @@ const EstimateDetailPage = () => {
     details.push(
       ["Cancelled On", formatTimestamp(estimate.cancelledAt)],
       ["Cancel Reason", estimate.cancelReason]
+    );
+  }
+  if (isConverted) {
+    details.push(
+      ["Converted To", estimate.convertedInvoiceNumber],
+      ["Converted On", formatTimestamp(estimate.convertedAt)]
     );
   }
 
@@ -160,6 +170,15 @@ const EstimateDetailPage = () => {
           </h1>
           <p>
             <Link to={`/admin/customers/${estimate.customer}`}>{customer.name}</Link> · No GST
+            {isConverted && (
+              <>
+                {" "}
+                ·{" "}
+                <Link to={`/admin/invoices/${estimate.convertedInvoice}`}>
+                  {estimate.convertedInvoiceNumber}
+                </Link>
+              </>
+            )}
           </p>
         </div>
 
@@ -178,6 +197,18 @@ const EstimateDetailPage = () => {
           </button>
           {isActive && (
             <>
+              <button
+                type="button"
+                className="ep-btn ep-btn-primary"
+                onClick={() => {
+                  setShowConvert((value) => !value);
+                  setShowCancel(false);
+                  setActionError("");
+                }}
+                disabled={isCancelling}
+              >
+                Convert to Invoice
+              </button>
               <Link to={`/admin/estimates/${estimate._id}/edit`} className="ep-btn ep-btn-edit">
                 Edit
               </Link>
@@ -186,6 +217,7 @@ const EstimateDetailPage = () => {
                 className="ep-btn ep-btn-delete"
                 onClick={() => {
                   setShowCancel((value) => !value);
+                  setShowConvert(false);
                   setActionError("");
                 }}
                 disabled={isCancelling}
@@ -199,6 +231,21 @@ const EstimateDetailPage = () => {
 
       {message && <div className="est-message success">{message}</div>}
       {actionError && <div className="est-message error">{actionError}</div>}
+
+      {isConverted && (
+        <div className="est-converted-note">
+          Converted to{" "}
+          <Link to={`/admin/invoices/${estimate.convertedInvoice}`}>
+            {estimate.convertedInvoiceNumber}
+          </Link>{" "}
+          on {formatTimestamp(estimate.convertedAt)}. This estimate is now read-only; its amount and
+          payments belong to the invoice.
+        </div>
+      )}
+
+      {showConvert && isActive && (
+        <EstimateConversionPanel estimateId={estimateId} onClose={() => setShowConvert(false)} />
+      )}
 
       {showCancel && isActive && (
         <section className="est-card">
@@ -241,8 +288,10 @@ const EstimateDetailPage = () => {
           <strong className="est-money">{formatPaise(summary.totalPaise)}</strong>
         </div>
         <div>
-          <span>Paid</span>
-          <strong className="est-money">{formatPaise(summary.paidPaise)}</strong>
+          <span>{isConverted ? "Moved to Invoice" : "Paid"}</span>
+          <strong className="est-money">
+            {formatPaise(isConverted ? summary.transferredPaise || 0 : summary.paidPaise)}
+          </strong>
         </div>
         <div>
           <span>Outstanding</span>
@@ -319,7 +368,11 @@ const EstimateDetailPage = () => {
         isActive={isActive}
         payments={payments}
         summary={summary}
-        description="Estimate payments only. Voided payments stay listed for history."
+        description={
+          isConverted
+            ? `These payments moved to ${estimate.convertedInvoiceNumber} and are now part of the invoice ledger. They stay here for history.`
+            : "Estimate payments only. Voided payments stay listed for history."
+        }
         disabled={isCancelling}
         onUpdated={applyResponse}
       />

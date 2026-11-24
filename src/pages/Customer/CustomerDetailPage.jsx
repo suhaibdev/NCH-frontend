@@ -532,7 +532,7 @@ const CustomerDetailPage = () => {
                 ["Outstanding", formatPaise(estimateAccount.outstandingPaise)],
                 [
                   "Estimates",
-                  `${estimateAccount.activeCount} active · ${estimateAccount.cancelledCount} cancelled`,
+                  `${estimateAccount.activeCount} active · ${estimateAccount.convertedCount ?? 0} converted · ${estimateAccount.cancelledCount} cancelled`,
                 ],
               ].map(([label, value]) => (
                 <div key={label} className="customer-detail-item">

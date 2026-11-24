@@ -46,6 +46,13 @@ const EstimatePrint = ({ estimate, summary, onDone }) => {
         </p>
       )}
 
+      {estimate.status === "converted" && (
+        <p className="est-print-cancelled">
+          CONVERTED TO INVOICE {estimate.convertedInvoiceNumber}
+          {estimate.convertedAt ? ` on ${formatTimestamp(estimate.convertedAt)}` : ""}
+        </p>
+      )}
+
       <div className="est-print-meta">
         <div>
           <p>
@@ -94,8 +101,12 @@ const EstimatePrint = ({ estimate, summary, onDone }) => {
           <span>{formatPaise(estimate.totalPaise)}</span>
         </p>
         <p>
-          <span>Paid to date</span>
-          <span>{formatPaise(summary.paidPaise)}</span>
+          <span>{estimate.status === "converted" ? "Moved to invoice" : "Paid to date"}</span>
+          <span>
+            {formatPaise(
+              estimate.status === "converted" ? summary.transferredPaise || 0 : summary.paidPaise
+            )}
+          </span>
         </p>
         <p>
           <span>Balance</span>

@@ -142,6 +142,9 @@ const InvoiceDetailPage = () => {
     ["Tax", TAX_TYPE_LABELS[invoice.taxType]],
     ["Notes", invoice.notes],
   ];
+  if (invoice.sourceEstimate) {
+    details.push(["Converted From", invoice.sourceEstimateNumber]);
+  }
   if (invoice.status === "reversed") {
     details.push(
       ["Reversed On", formatTimestamp(invoice.reversedAt)],
@@ -165,6 +168,15 @@ const InvoiceDetailPage = () => {
           <p>
             <Link to={`/admin/customers/${invoice.customer}`}>{customer.name}</Link> ·{" "}
             {TAX_TYPE_LABELS[invoice.taxType]}
+            {invoice.sourceEstimate && (
+              <>
+                {" "}
+                · from{" "}
+                <Link to={`/admin/estimates/${invoice.sourceEstimate}`}>
+                  {invoice.sourceEstimateNumber}
+                </Link>
+              </>
+            )}
           </p>
         </div>
 

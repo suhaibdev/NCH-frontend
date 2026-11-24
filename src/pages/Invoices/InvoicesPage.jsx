@@ -268,6 +268,9 @@ const InvoicesPage = () => {
                     >
                       <td className="est-cell-main">
                         <strong>{row.invoiceNumber}</strong>
+                        {row.sourceEstimateNumber && (
+                          <div className="est-muted">from {row.sourceEstimateNumber}</div>
+                        )}
                       </td>
                       <td data-label="Date">{formatDateOnly(row.invoiceDate)}</td>
                       <td data-label="Customer">{row.customerName || "-"}</td>

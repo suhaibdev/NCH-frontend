@@ -264,7 +264,16 @@ const DocumentPayments = ({
             </thead>
             <tbody>
               {payments.map((payment) => (
-                <tr key={payment._id} className={payment.voided ? "est-voided" : undefined}>
+                <tr
+                  key={payment._id}
+                  className={
+                    payment.voided
+                      ? "est-voided"
+                      : payment.transferred
+                        ? "est-transferred"
+                        : undefined
+                  }
+                >
                   <td className="est-cell-main">{formatDateOnly(payment.paymentDate)}</td>
                   <td className="num est-money est-cell-side">
                     {formatPaise(payment.amountPaise)}
@@ -277,7 +286,11 @@ const DocumentPayments = ({
                   <td data-label="Status">
                     {payment.voided
                       ? `Voided ${formatTimestamp(payment.voidedAt)}: ${payment.voidReason || "-"}`
-                      : "Valid"}
+                      : payment.transferred
+                        ? `Transferred to ${payment.transferredInvoiceNumber || "the invoice"}`
+                        : payment.carriedFromEstimateNumber
+                          ? `Valid · Carried from ${payment.carriedFromEstimateNumber}`
+                          : "Valid"}
                   </td>
                   <td className="est-cell-full">
                     {!payment.voided && isActive && voidingId !== payment._id && (

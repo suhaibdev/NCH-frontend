@@ -805,3 +805,63 @@
     break-inside: avoid;
   }
 }
+
+/* ==========================================================
+   STEP 11D: ESTIMATE TO INVOICE CONVERSION
+========================================================== */
+
+.est-converted-note {
+  margin-bottom: 18px;
+  padding: 12px 15px;
+  color: #1d4ed8;
+  background: #eef4ff;
+  border: 1px solid #c7d7fe;
+  border-left: 4px solid #1d4ed8;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.est-converted-note a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.est-transferred td {
+  color: #667085;
+}
+
+.est-convert-body {
+  display: grid;
+  gap: 16px;
+}
+
+.est-convert-notice {
+  padding: 12px 15px;
+  color: #344054;
+  background: #f5f9ff;
+  border: 1px solid #dbe9fb;
+  border-left: 4px solid #1976d2;
+  border-radius: 9px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.est-convert-problems {
+  margin: 6px 0 0;
+  padding-left: 20px;
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .est-convert-body {
+    gap: 12px;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .est-convert-notice,
+  .est-converted-note {
+    font-size: 13px;
+  }
+}

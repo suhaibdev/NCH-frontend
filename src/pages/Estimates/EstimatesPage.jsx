@@ -157,6 +157,7 @@ const EstimatesPage = () => {
             >
               <option value="">All</option>
               <option value="active">Active</option>
+              <option value="converted">Converted</option>
               <option value="cancelled">Cancelled</option>
             </select>
           </div>
