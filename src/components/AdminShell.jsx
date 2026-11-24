@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
+  FiBarChart2,
   FiBox,
   FiCalendar,
   FiChevronLeft,
@@ -96,6 +97,12 @@ const navigationItems = [
     matches: ["/admin/challans", "/admin/challans/"],
   },
   {
+    label: "GST Report",
+    to: "/admin/reports/gst",
+    icon: FiBarChart2,
+    matches: ["/admin/reports/gst", "/admin/reports/gst/"],
+  },
+  {
     label: "Employees",
     to: "/admin/employees",
     icon: FiUsers,
@@ -114,6 +121,7 @@ const mobileMoreItems = navigationItems.filter(({ label }) =>
     "Estimates",
     "Invoices",
     "Challans",
+    "GST Report",
     "Employees",
   ].includes(label)
 );

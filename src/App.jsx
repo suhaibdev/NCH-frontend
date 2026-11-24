@@ -25,6 +25,7 @@ import InvoiceDetailPage from "./pages/Invoices/InvoiceDetailPage";
 import ChallansPage from "./pages/Challans/ChallansPage";
 import ChallanFormPage from "./pages/Challans/ChallanFormPage";
 import ChallanDetailPage from "./pages/Challans/ChallanDetailPage";
+import GstReportPage from "./pages/Reports/GstReportPage";
 import SuppliersPage from "./pages/Suppliers/SuppliersPage";
 import SupplierDetailPage from "./pages/Suppliers/SupplierDetailPage";
 import ReceiveMaterialPage from "./pages/Suppliers/ReceiveMaterialPage";
@@ -145,6 +146,8 @@ const App = () => {
             <Route path="/admin/challans/new" element={<ChallanFormPage />} />
 
             <Route path="/admin/challans/:challanId" element={<ChallanDetailPage />} />
+
+            <Route path="/admin/reports/gst" element={<GstReportPage />} />
 
             <Route path="/admin/suppliers" element={<SuppliersPage />} />
 

@@ -1,0 +1,156 @@
+/* ==========================================================
+   GST REPORT (extends the Estimates layout classes)
+========================================================== */
+
+.gst-period {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) auto minmax(0, 1fr) minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 12px;
+  padding: 18px 22px;
+}
+
+.gst-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  color: #344054;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.gst-period-title {
+  margin: 0 0 12px;
+  color: #24324a;
+  font-size: 20px;
+}
+
+.gst-cards {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.gst-cards div {
+  padding: 14px 16px;
+  background: #f5f9ff;
+  border: 1px solid #dbe9fb;
+  border-radius: 10px;
+}
+
+.gst-cards span {
+  display: block;
+  color: #667085;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.gst-cards strong {
+  display: block;
+  margin-top: 4px;
+  color: #24324a;
+  font-size: 18px;
+  overflow-wrap: anywhere;
+}
+
+.gst-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  margin-bottom: 24px;
+  color: #475467;
+  font-size: 13px;
+}
+
+.gst-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.gst-badge.ok {
+  color: #176b2c;
+  background: #edf8f0;
+}
+
+.gst-badge.bad {
+  color: #b42318;
+  background: #fff3f2;
+}
+
+.gst-badge.warn {
+  color: #b54708;
+  background: #fffaeb;
+}
+
+.gst-total-row td {
+  font-weight: 750;
+  border-top: 2px solid #d0d5dd;
+}
+
+.gst-note {
+  margin: 0;
+  padding: 10px 22px;
+  color: #667085;
+  font-size: 12px;
+}
+
+/* ==========================================================
+   MOBILE (<= 768px ONLY)
+========================================================== */
+@media (max-width: 768px) {
+  .gst-period {
+    grid-template-columns: 1fr;
+    padding: 0 0 12px;
+  }
+
+  .gst-period .ep-btn {
+    width: 100%;
+    min-height: 40px;
+  }
+
+  .gst-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .gst-cards div {
+    padding: 10px;
+  }
+
+  .gst-cards strong {
+    font-size: 15px;
+  }
+
+  .gst-meta {
+    margin-bottom: 12px;
+  }
+
+  .gst-note {
+    padding: 8px 0;
+  }
+
+  .gst-total-row td {
+    border-top: 0;
+  }
+
+  .est-page .est-table tbody tr.gst-total-row {
+    border-top: 2px solid #d0d5dd;
+  }
+
+  .est-page .est-table td.gst-empty-cell {
+    display: none;
+  }
+
+  .gst-period-title {
+    font-size: 17px;
+  }
+}
