@@ -5,10 +5,12 @@ import api from "../../config/axios";
 import { formatPaise } from "../../utils/gst";
 import { formatDateOnly, isCanceledRequest } from "../../utils/estimates";
 import { TAX_TYPE_LABELS } from "../../utils/invoiceTax";
+import { DISPATCH_LABELS } from "../../utils/challans";
 
 import "../AdminCommon.css";
 import "../Estimates/Estimates.css";
 import "./Invoices.css";
+import "../Challans/Challans.css";
 
 const PAGE_SIZE = 20;
 const FILTER_KEYS = ["customer", "status", "from", "to", "search"];
@@ -248,6 +250,7 @@ const InvoicesPage = () => {
                     <th className="num">Total</th>
                     <th className="num">Paid</th>
                     <th className="num">Outstanding</th>
+                    <th>Dispatch</th>
                     <th>Status</th>
                   </tr>
                 </thead>
@@ -283,6 +286,15 @@ const InvoicesPage = () => {
                       </td>
                       <td className="num est-money" data-label="Outstanding">
                         {row.status === "active" ? formatPaise(row.outstandingPaise) : "-"}
+                      </td>
+                      <td data-label="Dispatch">
+                        {row.status === "active" ? (
+                          <span className={`est-status ${row.dispatchStatus || "none"}`}>
+                            {DISPATCH_LABELS[row.dispatchStatus || "none"]}
+                          </span>
+                        ) : (
+                          "-"
+                        )}
                       </td>
                       <td className="est-cell-side">
                         <span className={`est-status ${row.status}`}>

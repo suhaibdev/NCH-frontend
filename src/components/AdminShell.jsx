@@ -12,6 +12,7 @@ import {
   FiGitBranch,
   FiGrid,
   FiHome,
+  FiSend,
   FiLogOut,
   FiPackage,
   FiTruck,
@@ -89,6 +90,12 @@ const navigationItems = [
     matches: ["/admin/invoices", "/admin/invoices/"],
   },
   {
+    label: "Challans",
+    to: "/admin/challans",
+    icon: FiSend,
+    matches: ["/admin/challans", "/admin/challans/"],
+  },
+  {
     label: "Employees",
     to: "/admin/employees",
     icon: FiUsers,
@@ -106,6 +113,7 @@ const mobileMoreItems = navigationItems.filter(({ label }) =>
     "Customers",
     "Estimates",
     "Invoices",
+    "Challans",
     "Employees",
   ].includes(label)
 );

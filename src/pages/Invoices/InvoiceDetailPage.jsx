@@ -11,6 +11,7 @@ import {
   unitLabel,
 } from "../../utils/estimates";
 import { TAX_TYPE_LABELS } from "../../utils/invoiceTax";
+import { CHALLAN_STATUS_LABELS, DISPATCH_LABELS } from "../../utils/challans";
 import DocumentPayments from "../Sales/DocumentPayments";
 import InvoicePrint from "./InvoicePrint";
 import InvoiceTaxBreakdown from "./InvoiceTaxBreakdown";
@@ -18,6 +19,7 @@ import InvoiceTaxBreakdown from "./InvoiceTaxBreakdown";
 import "../AdminCommon.css";
 import "../Estimates/Estimates.css";
 import "./Invoices.css";
+import "../Challans/Challans.css";
 
 const STATUS_LABELS = { active: "Active", reversed: "Reversed" };
 
@@ -37,6 +39,11 @@ const InvoiceDetailPage = () => {
   const [showReverse, setShowReverse] = useState(false);
   const [reverseReason, setReverseReason] = useState("");
   const [isReversing, setIsReversing] = useState(false);
+
+  const [dispatch, setDispatch] = useState(null);
+  const [dispatchState, setDispatchState] = useState("loading");
+  const [dispatchError, setDispatchError] = useState("");
+  const [dispatchReload, setDispatchReload] = useState(0);
 
   const [printing, setPrinting] = useState(false);
   const finishPrinting = useCallback(() => setPrinting(false), []);
@@ -72,6 +79,29 @@ const InvoiceDetailPage = () => {
     load();
     return () => controller.abort();
   }, [invoiceId, reload]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const loadDispatch = async () => {
+      try {
+        setDispatchState("loading");
+        setDispatchError("");
+        const response = await api.get(`/challans/invoice-dispatch/${invoiceId}`, {
+          signal: controller.signal,
+        });
+        setDispatch(response.data);
+        setDispatchState("success");
+      } catch (err) {
+        if (isCanceledRequest(err, controller)) return;
+        setDispatchError(err.response?.data?.message || "Unable to load dispatch details.");
+        setDispatchState("error");
+      }
+    };
+
+    loadDispatch();
+    return () => controller.abort();
+  }, [invoiceId, dispatchReload]);
 
   const applyResponse = (data, text) => {
     setDetail({ invoice: data.invoice, payments: data.payments, summary: data.summary });
@@ -132,7 +162,9 @@ const InvoiceDetailPage = () => {
 
   const { invoice, payments, summary } = detail;
   const isActive = invoice.status === "active";
-  const canEdit = isActive && summary.paymentCount === 0;
+  const hasChallans = (invoice.activeChallanCount || 0) > 0;
+  const canEdit = isActive && summary.paymentCount === 0 && !hasChallans;
+  const dispatchStatus = invoice.dispatchStatus || "none";
   const customer = invoice.customerSnapshot || {};
   const seller = invoice.seller || {};
 
@@ -164,6 +196,11 @@ const InvoiceDetailPage = () => {
             <span className={`est-status ${invoice.status}`}>
               {STATUS_LABELS[invoice.status] || invoice.status}
             </span>
+            {isActive && (
+              <span className={`est-status ${dispatchStatus}`}>
+                {DISPATCH_LABELS[dispatchStatus]}
+              </span>
+            )}
           </h1>
           <p>
             <Link to={`/admin/customers/${invoice.customer}`}>{customer.name}</Link> ·{" "}
@@ -206,7 +243,8 @@ const InvoiceDetailPage = () => {
                 setShowReverse((value) => !value);
                 setActionError("");
               }}
-              disabled={isReversing}
+              disabled={isReversing || hasChallans}
+              title={hasChallans ? "Cancel the delivery challans first." : undefined}
             >
               Reverse
             </button>
@@ -216,7 +254,13 @@ const InvoiceDetailPage = () => {
 
       {message && <div className="est-message success">{message}</div>}
       {actionError && <div className="est-message error">{actionError}</div>}
-      {isActive && !canEdit && (
+      {isActive && hasChallans && (
+        <div className="inv-banner">
+          This invoice has active delivery challans, so it cannot be edited or reversed. Cancel the
+          challans first.
+        </div>
+      )}
+      {isActive && !hasChallans && !canEdit && (
         <div className="inv-banner">
           This invoice has payments, so it can no longer be edited. To correct it, void the payments
           and reverse it.
@@ -375,6 +419,120 @@ const InvoiceDetailPage = () => {
             totalInWords={invoice.totalInWords}
           />
         </div>
+      </section>
+
+      <section className="est-card">
+        <div className="est-card-header">
+          <div>
+            <h2>Dispatch</h2>
+            <p>Delivery challans for this invoice. They do not change stock or payments.</p>
+          </div>
+          {isActive && dispatchState === "success" && dispatch.canCreate && (
+            <Link
+              to={`/admin/challans/new?invoice=${invoice._id}`}
+              className="ep-btn ep-btn-primary"
+            >
+              Create Challan
+            </Link>
+          )}
+        </div>
+
+        {dispatchState === "loading" ? (
+          <div className="est-state">Loading dispatch details...</div>
+        ) : dispatchState === "error" ? (
+          <div className="est-state error">
+            <p>{dispatchError}</p>
+            <button
+              type="button"
+              className="ep-btn ep-btn-secondary"
+              onClick={() => setDispatchReload((value) => value + 1)}
+            >
+              Retry
+            </button>
+          </div>
+        ) : (
+          <>
+            <div className="est-table-wrapper">
+              <table className="ep-table est-table">
+                <thead>
+                  <tr>
+                    <th>Product</th>
+                    <th>Unit</th>
+                    <th className="num">Ordered</th>
+                    <th className="num">Dispatched</th>
+                    <th className="num">Remaining</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {dispatch.lines.map((line) => (
+                    <tr key={line.invoiceLine}>
+                      <td className="est-cell-main">
+                        <strong>{line.productName}</strong>
+                      </td>
+                      <td data-label="Unit">{unitLabel(line.unit)}</td>
+                      <td className="num" data-label="Ordered">
+                        {line.orderedQuantity}
+                      </td>
+                      <td className="num" data-label="Dispatched">
+                        {line.dispatchedQuantity}
+                      </td>
+                      <td className="num" data-label="Remaining">
+                        {line.remainingQuantity}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {dispatch.challans.length === 0 ? (
+              <div className="est-state">No challans yet.</div>
+            ) : (
+              <div className="est-table-wrapper">
+                <table className="ep-table est-table">
+                  <thead>
+                    <tr>
+                      <th>Challan No.</th>
+                      <th>Date</th>
+                      <th className="num">Quantity</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {dispatch.challans.map((challan) => (
+                      <tr
+                        key={challan._id}
+                        className="est-row"
+                        tabIndex={0}
+                        onClick={() => navigate(`/admin/challans/${challan._id}`)}
+                        onKeyDown={(event) => {
+                          if (event.key === "Enter" || event.key === " ") {
+                            event.preventDefault();
+                            navigate(`/admin/challans/${challan._id}`);
+                          }
+                        }}
+                        aria-label={`Open challan ${challan.challanNumber}`}
+                      >
+                        <td className="est-cell-main">
+                          <strong>{challan.challanNumber}</strong>
+                        </td>
+                        <td data-label="Date">{formatDateOnly(challan.challanDate)}</td>
+                        <td className="num" data-label="Quantity">
+                          {challan.totalQuantity}
+                        </td>
+                        <td className="est-cell-side">
+                          <span className={`est-status ${challan.status}`}>
+                            {CHALLAN_STATUS_LABELS[challan.status] || challan.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </>
+        )}
       </section>
 
       <DocumentPayments

@@ -1,0 +1,233 @@
+/* ==========================================================
+   DELIVERY CHALLANS (extends the Estimates layout classes).
+   No prices, GST or tax anywhere on these screens.
+========================================================== */
+
+.est-status.none {
+  color: #667085;
+  background: #f2f4f7;
+}
+
+.est-status.partial {
+  color: #b54708;
+  background: #fffaeb;
+}
+
+.est-status.full {
+  color: #176b2c;
+  background: #edf8f0;
+}
+
+.ch-filter-chip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 22px;
+  color: #344054;
+  background: #f5f9ff;
+  border-bottom: 1px solid #dbe9fb;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.ch-qty-hint {
+  color: #667085;
+  font-size: 12px;
+}
+
+.ch-qty-input {
+  max-width: 110px;
+}
+
+.ch-transport-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.ch-section-title {
+  margin: 0 0 12px;
+  color: #475467;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.ch-dispatch-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* Print root lives in <body>; it is never shown on screen. */
+#challan-print-root {
+  display: none;
+}
+
+/* ==========================================================
+   MOBILE (<= 768px ONLY)
+========================================================== */
+@media (max-width: 768px) {
+  .ch-filter-chip {
+    padding: 10px 0;
+    background: transparent;
+  }
+
+  .ch-transport-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .ch-qty-input {
+    max-width: none;
+    min-height: 42px;
+  }
+
+  .ch-dispatch-actions .ep-btn {
+    flex: 1 1 0;
+    min-height: 40px;
+    text-align: center;
+  }
+}
+
+/* ==========================================================
+   PRINT: saved challan snapshot only, text only. No prices, GST or GSTIN.
+   Scoped to body.ch-printing (set only while a challan prints) and more
+   specific than PayoutPage.css's global print rule.
+========================================================== */
+@media print {
+  html body.ch-printing > *:not(#challan-print-root) {
+    display: none !important;
+  }
+
+  html body.ch-printing > #challan-print-root {
+    display: block !important;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    color: #000000;
+    background: #ffffff;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 10pt;
+  }
+
+  html body.ch-printing > #challan-print-root * {
+    visibility: visible !important;
+  }
+
+  .ch-print-title {
+    margin: 0 0 3mm;
+    font-size: 14pt;
+    font-weight: 700;
+    letter-spacing: 0.6mm;
+    text-align: center;
+  }
+
+  .ch-print-banner {
+    margin: 0 0 3mm;
+    font-size: 12pt;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .ch-print-grid {
+    display: flex;
+    justify-content: space-between;
+    gap: 6mm;
+    margin-bottom: 3mm;
+    padding: 2mm 0;
+    border-top: 0.3mm solid #000000;
+    border-bottom: 0.3mm solid #000000;
+    break-inside: avoid;
+  }
+
+  .ch-print-grid > div {
+    flex: 1 1 0;
+  }
+
+  .ch-print-grid p {
+    margin: 0 0 0.8mm;
+  }
+
+  .ch-print-name {
+    font-size: 11pt;
+  }
+
+  .ch-print-label {
+    font-size: 8pt;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .ch-print-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .ch-print-table thead {
+    display: table-header-group;
+  }
+
+  .ch-print-table tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .ch-print-table th,
+  .ch-print-table td {
+    padding: 1.5mm 2mm;
+    border-bottom: 0.2mm solid #000000;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .ch-print-table th {
+    border-top: 0.3mm solid #000000;
+    border-bottom: 0.3mm solid #000000;
+  }
+
+  .ch-print-table .num {
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .ch-print-total {
+    margin: 2mm 0 0;
+    font-weight: 700;
+    text-align: right;
+  }
+
+  .ch-print-notes {
+    margin-top: 4mm;
+    break-inside: avoid;
+  }
+
+  .ch-print-receipt {
+    margin-top: 8mm;
+    break-inside: avoid;
+  }
+
+  .ch-print-receipt p {
+    margin: 0 0 2mm;
+  }
+
+  .ch-print-signatures {
+    display: flex;
+    justify-content: space-between;
+    gap: 10mm;
+    margin-top: 12mm;
+    break-inside: avoid;
+  }
+
+  .ch-print-signatures > div {
+    flex: 1 1 0;
+    padding-top: 1mm;
+    border-top: 0.3mm solid #000000;
+  }
+
+  .ch-print-signatures p {
+    margin: 0;
+  }
+}

@@ -22,6 +22,9 @@ import EstimateDetailPage from "./pages/Estimates/EstimateDetailPage";
 import InvoicesPage from "./pages/Invoices/InvoicesPage";
 import InvoiceFormPage from "./pages/Invoices/InvoiceFormPage";
 import InvoiceDetailPage from "./pages/Invoices/InvoiceDetailPage";
+import ChallansPage from "./pages/Challans/ChallansPage";
+import ChallanFormPage from "./pages/Challans/ChallanFormPage";
+import ChallanDetailPage from "./pages/Challans/ChallanDetailPage";
 import SuppliersPage from "./pages/Suppliers/SuppliersPage";
 import SupplierDetailPage from "./pages/Suppliers/SupplierDetailPage";
 import ReceiveMaterialPage from "./pages/Suppliers/ReceiveMaterialPage";
@@ -136,6 +139,12 @@ const App = () => {
               path="/admin/invoices/:invoiceId/edit"
               element={<InvoiceFormPage key="edit" />}
             />
+
+            <Route path="/admin/challans" element={<ChallansPage />} />
+
+            <Route path="/admin/challans/new" element={<ChallanFormPage />} />
+
+            <Route path="/admin/challans/:challanId" element={<ChallanDetailPage />} />
 
             <Route path="/admin/suppliers" element={<SuppliersPage />} />
 
